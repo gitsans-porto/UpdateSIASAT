@@ -174,6 +174,7 @@
                 <div class="flex justify-around">
                     <a href="#dashboard" class="operator-nav-item flex-1 text-center py-2 text-xs text-text-subtle transition-colors duration-200 active"><i-lucide name="layout-dashboard" class="mx-auto w-5 h-5 mb-1"></i-lucide><span>Dashboard</span></a>
                     <a href="#peminjaman" class="operator-nav-item flex-1 text-center py-2 text-xs text-text-subtle transition-colors duration-200"><i-lucide name="book-check" class="mx-auto w-5 h-5 mb-1"></i-lucide><span>Peminjaman</span></a>
+                    <a href="#jadwal-operator" class="operator-nav-item flex-1 text-center py-2 text-xs text-text-subtle transition-colors duration-200"><i-lucide name="calendar-edit" class="mx-auto w-5 h-5 mb-1"></i-lucide><span>Jadwal</span></a>
                     <a href="#inventaris" class="operator-nav-item flex-1 text-center py-2 text-xs text-text-subtle transition-colors duration-200"><i-lucide name="archive" class="mx-auto w-5 h-5 mb-1"></i-lucide><span>Inventaris</span></a>
                     <a href="#laporan" class="operator-nav-item flex-1 text-center py-2 text-xs text-text-subtle transition-colors duration-200"><i-lucide name="wrench" class="mx-auto w-5 h-5 mb-1"></i-lucide><span>Laporan</span></a>
                     <a href="#akun-operator" class="operator-nav-item flex-1 text-center py-2 text-xs text-text-subtle transition-colors duration-200"><i-lucide name="user-cog" class="mx-auto w-5 h-5 mb-1"></i-lucide><span>Akun</span></a>
@@ -194,7 +195,7 @@
         </div>
     </template>
     <template id="jadwal-template">
-        <div class="p-4"><header class="mb-6"><h1 class="text-3xl font-bold text-text-main">Jadwal Laboratorium</h1><p class="text-text-subtle">Lihat jadwal penggunaan lab per hari.</p></header><div class="mb-4"><label for="lab-choice" class="block text-sm font-medium text-text-subtle mb-1">Pilih Laboratorium</label><select id="lab-choice" class="block w-full px-3 py-2 bg-surface border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"><option>Lab Pemrograman Dasar 1</option><option>Lab Mandiri</option><option>Lab Server</option></select></div><div class="mb-4"><div id="day-filter-container" class="flex justify-between items-center bg-gray-100 rounded-lg p-1"><button class="filter-day flex-1 py-2 text-sm text-text-subtle rounded-md transition-colors">Sen</button><button class="filter-day flex-1 py-2 text-sm text-text-subtle rounded-md active transition-colors">Sel</button><button class="filter-day flex-1 py-2 text-sm text-text-subtle rounded-md transition-colors">Rab</button><button class="filter-day flex-1 py-2 text-sm text-text-subtle rounded-md transition-colors">Kam</button><button class="filter-day flex-1 py-2 text-sm text-text-subtle rounded-md transition-colors">Jum</button></div></div><div><h3 id="schedule-day-title" class="text-lg font-semibold text-text-main mb-3">Selasa, 10 September 2025</h3><div id="schedule-content" class="space-y-4"></div></div></div>
+        <div class="p-4"><header class="mb-6"><h1 class="text-3xl font-bold text-text-main">Jadwal Laboratorium</h1><p class="text-text-subtle">Lihat jadwal penggunaan lab per hari.</p></header><div class="mb-4"><label for="lab-choice-user" class="block text-sm font-medium text-text-subtle mb-1">Pilih Laboratorium</label><select id="lab-choice-user" class="block w-full px-3 py-2 bg-surface border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"><option>Lab Pemrograman Dasar 1</option><option>Lab Multimedia</option><option>Lab Mandiri</option><option>Lab Server</option></select></div><div class="mb-4"><div id="day-filter-container-user" class="flex justify-between items-center bg-gray-100 rounded-lg p-1"><button class="filter-day flex-1 py-2 text-sm text-text-subtle rounded-md transition-colors active" data-day="Senin">Sen</button><button class="filter-day flex-1 py-2 text-sm text-text-subtle rounded-md transition-colors" data-day="Selasa">Sel</button><button class="filter-day flex-1 py-2 text-sm text-text-subtle rounded-md transition-colors" data-day="Rabu">Rab</button><button class="filter-day flex-1 py-2 text-sm text-text-subtle rounded-md transition-colors" data-day="Kamis">Kam</button><button class="filter-day flex-1 py-2 text-sm text-text-subtle rounded-md transition-colors" data-day="Jumat">Jum</button></div></div><div><h3 id="schedule-day-title" class="text-lg font-semibold text-text-main mb-3">Senin</h3><div id="schedule-timeline" class="space-y-4"></div></div></div>
     </template>
     <template id="info-template">
         <div class="p-4"><header class="mb-6"><h1 class="text-3xl font-bold text-text-main">Informasi Lab</h1><p class="text-text-subtle">Detail fasilitas, peraturan, dan kondisi lab.</p></header><div id="info-lab-accordion" class="space-y-3"><div class="bg-surface rounded-lg border border-gray-200"><button class="accordion-header w-full flex justify-between items-center p-4 text-left font-semibold text-text-main"><span>Lab Pemrograman Dasar 1</span><i-lucide name="chevron-down" class="w-5 h-5 transition-transform"></i-lucide></button><div class="accordion-content"><div class="px-4 pb-4 text-text-subtle space-y-4 border-t border-gray-200"><div class="pt-4"><h4 class="font-semibold text-text-main">Lokasi</h4><p>Gedung A, Lantai 2</p></div><div><h4 class="font-semibold text-text-main">Inventaris</h4><ul class="list-disc list-inside text-sm pl-2 space-y-1"><li>Jumlah Komputer: 30 Unit</li><li>Jenis: PC All-in-One</li><li>Spesifikasi: Core i5, 8GB RAM, 256GB SSD</li></ul></div><div><h4 class="font-semibold text-text-main">SOP & Aturan</h4><ul class="list-disc list-inside text-sm pl-2 space-y-1"><li>Dilarang membawa makanan dan minuman.</li><li>Jaga kebersihan dan ketenangan.</li></ul></div><button class="show-monitoring-btn w-full bg-primary/10 text-primary font-semibold text-sm py-2.5 rounded-md mt-2 hover:bg-primary/20 transition-colors">Lihat Monitoring Real-time</button></div></div></div></div></div>
@@ -211,6 +212,20 @@
     </template>
     <template id="peminjaman-template">
         <div class="p-4"><header class="mb-6"><h1 class="text-3xl font-bold text-text-main">Manajemen Peminjaman</h1><p class="text-text-subtle">Approve, tolak, atau kelola semua peminjaman.</p></header><div class="grid grid-cols-2 gap-3 mb-4"><input type="text" placeholder="Cari nama peminjam..." class="col-span-2 bg-surface border-gray-300 rounded-md text-sm placeholder:text-gray-400 focus:ring-primary focus:border-primary"><select class="bg-surface border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary"><option>Semua Status</option><option>Pending</option><option>Disetujui</option><option>Ditolak</option></select><input type="date" class="bg-surface border-gray-300 rounded-md text-sm text-text-subtle"></div><div class="space-y-3" id="booking-list"><div class="booking-item bg-surface p-3 rounded-lg border-l-4 border-warning shadow-sm"><div class="flex justify-between items-start"><div><p class="font-bold text-text-main">Budi Santoso <span class="font-normal text-xs text-text-subtle">(1202210001)</span></p><p class="text-sm text-text-subtle">Lab Multimedia | 12 Sep, 10:00-12:00</p></div><span class="text-xs font-medium bg-warning/10 text-yellow-800 px-2 py-1 rounded-full">Pending</span></div><div class="mt-3 pt-3 border-t border-gray-200 flex justify-end space-x-2"><button class="btn-reject bg-error text-white px-3 py-1 text-xs font-semibold rounded hover:bg-error/90 transition">Tolak</button><button class="btn-approve bg-success text-white px-3 py-1 text-xs font-semibold rounded hover:bg-success/90 transition">Setujui</button></div></div></div></div>
+    </template>
+     <template id="jadwal-operator-template">
+        <div class="p-4">
+            <header class="mb-6 flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-text-main">Manajemen Jadwal</h1>
+                    <p class="text-text-subtle">Kelola jadwal tetap laboratorium.</p>
+                </div>
+                <button id="tambah-jadwal-btn" class="bg-primary text-white p-2 rounded-full shadow-lg shadow-primary/20"><i-lucide name="plus" class="w-5 h-5"></i-lucide></button>
+            </header>
+            <div class="mb-4"><label for="lab-choice-operator" class="block text-sm font-medium text-text-subtle mb-1">Pilih Laboratorium</label><select id="lab-choice-operator" class="block w-full px-3 py-2 bg-surface border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"><option>Lab Pemrograman Dasar 1</option><option>Lab Multimedia</option><option>Lab Mandiri</option><option>Lab Server</option></select></div>
+            <div class="mb-4"><div id="day-filter-container-operator" class="flex justify-between items-center bg-gray-100 rounded-lg p-1"><button class="filter-day flex-1 py-2 text-sm text-text-subtle rounded-md transition-colors active" data-day="Senin">Sen</button><button class="filter-day flex-1 py-2 text-sm text-text-subtle rounded-md transition-colors" data-day="Selasa">Sel</button><button class="filter-day flex-1 py-2 text-sm text-text-subtle rounded-md transition-colors" data-day="Rabu">Rab</button><button class="filter-day flex-1 py-2 text-sm text-text-subtle rounded-md transition-colors" data-day="Kamis">Kam</button><button class="filter-day flex-1 py-2 text-sm text-text-subtle rounded-md transition-colors" data-day="Jumat">Jum</button></div></div>
+            <div id="operator-schedule-list" class="space-y-3"></div>
+        </div>
     </template>
     <template id="inventaris-template">
         <div class="p-4"><header class="mb-6 flex justify-between items-center"><div><h1 class="text-3xl font-bold text-text-main">Inventaris Lab</h1><p class="text-text-subtle">Kelola semua aset dan perangkat.</p></div><button id="add-inventory-btn" class="bg-primary text-white p-2 rounded-full shadow-lg shadow-primary/20"><i-lucide name="plus" class="w-5 h-5"></i-lucide></button></header><div id="inventory-accordion" class="space-y-3"><div class="bg-surface rounded-lg border border-gray-200"><button class="accordion-header w-full flex justify-between items-center p-4 text-left font-semibold text-text-main"><span>Lab Pemrograman Dasar 1</span><i-lucide name="chevron-down" class="w-5 h-5 transition-transform"></i-lucide></button><div class="accordion-content"><div class="px-4 pb-4 space-y-4 border-t border-gray-200"><h4 class="font-semibold mt-4 text-text-main">Denah Meja & Status</h4><div class="grid grid-cols-5 gap-3"><div class="meja-item aspect-square bg-success rounded-md flex items-center justify-center font-bold text-white cursor-pointer hover:bg-success/90 transition">1</div><div class="meja-item aspect-square bg-success rounded-md flex items-center justify-center font-bold text-white cursor-pointer hover:bg-success/90 transition">2</div><div class="meja-item aspect-square bg-warning rounded-md flex items-center justify-center font-bold text-white cursor-pointer hover:bg-warning/90 transition">3</div><div class="meja-item aspect-square bg-error rounded-md flex items-center justify-center font-bold text-white cursor-pointer hover:bg-error/90 transition">4</div><div class="meja-item aspect-square bg-success rounded-md flex items-center justify-center font-bold text-white cursor-pointer hover:bg-success/90 transition">5</div></div><h4 class="font-semibold pt-4 text-text-main">Daftar Perangkat</h4><div class="table-container overflow-x-auto"><table class="w-full text-sm text-left"><thead class="text-xs text-text-subtle uppercase bg-background"><tr><th class="px-2 py-2">ID</th><th class="px-2 py-2">Tipe</th><th class="px-2 py-2">Status</th><th class="px-2 py-2">Aksi</th></tr></thead><tbody class="text-text-main"><tr class="border-b border-gray-200"><td class="px-2 py-2">PC-001</td><td class="px-2 py-2">PC AIO</td><td class="px-2 py-2"><span class="bg-success/10 text-success text-xs font-medium px-2 py-0.5 rounded-full">OK</span></td><td class="px-2 py-2 flex items-center space-x-2 text-text-subtle"><button class="inventory-action-btn"><i-lucide name="edit-2" class="w-4 h-4"></i-lucide></button><button class="inventory-action-btn"><i-lucide name="trash-2" class="w-4 h-4 text-error"></i-lucide></button></td></tr><tr class="border-b border-gray-200"><td class="px-2 py-2">PC-004</td><td class="px-2 py-2">PC AIO</td><td class="px-2 py-2"><span class="bg-error/10 text-error text-xs font-medium px-2 py-0.5 rounded-full">Rusak</span></td><td class="px-2 py-2 flex items-center space-x-2 text-text-subtle"><button class="inventory-action-btn"><i-lucide name="edit-2" class="w-4 h-4"></i-lucide></button><button class="inventory-action-btn"><i-lucide name="trash-2" class="w-4 h-4 text-error"></i-lucide></button></td></tr></tbody></table></div></div></div></div></div></div>
@@ -278,6 +293,23 @@
         </div>
     </template>
     
+    <template id="modal-jadwal-form">
+        <div class="p-5 border-b sticky top-0 bg-surface"><div class="flex justify-between items-center"><h3 id="modal-jadwal-title" class="text-lg font-semibold text-text-main">Tambah Jadwal Baru</h3><button class="close-modal-btn text-gray-500 hover:text-gray-800"><i-lucide name="x"></i-lucide></button></div></div>
+        <form id="jadwal-form" class="p-5 space-y-4">
+            <input type="hidden" id="jadwal-id" value="">
+            <div><label for="jadwal-matkul" class="block text-sm font-medium text-text-subtle">Mata Kuliah / Kegiatan</label><input type="text" id="jadwal-matkul" placeholder="Contoh: Praktikum Algoritma" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-primary focus:border-primary"></div>
+            <div><label for="jadwal-dosen" class="block text-sm font-medium text-text-subtle">Dosen / Penanggung Jawab</label><input type="text" id="jadwal-dosen" placeholder="Contoh: Dr. Ir. Budi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-primary focus:border-primary"></div>
+            <div class="grid grid-cols-2 gap-4">
+                <div><label for="jadwal-mulai" class="block text-sm font-medium text-text-subtle">Waktu Mulai</label><input type="time" id="jadwal-mulai" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-primary focus:border-primary"></div>
+                <div><label for="jadwal-selesai" class="block text-sm font-medium text-text-subtle">Waktu Selesai</label><input type="time" id="jadwal-selesai" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm focus:ring-primary focus:border-primary"></div>
+            </div>
+            <div class="pt-4 flex justify-between space-x-3">
+                <button type="button" id="btn-hapus-jadwal" class="w-1/3 bg-error text-white font-semibold py-2.5 px-4 rounded-md hover:bg-error/90 hidden">Hapus</button>
+                <button type="submit" class="flex-1 bg-primary text-white font-semibold py-2.5 px-4 rounded-md hover:bg-primary/90">Simpan</button>
+            </div>
+        </form>
+    </template>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // === STATE & SELECTORS ===
@@ -288,66 +320,84 @@
             const modalContentHost = document.getElementById('modal-content-host');
 
             // === MOCK DATA ===
+            let mockJadwalData = {
+                "Lab Pemrograman Dasar 1": {
+                    "Senin": [{ id: 1, matkul: "Praktikum Algoritma", dosen: "Dr. Retno", mulai: "08:00", selesai: "10:00" }],
+                    "Selasa": [{ id: 2, matkul: "Basis Data", dosen: "Prof. Budi", mulai: "13:00", selesai: "15:00" }],
+                    "Rabu": [], "Kamis": [], "Jumat": []
+                },
+                "Lab Multimedia": { "Senin": [], "Selasa": [], "Rabu": [], "Kamis": [], "Jumat": [] },
+                "Lab Mandiri": { "Senin": [], "Selasa": [], "Rabu": [], "Kamis": [], "Jumat": [] },
+                "Lab Server": { "Senin": [], "Selasa": [], "Rabu": [], "Kamis": [], "Jumat": [] },
+            };
             const labMonitoringData = {
-                "Lab Pemrograman Dasar 1": Array.from({ length: 10 }, (_, i) => ({
-                    id: `PD-${String(i + 1).padStart(2, '0')}`,
-                    status: (i === 4 || i === 8) ? 'Rusak' : 'OK',
-                    details: (i === 4) ? 'Mouse tidak terdeteksi.' : (i === 8 ? 'Layar bergaris.' : 'Semua perangkat berfungsi.')
-                })),
-                "Default Lab": Array.from({ length: 8 }, (_, i) => ({
-                    id: `DEF-${String(i + 1).padStart(2, '0')}`,
-                    status: i === 6 ? 'Rusak' : 'OK',
-                    details: i === 6 ? 'Koneksi internet lambat.' : 'Semua perangkat berfungsi.'
-                }))
+                "Lab Pemrograman Dasar 1": Array.from({ length: 10 }, (_, i) => ({ id: `PD-${String(i + 1).padStart(2, '0')}`, status: (i === 4 || i === 8) ? 'Rusak' : 'OK', details: (i === 4) ? 'Mouse tidak terdeteksi.' : (i === 8 ? 'Layar bergaris.' : 'Semua perangkat berfungsi.') })),
+                "Default Lab": Array.from({ length: 8 }, (_, i) => ({ id: `DEF-${String(i + 1).padStart(2, '0')}`, status: i === 6 ? 'Rusak' : 'OK', details: i === 6 ? 'Koneksi internet lambat.' : 'Semua perangkat berfungsi.' }))
             };
 
             // === UTILITY FUNCTIONS ===
-            const initLucideIcons = () => {
-                if (window.lucide) {
-                    lucide.createIcons();
+            const initLucideIcons = () => { if (window.lucide) { lucide.createIcons(); } else { setTimeout(initLucideIcons, 100); } };
+            const showView = (viewId) => { document.querySelectorAll('.view').forEach(view => view.classList.remove('active')); document.getElementById(viewId)?.classList.add('active'); };
+            const showNotification = (message, type = 'success') => { const banner = document.getElementById('notification-banner'); const colors = { success: 'bg-success', error: 'bg-error', warning: 'bg-warning' }; banner.querySelector('span').textContent = message; banner.className = `fixed top-5 left-1/2 z-[999] text-white py-2 px-5 rounded-lg shadow-xl transition-transform duration-300 ${colors[type]}`; banner.style.display = 'block'; setTimeout(() => banner.style.display = 'none', 3000); };
+            const showModal = (templateId) => { const template = document.getElementById(templateId); if (template) { modalContentHost.innerHTML = template.innerHTML; initLucideIcons(); modalContainer.classList.remove('hidden'); } };
+            const hideModal = () => { modalContainer.classList.add('hidden'); modalContentHost.innerHTML = ''; };
+
+            // === RENDER FUNCTIONS ===
+            const renderUserJadwal = () => {
+                const lab = document.getElementById('lab-choice-user').value;
+                const day = document.querySelector('#day-filter-container-user .filter-day.active').dataset.day;
+                const container = document.getElementById('schedule-timeline');
+                document.getElementById('schedule-day-title').textContent = day;
+                
+                const jadwal = mockJadwalData[lab][day];
+                if (jadwal.length === 0) {
+                    container.innerHTML = `<div class="text-center text-text-subtle p-8"><i-lucide name="calendar-off" class="mx-auto w-12 h-12 mb-2"></i-lucide><p>Tidak ada jadwal untuk hari ini.</p></div>`;
                 } else {
-                    setTimeout(initLucideIcons, 100);
+                    container.innerHTML = jadwal.map(j => `
+                        <div class="bg-surface p-4 rounded-lg shadow-sm border-l-4 border-primary">
+                            <p class="font-bold text-text-main">${j.matkul}</p>
+                            <p class="text-sm text-text-subtle">${j.dosen}</p>
+                            <p class="text-sm font-semibold text-primary mt-2">${j.mulai} - ${j.selesai}</p>
+                        </div>
+                    `).join('');
                 }
+                initLucideIcons();
             };
             
-            const showView = (viewId) => {
-                document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
-                document.getElementById(viewId)?.classList.add('active');
+            const renderOperatorJadwal = () => {
+                const lab = document.getElementById('lab-choice-operator').value;
+                const day = document.querySelector('#day-filter-container-operator .filter-day.active').dataset.day;
+                const container = document.getElementById('operator-schedule-list');
+
+                const jadwal = mockJadwalData[lab][day];
+                if (jadwal.length === 0) {
+                    container.innerHTML = `<div class="text-center text-text-subtle p-8"><i-lucide name="calendar-off" class="mx-auto w-12 h-12 mb-2"></i-lucide><p>Belum ada jadwal. <br>Klik tombol + untuk menambah.</p></div>`;
+                } else {
+                    container.innerHTML = jadwal.map(j => `
+                        <div class="bg-surface p-3 rounded-lg shadow-sm border flex justify-between items-center">
+                            <div>
+                                <p class="font-bold text-text-main">${j.matkul}</p>
+                                <p class="text-sm text-text-subtle">${j.dosen} | ${j.mulai} - ${j.selesai}</p>
+                            </div>
+                            <button class="btn-edit-jadwal p-2 text-text-subtle hover:text-primary" data-id="${j.id}" data-lab="${lab}" data-day="${day}"><i-lucide name="edit-2" class="w-5 h-5"></i-lucide></button>
+                        </div>
+                    `).join('');
+                }
+                initLucideIcons();
             };
 
-            const showNotification = (message, type = 'success') => {
-                const banner = document.getElementById('notification-banner');
-                const colors = { success: 'bg-success', error: 'bg-error', warning: 'bg-warning' };
-                banner.querySelector('span').textContent = message;
-                banner.className = `fixed top-5 left-1/2 z-[999] text-white py-2 px-5 rounded-lg shadow-xl transition-transform duration-300 ${colors[type]}`;
-                banner.style.display = 'block';
-                setTimeout(() => banner.style.display = 'none', 3000);
-            };
-            
-            const showModal = (templateId) => {
-                const template = document.getElementById(templateId);
-                if (template) {
-                    modalContentHost.innerHTML = template.innerHTML;
-                    initLucideIcons();
-                    modalContainer.classList.remove('hidden');
-                }
-            };
-            
-            const hideModal = () => {
-                modalContainer.classList.add('hidden');
-                modalContentHost.innerHTML = '';
-            };
-
-            // === CONTENT & EVENT BINDING ===
             const loadContent = (templateId, container) => {
                 const template = document.getElementById(templateId);
                 if (template) {
                     container.innerHTML = template.innerHTML;
                     initLucideIcons();
                     if(templateId === 'dashboard-template') initDashboardChart();
+                    else if (templateId === 'jadwal-operator-template') renderOperatorJadwal();
+                    else if (templateId === 'jadwal-template') renderUserJadwal();
                 }
             };
             
+            // === OTHER FUNCTIONS ===
             const handleLogout = () => {
                 showView('login-view');
                 document.querySelectorAll('.bottom-nav-item, .operator-nav-item').forEach(i => i.classList.remove('active'));
@@ -371,9 +421,7 @@
 
             const initDashboardChart = () => {
                 const ctx = document.getElementById('usageChart')?.getContext('2d');
-                if (ctx) {
-                     new Chart(ctx, { type: 'bar', data: { labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'], datasets: [{ label: 'Jam Penggunaan', data: [12, 19, 15, 22, 18, 10], backgroundColor: 'rgba(0, 122, 255, 0.2)', borderColor: 'rgba(0, 122, 255, 1)', borderWidth: 1 }] }, options: { scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#6C757D' } }, x: { grid: { display: false }, ticks: { color: '#6C757D' } } }, plugins: { legend: { display: false } } } });
-                }
+                if (ctx) { new Chart(ctx, { type: 'bar', data: { labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'], datasets: [{ label: 'Jam Penggunaan', data: [12, 19, 15, 22, 18, 10], backgroundColor: 'rgba(0, 122, 255, 0.2)', borderColor: 'rgba(0, 122, 255, 1)', borderWidth: 1 }] }, options: { scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#6C757D' } }, x: { grid: { display: false }, ticks: { color: '#6C757D' } } }, plugins: { legend: { display: false } } } }); }
             };
 
             // === GLOBAL EVENT LISTENER (EVENT DELEGATION) ===
@@ -381,14 +429,10 @@
                 const target = e.target.closest('button, a');
                 if (!target) return;
 
-                if (target.id === 'logout-button' || target.id === 'operator-logout-btn') {
-                    handleLogout();
-                }
-                else if (target.id === 'show-pinjam-form') {
-                    showModal('modal-pinjam-form');
-                } else if (target.id === 'show-laporan-modal') {
-                    showModal('modal-laporan-form');
-                }
+                if (target.id === 'logout-button' || target.id === 'operator-logout-btn') { handleLogout(); }
+                else if (target.id === 'show-pinjam-form') { showModal('modal-pinjam-form'); } 
+                else if (target.id === 'show-laporan-modal') { showModal('modal-laporan-form'); }
+                else if (target.id === 'tambah-jadwal-btn') { showModal('modal-jadwal-form'); }
                 else if (target.classList.contains('show-monitoring-btn')) {
                     const labName = target.closest('.bg-surface').querySelector('.accordion-header span').textContent;
                     showModal('modal-monitoring');
@@ -403,53 +447,90 @@
                     icon.style.transform = isExpanded ? 'rotate(0deg)' : 'rotate(180deg)';
                 }
                 else if (target.classList.contains('filter-day')) {
-                    document.querySelectorAll('.filter-day').forEach(btn => btn.classList.remove('active'));
+                    const parent = target.parentElement;
+                    parent.querySelectorAll('.filter-day').forEach(btn => btn.classList.remove('active'));
                     target.classList.add('active');
+                    if (parent.id.includes('user')) renderUserJadwal(); else renderOperatorJadwal();
                 }
                 else if(target.classList.contains('btn-approve')) {
                     const item = target.closest('.booking-item');
-                    item.style.transition = 'opacity 0.5s';
-                    item.style.opacity = '0';
+                    item.style.transition = 'opacity 0.5s'; item.style.opacity = '0';
                     setTimeout(() => item.remove(), 500);
                     showNotification('Peminjaman disetujui.', 'success');
                 }
-                else if(target.classList.contains('btn-reject')) {
-                    alert('Buka modal alasan penolakan.');
+                else if(target.classList.contains('btn-reject')) { alert('Buka modal alasan penolakan.'); }
+                else if (target.classList.contains('btn-edit-jadwal')) {
+                    const { id, lab, day } = target.dataset;
+                    const jadwal = mockJadwalData[lab][day].find(j => j.id == id);
+                    if (jadwal) {
+                        showModal('modal-jadwal-form');
+                        document.getElementById('modal-jadwal-title').textContent = 'Edit Jadwal';
+                        document.getElementById('jadwal-id').value = id;
+                        document.getElementById('jadwal-matkul').value = jadwal.matkul;
+                        document.getElementById('jadwal-dosen').value = jadwal.dosen;
+                        document.getElementById('jadwal-mulai').value = jadwal.mulai;
+                        document.getElementById('jadwal-selesai').value = jadwal.selesai;
+                        document.getElementById('btn-hapus-jadwal').classList.remove('hidden');
+                    }
                 }
             });
+            
+            app.addEventListener('change', (e) => {
+                if (e.target.id === 'lab-choice-user') renderUserJadwal();
+                else if (e.target.id === 'lab-choice-operator') renderOperatorJadwal();
+            });
 
-            // Modal Container Listeners
             modalContainer.addEventListener('click', (e) => {
-                if (e.target === modalContainer || e.target.closest('.close-modal-btn')) {
-                    hideModal();
-                } else if (e.target.closest('.meja-item')) {
+                if (e.target === modalContainer || e.target.closest('.close-modal-btn')) { hideModal(); } 
+                else if (e.target.closest('.meja-item')) {
                     const meja = e.target.closest('.meja-item');
-                    
-                    // Update selection visual
                     modalContentHost.querySelectorAll('.meja-item').forEach(m => m.classList.remove('ring-4', 'ring-primary'));
                     meja.classList.add('ring-4', 'ring-primary');
-
-                    // Populate details
                     const detailContainer = modalContentHost.querySelector('#meja-detail-container');
                     const statusEl = modalContentHost.querySelector('#detail-status');
-                    
                     modalContentHost.querySelector('#detail-pc-id').textContent = meja.dataset.id;
                     statusEl.textContent = meja.dataset.status;
                     statusEl.className = meja.dataset.status === 'OK' ? 'font-bold text-success' : 'font-bold text-error';
                     modalContentHost.querySelector('#detail-info').textContent = meja.dataset.details;
                     detailContainer.classList.remove('hidden');
+                } else if (e.target.closest('#btn-hapus-jadwal')) {
+                     if (confirm('Apakah Anda yakin ingin menghapus jadwal ini?')) {
+                        const id = document.getElementById('jadwal-id').value;
+                        const lab = document.getElementById('lab-choice-operator').value;
+                        const day = document.querySelector('#day-filter-container-operator .filter-day.active').dataset.day;
+                        mockJadwalData[lab][day] = mockJadwalData[lab][day].filter(j => j.id != id);
+                        hideModal();
+                        renderOperatorJadwal();
+                        showNotification('Jadwal berhasil dihapus.', 'error');
+                    }
                 }
             });
 
             modalContainer.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const formId = e.target.id;
-                if (formId === 'peminjaman-form') {
+                if (e.target.id === 'peminjaman-form') { hideModal(); showNotification('Peminjaman berhasil diajukan.', 'success'); } 
+                else if (e.target.id === 'laporan-form') { hideModal(); showNotification('Laporan berhasil dikirim.', 'success'); }
+                else if (e.target.id === 'jadwal-form') {
+                    const id = document.getElementById('jadwal-id').value;
+                    const lab = document.getElementById('lab-choice-operator').value;
+                    const day = document.querySelector('#day-filter-container-operator .filter-day.active').dataset.day;
+                    const newJadwal = {
+                        matkul: document.getElementById('jadwal-matkul').value,
+                        dosen: document.getElementById('jadwal-dosen').value,
+                        mulai: document.getElementById('jadwal-mulai').value,
+                        selesai: document.getElementById('jadwal-selesai').value
+                    };
+                    if (id) { // Edit
+                        const index = mockJadwalData[lab][day].findIndex(j => j.id == id);
+                        mockJadwalData[lab][day][index] = { ...mockJadwalData[lab][day][index], ...newJadwal };
+                        showNotification('Jadwal berhasil diperbarui.');
+                    } else { // Add
+                        newJadwal.id = Date.now();
+                        mockJadwalData[lab][day].push(newJadwal);
+                        showNotification('Jadwal baru berhasil ditambahkan.');
+                    }
                     hideModal();
-                    showNotification('Peminjaman berhasil diajukan.', 'success');
-                } else if (formId === 'laporan-form') {
-                    hideModal();
-                    showNotification('Laporan berhasil dikirim.', 'success');
+                    renderOperatorJadwal();
                 }
             });
 
@@ -457,13 +538,8 @@
             document.getElementById('login-form').addEventListener('submit', (e) => {
                 e.preventDefault();
                 const userType = document.getElementById('login-user-type').value;
-                if (userType === 'Operator') {
-                    showView('operator-view');
-                    loadContent('dashboard-template', operatorContentContainer);
-                } else {
-                    showView('main-app-view');
-                    loadContent('beranda-template', mainContentContainer);
-                }
+                if (userType === 'Operator') { showView('operator-view'); loadContent('dashboard-template', operatorContentContainer); } 
+                else { showView('main-app-view'); loadContent('beranda-template', mainContentContainer); }
             });
 
             document.getElementById('register-form').addEventListener('submit', (e) => {
@@ -471,10 +547,7 @@
                 const successMsg = document.getElementById('success-message');
                 successMsg.textContent = 'Registrasi berhasil! Silakan login.';
                 successMsg.classList.remove('hidden');
-                setTimeout(() => {
-                    successMsg.classList.add('hidden');
-                    showView('login-view');
-                }, 2000);
+                setTimeout(() => { successMsg.classList.add('hidden'); showView('login-view'); }, 2000);
             });
 
             document.getElementById('go-to-register').addEventListener('click', (e) => { e.preventDefault(); showView('register-view'); });
