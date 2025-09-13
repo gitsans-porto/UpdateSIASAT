@@ -191,9 +191,11 @@
             <div class="bg-primary text-white p-6 rounded-2xl shadow-lg shadow-primary/20"><h2 class="text-xl font-bold mb-2">Peminjaman Laboratorium</h2><p class="mb-4 opacity-90">Butuh lab di luar jadwal? Pinjam lab dengan mudah dan cepat.</p><button id="show-pinjam-form" class="w-full bg-white text-primary font-bold py-3 px-4 rounded-lg hover:bg-gray-100 transition transform hover:scale-105">Pinjam Lab Sekarang</button></div>
             <div>
                 <h3 class="text-lg font-semibold text-text-main mb-3">Jadwal Anda Hari Ini</h3>
-                <div id="jadwal-hari-ini-container" class="space-y-3">
-                    <!-- Pengingat jadwal akan di-render di sini oleh JS -->
-                </div>
+                <div id="jadwal-hari-ini-container" class="space-y-3"></div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold text-text-main mb-3">Peminjaman Terkini</h3>
+                <div id="peminjaman-terkini-container" class="space-y-3"></div>
             </div>
         </div>
     </template>
@@ -301,6 +303,7 @@
             // === MOCK DATA ===
             let mockJadwalData = { "Lab Pemrograman Dasar 1": { "Senin": [{ id: 1, matkul: "Algoritma & Pemrograman Dasar", dosen: "Dr. Retno", kelas: "IF-45-01", keperluan: "Mata Kuliah - Praktikum", mulai: "08:00", selesai: "10:00", status: 'terjadwal' }], "Selasa": [{ id: 2, matkul: "Basis Data Lanjutan", dosen: "Prof. Budi", kelas: "IF-45-02", keperluan: "Mata Kuliah - Praktikum", mulai: "13:00", selesai: "15:00", status: 'terjadwal' }], "Rabu": [], "Kamis": [], "Jumat": [] }, "Lab Multimedia": { "Senin": [], "Selasa": [], "Rabu": [], "Kamis": [], "Jumat": [] }, "Lab Mandiri": { "Senin": [], "Selasa": [], "Rabu": [], "Kamis": [], "Jumat": [] }, "Lab Server": { "Senin": [], "Selasa": [], "Rabu": [], "Kamis": [], "Jumat": [] } };
             const labMonitoringData = { "Lab Pemrograman Dasar 1": Array.from({ length: 10 }, (_, i) => ({ id: `PD-${String(i + 1).padStart(2, '0')}`, status: (i === 4 || i === 8) ? 'Rusak' : 'OK', details: (i === 4) ? 'Mouse tidak terdeteksi.' : (i === 8 ? 'Layar bergaris.' : 'Semua perangkat berfungsi.') })), "Default Lab": Array.from({ length: 8 }, (_, i) => ({ id: `DEF-${String(i + 1).padStart(2, '0')}`, status: i === 6 ? 'Rusak' : 'OK', details: i === 6 ? 'Koneksi internet lambat.' : 'Semua perangkat berfungsi.' })) };
+            let mockPeminjamanTerkini = [];
 
             // === UTILITY FUNCTIONS ===
             const initLucideIcons = () => { if (window.lucide) { lucide.createIcons(); } else { setTimeout(initLucideIcons, 100); } };
@@ -308,15 +311,28 @@
             const showNotification = (message, type = 'success') => { const banner = document.getElementById('notification-banner'); const colors = { success: 'bg-success', error: 'bg-error', warning: 'bg-warning' }; banner.querySelector('span').textContent = message; banner.className = `fixed top-5 left-1/2 z-[999] text-white py-2 px-5 rounded-lg shadow-xl transition-transform duration-300 ${colors[type]}`; banner.style.display = 'block'; setTimeout(() => banner.style.display = 'none', 3000); };
             const showModal = (templateId) => { const template = document.getElementById(templateId); if (template) { modalContentHost.innerHTML = template.innerHTML; initLucideIcons(); modalContainer.classList.remove('hidden'); } };
             const hideModal = () => { modalContainer.classList.add('hidden'); modalContentHost.innerHTML = ''; };
-
+            
             // === RENDER FUNCTIONS ===
+            const renderPeminjamanTerkini = () => {
+                const container = document.getElementById('peminjaman-terkini-container');
+                if (!container) return;
+                if (mockPeminjamanTerkini.length === 0) { container.innerHTML = `<p class="text-text-subtle text-sm text-center py-4">Belum ada peminjaman terkini.</p>`; return; }
+                const statusStyles = { 'Diproses': 'text-yellow-800 bg-warning/10', 'Disetujui': 'text-success bg-success/10', 'Ditolak': 'text-error bg-error/10' };
+                container.innerHTML = mockPeminjamanTerkini.map(p => `<div class="bg-surface p-4 rounded-lg flex justify-between items-center shadow-sm border border-gray-200"><div><p class="font-semibold text-text-main">${p.lab}</p><p class="text-sm text-text-subtle">${p.waktu}</p></div><span class="text-xs font-medium px-2.5 py-1 rounded-full ${statusStyles[p.status]}">${p.status}</span></div>`).join('');
+            };
+
+            const renderBeranda = () => {
+                renderBerandaReminder();
+                renderPeminjamanTerkini();
+            };
             const renderBerandaReminder = () => { const container = document.getElementById('jadwal-hari-ini-container'); let foundJadwal = false; container.innerHTML = ''; Object.keys(mockJadwalData).forEach(lab => { const jadwalHariIni = mockJadwalData[lab][currentUser.hari]?.find(j => j.matkul === currentUser.matkul); if (jadwalHariIni) { foundJadwal = true; let statusHTML = ''; if (jadwalHariIni.status === 'terjadwal') { statusHTML = `<div class="flex space-x-2"><button class="btn-cancel-booking p-2 bg-error/20 text-error rounded-full hover:bg-error/30" data-id="${jadwalHariIni.id}" data-lab="${lab}" data-day="${currentUser.hari}"><i-lucide name="x" class="w-5 h-5"></i-lucide></button><button class="btn-confirm-booking p-2 bg-success/20 text-success rounded-full hover:bg-success/30" data-id="${jadwalHariIni.id}" data-lab="${lab}" data-day="${currentUser.hari}"><i-lucide name="check" class="w-5 h-5"></i-lucide></button></div>`; } else if (jadwalHariIni.status === 'dikonfirmasi') { statusHTML = `<div class="text-sm font-semibold text-success flex items-center"><i-lucide name="check-circle-2" class="w-4 h-4 mr-1"></i-lucide> Dikonfirmasi</div>`; } container.innerHTML += `<div class="bg-surface p-4 rounded-lg flex justify-between items-center shadow-sm border border-gray-200"><div><p class="font-bold text-text-main">${jadwalHariIni.matkul}</p><p class="text-sm text-text-subtle">${lab}</p><p class="text-sm font-semibold text-primary mt-2">${jadwalHariIni.mulai} - ${jadwalHariIni.selesai}</p></div>${statusHTML}</div>`; } }); if (!foundJadwal) { container.innerHTML = `<div class="text-center text-text-subtle py-4"><p>Tidak ada jadwal untuk kelas Anda hari ini.</p></div>`; } initLucideIcons(); };
             const renderUserJadwal = () => { const lab = document.getElementById('lab-choice-user').value; const day = document.querySelector('#day-filter-container-user .filter-day.active').dataset.day; const container = document.getElementById('schedule-timeline'); document.getElementById('schedule-day-title').textContent = day; const jadwal = mockJadwalData[lab]?.[day] || []; if (jadwal.length === 0) { container.innerHTML = `<div class="text-center text-text-subtle p-8"><i-lucide name="calendar-off" class="mx-auto w-12 h-12 mb-2"></i-lucide><p>Tidak ada jadwal untuk hari ini.</p></div>`; } else { container.innerHTML = jadwal.map(j => { if (j.status === 'dibatalkan') { return `<button id="show-pinjam-form" class="w-full text-left bg-success/10 p-4 rounded-lg flex space-x-4 hover:bg-success/20 transition-colors"><div class="w-1 bg-success rounded-full"></div><div><p class="font-bold text-success text-lg">${j.mulai} - ${j.selesai}</p><p class="text-text-main mt-1">Jam Kosong & Dapat Dipesan</p><p class="text-sm text-text-subtle">Kesempatan untuk menggunakan lab.</p></div></button>`; } else { return `<div class="bg-surface p-4 rounded-lg flex space-x-4 shadow-sm border border-gray-200"><div class="w-1 bg-primary rounded-full"></div><div><p class="font-bold text-primary text-lg">${j.mulai} - ${j.selesai}</p><p class="text-text-main mt-1"><span class="font-semibold">Kelas:</span> ${j.kelas}</p><p class="text-sm text-text-subtle"><span class="font-semibold">Keperluan:</span> ${j.keperluan}</p></div></div>`; } }).join(''); } initLucideIcons(); };
             
-            const loadContent = (templateId, container) => { const template = document.getElementById(templateId); if (template) { container.innerHTML = template.innerHTML; initLucideIcons(); if(templateId === 'dashboard-template') initDashboardChart(); else if (templateId === 'jadwal-template') renderUserJadwal(); else if (templateId === 'beranda-template') renderBerandaReminder(); } };
+            const loadContent = (templateId, container) => { const template = document.getElementById(templateId); if (template) { container.innerHTML = template.innerHTML; initLucideIcons(); if(templateId === 'dashboard-template') initDashboardChart(); else if (templateId === 'jadwal-template') renderUserJadwal(); else if (templateId === 'beranda-template') renderBeranda(); } };
             const handleLogout = () => { showView('login-view'); document.querySelectorAll('.bottom-nav-item, .operator-nav-item').forEach(i => i.classList.remove('active')); document.querySelector('.bottom-nav-item[href="#beranda"]')?.classList.add('active'); document.querySelector('.operator-nav-item[href="#dashboard"]')?.classList.add('active'); };
             const populateMonitoringModal = (labName) => { const data = labMonitoringData[labName] || labMonitoringData["Default Lab"]; const gridContainer = modalContentHost.querySelector('#meja-grid-container'); if (!gridContainer) return; gridContainer.innerHTML = data.map((meja, index) => `<div class="meja-item aspect-square rounded-md flex items-center justify-center font-bold text-white cursor-pointer transition-all ring-offset-2 ring-offset-surface ${meja.status === 'OK' ? 'bg-success hover:bg-success/90' : 'bg-error hover:bg-error/90'}" data-id="${meja.id}" data-status="${meja.status}" data-details="${meja.details}">${index + 1}</div>`).join(''); };
             const initDashboardChart = () => { const ctx = document.getElementById('usageChart')?.getContext('2d'); if (ctx) { new Chart(ctx, { type: 'bar', data: { labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'], datasets: [{ label: 'Jam Penggunaan', data: [12, 19, 15, 22, 18, 10], backgroundColor: 'rgba(0, 122, 255, 0.2)', borderColor: 'rgba(0, 122, 255, 1)', borderWidth: 1 }] }, options: { scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#6C757D' } }, x: { grid: { display: false }, ticks: { color: '#6C757D' } } }, plugins: { legend: { display: false } } } }); } };
+            const simulateOperatorAction = (bookingId) => { setTimeout(() => { const booking = mockPeminjamanTerkini.find(b => b.id === bookingId); if (booking) { booking.status = Math.random() < 0.7 ? 'Disetujui' : 'Ditolak'; renderPeminjamanTerkini(); } }, 5000); };
 
             // === GLOBAL EVENT LISTENERS ===
             app.addEventListener('click', (e) => {
@@ -334,7 +350,14 @@
                 else if (target.classList.contains('btn-confirm-booking')) {
                     const { id, lab, day } = target.dataset;
                     const jadwal = mockJadwalData[lab][day].find(j => j.id == id);
-                    if (jadwal) { jadwal.status = 'dikonfirmasi'; showNotification('Jadwal berhasil dikonfirmasi!', 'success'); renderBerandaReminder(); }
+                    if (jadwal) { 
+                        jadwal.status = 'dikonfirmasi';
+                        const newBooking = { id: jadwal.id, lab, waktu: `${jadwal.mulai} - ${jadwal.selesai}`, status: 'Diproses' };
+                        mockPeminjamanTerkini.push(newBooking);
+                        simulateOperatorAction(newBooking.id);
+                        showNotification('Jadwal berhasil dikonfirmasi!', 'success'); 
+                        renderBeranda();
+                    }
                 }
                 else if (target.classList.contains('btn-cancel-booking')) {
                     dataToProcess = target.dataset;
@@ -351,12 +374,21 @@
 
             modalContainer.addEventListener('submit', (e) => {
                 e.preventDefault();
-                if (e.target.id === 'peminjaman-form') { hideModal(); showNotification('Peminjaman berhasil diajukan.', 'success'); } 
+                if (e.target.id === 'peminjaman-form') { 
+                    const lab = e.target.querySelector('select').value;
+                    const waktuMulai = e.target.querySelector('input[type="time"]').value;
+                    const newBooking = {id: Date.now(), lab, waktu: `${waktuMulai} - ...`, status: 'Diproses'};
+                    mockPeminjamanTerkini.push(newBooking);
+                    simulateOperatorAction(newBooking.id);
+                    hideModal(); 
+                    showNotification('Peminjaman berhasil diajukan.', 'success');
+                    renderPeminjamanTerkini();
+                } 
                 else if (e.target.id === 'laporan-form') { hideModal(); showNotification('Laporan berhasil dikirim.', 'success'); }
                 else if (e.target.id === 'form-alasan-batal') {
                     const { id, lab, day } = dataToProcess;
                     const jadwal = mockJadwalData[lab][day].find(j => j.id == id);
-                    if (jadwal) { jadwal.status = 'dibatalkan'; hideModal(); showNotification('Jadwal telah dibatalkan.', 'error'); renderBerandaReminder(); }
+                    if (jadwal) { jadwal.status = 'dibatalkan'; hideModal(); showNotification('Jadwal telah dibatalkan.', 'error'); renderBeranda(); }
                 }
             });
 
