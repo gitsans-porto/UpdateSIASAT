@@ -365,7 +365,7 @@
                             console.log(`Row ${i}:`, columns);
                             
                             if (columns[codeColumnIndex] && columns[codeColumnIndex].length > 0) {
-                                const code = columns[codeColumnIndex].toUpperCase();
+                                const code = columns[codeColumnIndex]; // Keep original case
                                 validCodes.push(code);
                                 console.log('Added code:', code);
                             }
@@ -392,9 +392,9 @@
             }
         }
 
-        // Validate access code
+        // Validate access code (case-sensitive)
         function validateAccessCode(code) {
-            return validCodes.includes(code.trim().toUpperCase());
+            return validCodes.includes(code.trim()); // Exact match including case
         }
 
         // Show main application
@@ -421,7 +421,7 @@
         async function handleLogin(event) {
             event.preventDefault();
             
-            const accessCode = document.getElementById('accessCode').value.trim().toUpperCase();
+            const accessCode = document.getElementById('accessCode').value.trim(); // Keep original case
             const loginBtn = document.getElementById('loginBtn');
             const loginError = document.getElementById('loginError');
             const loginLoading = document.getElementById('loginLoading');
@@ -467,6 +467,9 @@
             if (isLoggedIn === 'true' && storedCode && validateAccessCode(storedCode)) {
                 showMainApp();
             } else {
+                // Clear invalid stored login
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('accessCode');
                 showLoginPage();
             }
         }
@@ -1030,5 +1033,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9811af3756aafd81',t:'MTc1ODIwNzMyOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9811b8b12366ca4b',t:'MTc1ODIwNzcxNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
