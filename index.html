@@ -59,6 +59,12 @@
                 </button>
             </div>
             <p class="text-gray-600">Kelola keuangan Anda dengan mudah dan terorganisir</p>
+            
+            <!-- Placeholder for financial tracking UI -->
+            <div class="mt-8 bg-white rounded-2xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Dashboard Keuangan</h2>
+                <p class="text-gray-600">Fitur pencatatan keuangan akan ditampilkan di sini setelah login berhasil.</p>
+            </div>
         </div>
     </div>
 
@@ -106,8 +112,10 @@
                         }
                     }
                 }
+                console.log('Loaded valid codes:', validCodes); // For debugging
             } catch (error) {
                 console.error('❌ Error loading valid codes:', error);
+                // Show error to user if needed
             }
         }
 
@@ -135,10 +143,13 @@
             const loginBtn = document.getElementById('loginBtn');
             const loginError = document.getElementById('loginError');
             const loginLoading = document.getElementById('loginLoading');
+            
             if (!accessCode) return;
+            
             loginLoading.classList.remove('hidden');
             loginError.classList.add('hidden');
             loginBtn.disabled = true;
+            
             try {
                 await loadValidCodes();
                 if (validateAccessCode(accessCode)) {
@@ -149,10 +160,12 @@
                     loginError.classList.remove('hidden');
                 }
             } catch (error) {
+                console.error('Login error:', error);
                 loginError.classList.remove('hidden');
+            } finally {
+                loginLoading.classList.add('hidden');
+                loginBtn.disabled = false;
             }
-            loginLoading.classList.add('hidden');
-            loginBtn.disabled = false;
         }
 
         function handleLogout() {
@@ -165,13 +178,26 @@
         async function checkLoginStatus() {
             const isLoggedIn = localStorage.getItem('isLoggedIn');
             const storedCode = localStorage.getItem('accessCode');
+            
             if (isLoggedIn === 'true' && storedCode) {
-                await loadValidCodes();
-                if (validateAccessCode(storedCode)) {
+                // Show loading state while checking
+                document.getElementById('loginLoading').classList.remove('hidden');
+                
+                try {
+                    await loadValidCodes();
+                    if (validateAccessCode(storedCode)) {
+                        showMainApp();
+                    } else {
+                        handleLogout();
+                        setTimeout(() => alert('Kode akses Anda sudah tidak berlaku. Silakan login ulang.'), 500);
+                    }
+                } catch (error) {
+                    console.error('Error checking login status:', error);
+                    // If we can't load the codes, keep the user logged in but show a warning
                     showMainApp();
-                } else {
-                    handleLogout();
-                    setTimeout(() => alert('Kode akses Anda sudah tidak berlaku. Silakan login ulang.'), 500);
+                    setTimeout(() => alert('Tidak dapat memverifikasi kode akses. Pastikan koneksi internet aktif.'), 500);
+                } finally {
+                    document.getElementById('loginLoading').classList.add('hidden');
                 }
             } else {
                 showLoginPage();
@@ -185,14 +211,20 @@
                 const storedCode = localStorage.getItem('accessCode');
                 const isLoggedIn = localStorage.getItem('isLoggedIn');
                 if (isLoggedIn === 'true' && storedCode) {
-                    await loadValidCodes();
-                    if (!validateAccessCode(storedCode)) {
-                        handleLogout();
-                        alert('Kode akses Anda telah dihapus dari sistem.');
+                    try {
+                        await loadValidCodes();
+                        if (!validateAccessCode(storedCode)) {
+                            handleLogout();
+                            alert('Kode akses Anda telah dihapus dari sistem.');
+                        }
+                    } catch (error) {
+                        console.error('Periodic validation error:', error);
+                        // Don't log out if we can't verify - might be a network issue
                     }
                 }
-            }, 5000); // cek setiap 5 detik
+            }, 30000); // Reduced frequency to every 30 seconds to minimize requests
         }
+        
         function stopPeriodicValidation() {
             if (validationInterval) {
                 clearInterval(validationInterval);
@@ -200,9 +232,18 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', async function() {
-            await loadValidCodes();
-            await checkLoginStatus();
+        document.addEventListener('DOMContentLoaded', function() {
+            // First show login page immediately
+            showLoginPage();
+            
+            // Then check login status after loading codes
+            loadValidCodes().then(() => {
+                checkLoginStatus();
+            }).catch(error => {
+                console.error('Failed to load valid codes:', error);
+                // Continue to show login page even if loading fails
+            });
+            
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
             document.getElementById('logoutBtn').addEventListener('click', handleLogout);
         });
