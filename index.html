@@ -32,6 +32,10 @@
                 <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 transform hover:scale-105">
                     🚀 Masuk Sistem
                 </button>
+                
+                <button type="button" id="refreshCodesBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 text-sm">
+                    🔄 Refresh Kode Login
+                </button>
             </form>
             
             <div id="loginError" class="hidden mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -316,79 +320,120 @@
             return result;
         }
 
-        // Load valid codes from CSV
+        // Load valid codes from CSV with cache busting
         async function loadValidCodes() {
             try {
-                console.log('Loading codes from:', CSV_URL);
-                const response = await fetch(CSV_URL);
+                // Add cache busting parameter to ensure fresh data
+                const cacheBuster = new Date().getTime();
+                const csvUrlWithCache = `${CSV_URL}&_cb=${cacheBuster}`;
+                
+                console.log('Loading codes from:', csvUrlWithCache);
+                
+                const response = await fetch(csvUrlWithCache, {
+                    cache: 'no-cache',
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const csvText = await response.text();
                 console.log('CSV Response received, length:', csvText.length);
-                console.log('First 500 characters:', csvText.substring(0, 500));
+                console.log('Raw CSV content:', csvText);
                 
                 const lines = csvText.split('\n').filter(line => line.trim().length > 0);
-                console.log('Total lines:', lines.length);
+                console.log('Total lines after filtering:', lines.length);
                 
-                // Parse CSV and extract codes from "KODE LOGIN" column
+                // Reset valid codes
                 validCodes = [];
                 
                 if (lines.length > 1) {
-                    // Parse header properly
-                    const headers = parseCSVLine(lines[0]).map(h => h.replace(/"/g, '').trim());
-                    console.log('Headers found:', headers);
+                    // Parse header line
+                    const headerLine = lines[0];
+                    console.log('Header line raw:', headerLine);
                     
-                    // Find column index for login codes
+                    const headers = parseCSVLine(headerLine).map(h => h.replace(/"/g, '').trim());
+                    console.log('Parsed headers:', headers);
+                    
+                    // Find exact column for "KODE LOGIN"
                     let codeColumnIndex = -1;
                     
-                    // Try different variations of column names
-                    const possibleNames = ['KODE LOGIN', 'KODE_LOGIN', 'LOGIN CODE', 'CODE', 'KODE'];
+                    // Look for exact match first
+                    codeColumnIndex = headers.findIndex(h => 
+                        h.toUpperCase() === 'KODE LOGIN'
+                    );
                     
-                    for (let name of possibleNames) {
-                        codeColumnIndex = headers.findIndex(h => 
-                            h.toUpperCase().includes(name.toUpperCase())
-                        );
-                        if (codeColumnIndex !== -1) {
-                            console.log('Found code column with name:', headers[codeColumnIndex], 'at index:', codeColumnIndex);
-                            break;
-                        }
-                    }
-                    
-                    // If still not found, try the second column (index 1)
-                    if (codeColumnIndex === -1 && headers.length >= 2) {
-                        codeColumnIndex = 1;
-                        console.log('Using second column as code column:', headers[codeColumnIndex]);
-                    }
-                    
-                    if (codeColumnIndex !== -1) {
-                        // Extract codes from the correct column
-                        for (let i = 1; i < lines.length; i++) {
-                            const columns = parseCSVLine(lines[i]).map(col => col.replace(/"/g, '').trim());
-                            console.log(`Row ${i}:`, columns);
-                            
-                            if (columns[codeColumnIndex] && columns[codeColumnIndex].length > 0) {
-                                const code = columns[codeColumnIndex]; // Keep original case
-                                validCodes.push(code);
-                                console.log('Added code:', code);
+                    if (codeColumnIndex === -1) {
+                        // Try partial matches
+                        const possibleNames = ['KODE LOGIN', 'KODE_LOGIN', 'LOGIN CODE', 'CODE', 'KODE'];
+                        
+                        for (let name of possibleNames) {
+                            codeColumnIndex = headers.findIndex(h => 
+                                h.toUpperCase().includes(name.toUpperCase())
+                            );
+                            if (codeColumnIndex !== -1) {
+                                console.log('Found code column with partial match:', headers[codeColumnIndex], 'at index:', codeColumnIndex);
+                                break;
                             }
                         }
                     } else {
-                        console.error('Could not find code column in headers:', headers);
+                        console.log('Found exact "KODE LOGIN" column at index:', codeColumnIndex);
                     }
+                    
+                    if (codeColumnIndex !== -1) {
+                        console.log('Using column index:', codeColumnIndex, 'with header:', headers[codeColumnIndex]);
+                        
+                        // Extract codes from the correct column
+                        for (let i = 1; i < lines.length; i++) {
+                            const line = lines[i];
+                            console.log(`Processing line ${i}:`, line);
+                            
+                            const columns = parseCSVLine(line).map(col => col.replace(/"/g, '').trim());
+                            console.log(`Parsed columns for row ${i}:`, columns);
+                            
+                            if (columns.length > codeColumnIndex && columns[codeColumnIndex] && columns[codeColumnIndex].length > 0) {
+                                const code = columns[codeColumnIndex].trim();
+                                if (code) {
+                                    validCodes.push(code);
+                                    console.log('✅ Added valid code:', code);
+                                }
+                            } else {
+                                console.log(`⚠️ Row ${i} has no valid code in column ${codeColumnIndex}`);
+                            }
+                        }
+                    } else {
+                        console.error('❌ Could not find "KODE LOGIN" column in headers:', headers);
+                        console.log('Available headers:', headers.map((h, i) => `${i}: "${h}"`));
+                    }
+                } else {
+                    console.error('❌ CSV has no data rows');
                 }
                 
-                console.log('Valid codes loaded:', validCodes);
-                console.log('Total codes:', validCodes.length);
+                console.log('🎉 Final valid codes loaded:', validCodes);
+                console.log('📊 Total codes count:', validCodes.length);
                 
-                // Add fallback codes if no codes were loaded
+                // Only add fallback if absolutely no codes were loaded
                 if (validCodes.length === 0) {
-                    console.log('No codes loaded, adding fallback codes');
-                    validCodes = ['DEMO123', 'TEST456'];
+                    console.log('⚠️ No codes loaded from CSV, this might indicate a problem');
+                    console.log('📋 CSV content for debugging:', csvText.substring(0, 1000));
                 }
                 
             } catch (error) {
-                console.error('Error loading valid codes:', error);
-                // Fallback codes for demo
-                validCodes = ['DEMO123', 'TEST456'];
-                console.log('Using fallback codes:', validCodes);
+                console.error('❌ Error loading valid codes:', error);
+                console.log('🔄 Will retry without cache busting...');
+                
+                // Fallback attempt without cache busting
+                try {
+                    const response = await fetch(CSV_URL);
+                    const csvText = await response.text();
+                    console.log('Fallback CSV content:', csvText.substring(0, 500));
+                } catch (fallbackError) {
+                    console.error('❌ Fallback also failed:', fallbackError);
+                }
             }
         }
 
@@ -941,6 +986,19 @@
             // Login form event
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
             
+            // Refresh codes button event
+            document.getElementById('refreshCodesBtn').addEventListener('click', async function() {
+                this.disabled = true;
+                this.innerHTML = '🔄 Memuat ulang...';
+                
+                await loadValidCodes();
+                
+                this.disabled = false;
+                this.innerHTML = '🔄 Refresh Kode Login';
+                
+                alert(`Kode login berhasil dimuat ulang! Total kode: ${validCodes.length}`);
+            });
+            
             // Logout button event
             document.getElementById('logoutBtn').addEventListener('click', handleLogout);
             
@@ -1033,5 +1091,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9811b8b12366ca4b',t:'MTc1ODIwNzcxNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9811c4c6165bf8f2',t:'MTc1ODIwODIxMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
