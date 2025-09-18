@@ -32,20 +32,21 @@
                 <button type="submit" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 transform hover:scale-105">
                     🚀 Masuk Sistem
                 </button>
-                
-                <button type="button" id="refreshCodesBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 text-sm">
-                    🔄 Refresh Kode Login
-                </button>
             </form>
             
             <div id="loginError" class="hidden mt-6 p-4 bg-red-50 border border-red-200 rounded-lg">
                 <div class="text-center">
                     <div class="text-red-600 text-4xl mb-3">❌</div>
                     <h3 class="text-lg font-semibold text-red-800 mb-2">Kode Tidak Valid!</h3>
-                    <p class="text-red-700 mb-4">Silahkan lakukan pembelian token di pemilik website! Klik tombol di bawah untuk melakukan pembelian</p>
-                    <a href="https://wa.me/" target="_blank" class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 transform hover:scale-105">
-                        💬 Hubungi via WhatsApp
-                    </a>
+                    <p class="text-red-700 mb-4">Sudah beli kode tapi masih gagal? Coba refresh dulu. Belum beli? Hubungi admin untuk pembelian.</p>
+                    <div class="space-y-3">
+                        <button id="refreshCodesBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                            🔄 Refresh Kode Login
+                        </button>
+                        <a href="https://wa.me/" target="_blank" class="inline-block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                            💬 Beli Kode via WhatsApp
+                        </a>
+                    </div>
                 </div>
             </div>
             
@@ -996,7 +997,7 @@
                 this.disabled = false;
                 this.innerHTML = '🔄 Refresh Kode Login';
                 
-                alert(`Kode login berhasil dimuat ulang! Total kode: ${validCodes.length}`);
+                alert('Kode berhasil di refresh');
             });
             
             // Logout button event
@@ -1091,5 +1092,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9811c4c6165bf8f2',t:'MTc1ODIwODIxMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9811d67c773dfce7',t:'MTc1ODIwODkzNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
