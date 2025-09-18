@@ -35,11 +35,8 @@
                 <div class="text-center">
                     <div class="text-red-600 text-4xl mb-3">❌</div>
                     <h3 class="text-lg font-semibold text-red-800 mb-2">Kode Tidak Valid!</h3>
-                    <p class="text-red-700 mb-4">Sudah beli kode tapi masih gagal? Coba refresh dulu. Belum beli? Hubungi admin untuk pembelian.</p>
+                    <p class="text-red-700 mb-4">Sudah beli kode tapi masih gagal? Hubungi admin untuk pembelian.</p>
                     <div class="space-y-3">
-                        <button id="refreshCodesBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
-                            🔄 Refresh Kode Login
-                        </button>
                         <a href="https://wa.me/6289510648396" target="_blank" class="inline-block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
                             💬 Beli Kode via WhatsApp
                         </a>
@@ -194,7 +191,7 @@
                         alert('Kode akses Anda telah dihapus dari sistem.');
                     }
                 }
-            }, 10000); // cek setiap 10 detik
+            }, 5000); // cek setiap 5 detik
         }
         function stopPeriodicValidation() {
             if (validationInterval) {
@@ -207,10 +204,6 @@
             await loadValidCodes();
             await checkLoginStatus();
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            document.getElementById('refreshCodesBtn').addEventListener('click', async function() {
-                await loadValidCodes();
-                alert('Kode berhasil di refresh');
-            });
             document.getElementById('logoutBtn').addEventListener('click', handleLogout);
         });
     </script>
