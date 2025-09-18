@@ -481,8 +481,12 @@
             loginError.classList.add('hidden');
             loginBtn.disabled = true;
             
-            // Simulate validation delay
-            setTimeout(() => {
+            try {
+                // Always load fresh codes from database before validating
+                console.log('🔄 Loading fresh codes for login validation...');
+                await loadValidCodes();
+                
+                // Validate with fresh codes
                 if (validateAccessCode(accessCode)) {
                     // Store login status
                     localStorage.setItem('isLoggedIn', 'true');
@@ -492,30 +496,61 @@
                     // Show error
                     loginError.classList.remove('hidden');
                 }
-                
-                loginLoading.classList.add('hidden');
-                loginBtn.disabled = false;
-            }, 1500);
+            } catch (error) {
+                console.error('❌ Error during login validation:', error);
+                // Show error if can't load codes
+                loginError.classList.remove('hidden');
+            }
+            
+            loginLoading.classList.add('hidden');
+            loginBtn.disabled = false;
         }
 
         // Handle logout
         function handleLogout() {
+            // Stop periodic validation
+            stopPeriodicValidation();
+            
+            // Clear stored data
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('accessCode');
+            
+            // Show login page
             showLoginPage();
         }
 
         // Check if user is already logged in
-        function checkLoginStatus() {
+        async function checkLoginStatus() {
             const isLoggedIn = localStorage.getItem('isLoggedIn');
             const storedCode = localStorage.getItem('accessCode');
             
-            if (isLoggedIn === 'true' && storedCode && validateAccessCode(storedCode)) {
-                showMainApp();
+            if (isLoggedIn === 'true' && storedCode) {
+                try {
+                    // Always validate stored code against fresh database
+                    console.log('🔍 Validating stored login code against fresh database...');
+                    await loadValidCodes();
+                    
+                    if (validateAccessCode(storedCode)) {
+                        console.log('✅ Stored code is still valid');
+                        showMainApp();
+                    } else {
+                        console.log('❌ Stored code is no longer valid - logging out');
+                        // Clear invalid stored login
+                        localStorage.removeItem('isLoggedIn');
+                        localStorage.removeItem('accessCode');
+                        showLoginPage();
+                        
+                        // Show notification that code was removed
+                        setTimeout(() => {
+                            alert('Kode akses Anda sudah tidak berlaku. Silahkan hubungi admin untuk kode baru.');
+                        }, 500);
+                    }
+                } catch (error) {
+                    console.error('❌ Error validating stored code:', error);
+                    // If can't validate, show login page
+                    showLoginPage();
+                }
             } else {
-                // Clear invalid stored login
-                localStorage.removeItem('isLoggedIn');
-                localStorage.removeItem('accessCode');
                 showLoginPage();
             }
         }
@@ -527,6 +562,58 @@
             
             // Initialize database
             initDB();
+            
+            // Start periodic validation of access code (every 30 seconds)
+            startPeriodicValidation();
+        }
+
+        // Periodic validation to check if code is still valid
+        let validationInterval;
+        
+        function startPeriodicValidation() {
+            // Clear any existing interval
+            if (validationInterval) {
+                clearInterval(validationInterval);
+            }
+            
+            // Check every 30 seconds if the current user's code is still valid
+            validationInterval = setInterval(async () => {
+                const storedCode = localStorage.getItem('accessCode');
+                const isLoggedIn = localStorage.getItem('isLoggedIn');
+                
+                if (isLoggedIn === 'true' && storedCode) {
+                    try {
+                        console.log('🔄 Periodic validation check...');
+                        await loadValidCodes();
+                        
+                        if (!validateAccessCode(storedCode)) {
+                            console.log('❌ Code no longer valid during periodic check - logging out');
+                            
+                            // Clear validation interval
+                            clearInterval(validationInterval);
+                            
+                            // Clear stored login
+                            localStorage.removeItem('isLoggedIn');
+                            localStorage.removeItem('accessCode');
+                            
+                            // Show login page
+                            showLoginPage();
+                            
+                            // Notify user
+                            alert('Kode akses Anda telah dihapus dari sistem. Anda akan dikembalikan ke halaman login.');
+                        }
+                    } catch (error) {
+                        console.error('❌ Error during periodic validation:', error);
+                    }
+                }
+            }, 30000); // Check every 30 seconds
+        }
+        
+        function stopPeriodicValidation() {
+            if (validationInterval) {
+                clearInterval(validationInterval);
+                validationInterval = null;
+            }
         }
 
 
@@ -1092,5 +1179,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9811d67c773dfce7',t:'MTc1ODIwODkzNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98129acd4166fdf9',t:'MTc1ODIxNjk3Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
