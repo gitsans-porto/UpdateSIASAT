@@ -11,10 +11,33 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center">
 
-    <!-- Main Application -->
-    <div id="mainApp">
+    <!-- Login Page -->
+    <div id="loginPage" class="container mx-auto px-4 py-8 max-w-md">
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-4 text-center">Masuk ke Pencatatan Keuangan</h1>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label for="accessCode" class="block text-sm font-medium text-gray-700 mb-2">Kode Akses</label>
+                    <input type="text" id="accessCode" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Masukkan kode akses" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 transform hover:scale-105">
+                    🔑 Masuk
+                </button>
+            </form>
+            <div id="errorMessage" class="hidden mt-4 text-red-600 text-center"></div>
+            <div id="purchaseMessage" class="hidden mt-4 text-center">
+                <p class="text-gray-600 mb-2">Belum punya kode akses? Silahkan lakukan pembelian melalui WhatsApp:</p>
+                <a href="https://wa.me/6289510648396" target="_blank" class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                    📱 Hubungi via WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application (Initially Hidden) -->
+    <div id="mainApp" class="hidden">
         <div class="container mx-auto px-4 py-8 max-w-6xl">
             <!-- Header -->
             <div class="text-center mb-8">
@@ -24,61 +47,192 @@
                 <p class="text-gray-600">Kelola keuangan Anda dengan mudah dan terorganisir</p>
             </div>
 
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600">Total Pemasukan</p>
-                        <p class="text-2xl font-bold text-green-600" id="totalIncome">Rp 0</p>
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Total Pemasukan</p>
+                            <p class="text-2xl font-bold text-green-600" id="totalIncome">Rp 0</p>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <span class="text-2xl">📈</span>
+                        </div>
                     </div>
-                    <div class="bg-green-100 p-3 rounded-full">
-                        <span class="text-2xl">📈</span>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Total Pengeluaran</p>
+                            <p class="text-2xl font-bold text-red-600" id="totalExpense">Rp 0</p>
+                        </div>
+                        <div class="bg-red-100 p-3 rounded-full">
+                            <span class="text-2xl">📉</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Saldo</p>
+                            <p class="text-2xl font-bold text-blue-600" id="balance">Rp 0</p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <span class="text-2xl">💳</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-red-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600">Total Pengeluaran</p>
-                        <p class="text-2xl font-bold text-red-600" id="totalExpense">Rp 0</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Form Input -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+                        <span class="mr-2">📝</span> Input Transaksi
+                    </h2>
+                    
+                    <form id="transactionForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal</label>
+                            <input type="date" id="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tipe</label>
+                            <select id="type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                                <option value="">Pilih Tipe</option>
+                                <option value="income">Pemasukan</option>
+                                <option value="expense">Pengeluaran</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
+                            <select id="category" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                                <option value="">Pilih Kategori</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah (Rp)</label>
+                            <input type="number" id="amount" min="1" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="0" required>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Catatan</label>
+                            <textarea id="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Catatan opsional..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 transform hover:scale-105">
+                            💾 Simpan Transaksi
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Reports -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+                        <span class="mr-2">📊</span> Laporan Keuangan
+                    </h2>
+                    
+                    <div class="mb-4">
+                        <select id="reportPeriod" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="daily">Harian</option>
+                            <option value="weekly">Mingguan</option>
+                            <option value="monthly">Bulanan</option>
+                            <option value="yearly">Tahunan</option>
+                        </select>
                     </div>
-                    <div class="bg-red-100 p-3 rounded-full">
-                        <span class="text-2xl">📉</span>
+                    
+                    <div class="mb-6">
+                        <canvas id="reportChart" width="400" height="200"></canvas>
+                    </div>
+                    
+                    <div id="reportSummary" class="space-y-2">
+                        <!-- Report summary will be populated here -->
                     </div>
                 </div>
             </div>
-            
-            <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-600">Saldo</p>
-                        <p class="text-2xl font-bold text-blue-600" id="balance">Rp 0</p>
+
+            <!-- Transaction History -->
+            <div class="mt-8 bg-white rounded-xl shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-800 flex items-center">
+                        <span class="mr-2">📋</span> Riwayat Transaksi
+                    </h2>
+                    <button id="clearAllBtn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                        🗑️ Hapus Semua
+                    </button>
+                </div>
+                
+                <!-- Date Filter -->
+                <div class="mb-6 bg-gray-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
+                        <span class="mr-2">🔍</span> Filter Berdasarkan Tanggal
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Dari Tanggal</label>
+                            <input type="date" id="filterStartDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Sampai Tanggal</label>
+                            <input type="date" id="filterEndDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        <div class="flex items-end">
+                            <button id="filterBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                                🔍 Filter
+                            </button>
+                        </div>
+                        <div class="flex items-end">
+                            <button id="resetFilterBtn" class="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                                🔄 Reset
+                            </button>
+                        </div>
                     </div>
-                    <div class="bg-blue-100 p-3 rounded-full">
-                        <span class="text-2xl">💳</span>
-                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Tanggal</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Tipe</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Kategori</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Jumlah</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Catatan</th>
+                                <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionHistory">
+                            <!-- Transaction history will be populated here -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Form Input -->
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
-                    <span class="mr-2">📝</span> Input Transaksi
-                </h2>
+        <!-- Edit Transaction Modal -->
+        <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800">✏️ Edit Transaksi</h3>
+                    <button id="closeEditModal" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
+                </div>
                 
-                <form id="transactionForm" class="space-y-4">
+                <form id="editTransactionForm" class="space-y-4">
+                    <input type="hidden" id="editTransactionId">
+                    
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal</label>
-                        <input type="date" id="date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        <input type="date" id="editDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Tipe</label>
-                        <select id="type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        <select id="editType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
                             <option value="">Pilih Tipe</option>
                             <option value="income">Pemasukan</option>
                             <option value="expense">Pengeluaran</option>
@@ -87,169 +241,35 @@
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
-                        <select id="category" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        <select id="editCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
                             <option value="">Pilih Kategori</option>
                         </select>
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah (Rp)</label>
-                        <input type="number" id="amount" min="1" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="0" required>
+                        <input type="number" id="editAmount" min="1" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
                     </div>
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Catatan</label>
-                        <textarea id="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Catatan opsional..."></textarea>
+                        <textarea id="editNotes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Catatan opsional..."></textarea>
                     </div>
                     
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 transform hover:scale-105">
-                        💾 Simpan Transaksi
-                    </button>
+                    <div class="flex space-x-3 pt-4">
+                        <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                            💾 Simpan Perubahan
+                        </button>
+                        <button type="button" id="cancelEdit" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                            ❌ Batal
+                        </button>
+                    </div>
                 </form>
             </div>
-
-            <!-- Reports -->
-            <div class="bg-white rounded-xl shadow-lg p-6">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
-                    <span class="mr-2">📊</span> Laporan Keuangan
-                </h2>
-                
-                <div class="mb-4">
-                    <select id="reportPeriod" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                        <option value="daily">Harian</option>
-                        <option value="weekly">Mingguan</option>
-                        <option value="monthly">Bulanan</option>
-                        <option value="yearly">Tahunan</option>
-                    </select>
-                </div>
-                
-                <div class="mb-6">
-                    <canvas id="reportChart" width="400" height="200"></canvas>
-                </div>
-                
-                <div id="reportSummary" class="space-y-2">
-                    <!-- Report summary will be populated here -->
-                </div>
-            </div>
         </div>
-
-        <!-- Transaction History -->
-        <div class="mt-8 bg-white rounded-xl shadow-lg p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-semibold text-gray-800 flex items-center">
-                    <span class="mr-2">📋</span> Riwayat Transaksi
-                </h2>
-                <button id="clearAllBtn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition duration-200">
-                    🗑️ Hapus Semua
-                </button>
-            </div>
-            
-            <!-- Date Filter -->
-            <div class="mb-6 bg-gray-50 p-4 rounded-lg">
-                <h3 class="text-lg font-medium text-gray-800 mb-4 flex items-center">
-                    <span class="mr-2">🔍</span> Filter Berdasarkan Tanggal
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Dari Tanggal</label>
-                        <input type="date" id="filterStartDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Sampai Tanggal</label>
-                        <input type="date" id="filterEndDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    </div>
-                    <div class="flex items-end">
-                        <button id="filterBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition duration-200">
-                            🔍 Filter
-                        </button>
-                    </div>
-                    <div class="flex items-end">
-                        <button id="resetFilterBtn" class="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition duration-200">
-                            🔄 Reset
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="overflow-x-auto">
-                <table class="w-full table-auto">
-                    <thead>
-                        <tr class="bg-gray-50">
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Tanggal</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Tipe</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Kategori</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Jumlah</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Catatan</th>
-                            <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="transactionHistory">
-                        <!-- Transaction history will be populated here -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Transaction Modal -->
-    <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-semibold text-gray-800">✏️ Edit Transaksi</h3>
-                <button id="closeEditModal" class="text-gray-500 hover:text-gray-700 text-2xl">×</button>
-            </div>
-            
-            <form id="editTransactionForm" class="space-y-4">
-                <input type="hidden" id="editTransactionId">
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal</label>
-                    <input type="date" id="editDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipe</label>
-                    <select id="editType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
-                        <option value="">Pilih Tipe</option>
-                        <option value="income">Pemasukan</option>
-                        <option value="expense">Pengeluaran</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Kategori</label>
-                    <select id="editCategory" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
-                        <option value="">Pilih Kategori</option>
-                    </select>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Jumlah (Rp)</label>
-                    <input type="number" id="editAmount" min="1" step="0.01" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Catatan</label>
-                    <textarea id="editNotes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Catatan opsional..."></textarea>
-                </div>
-                
-                <div class="flex space-x-3 pt-4">
-                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
-                        💾 Simpan Perubahan
-                    </button>
-                    <button type="button" id="cancelEdit" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
-                        ❌ Batal
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
     </div>
 
     <script>
-
-
-
         // IndexedDB setup
         let db;
         const dbName = 'FinanceTracker';
@@ -695,13 +715,55 @@
             }
         }
 
+        // Fetch and validate access code from CSV
+        async function validateAccessCode(code) {
+            const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTI7Hm2J8pbYhfTVzrkgmJnVMHFkptUYcuMS3uZ3dvhFvdRmmLO9NNw-ywhl-BkLmvloDzYUPu8lCBQ/pub?output=csv';
+            try {
+                const response = await fetch(csvUrl);
+                if (!response.ok) throw new Error('Failed to fetch CSV');
+                const text = await response.text();
+                const rows = text.split('\n').map(row => row.trim());
+                const codes = rows.slice(1).map(row => row.split(',')[0].trim()); // Skip header row
+                return codes.includes(code);
+            } catch (error) {
+                console.error('Error fetching CSV:', error);
+                return false;
+            }
+        }
+
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
+            // Login form submission
+            document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const accessCode = document.getElementById('accessCode').value.trim();
+                const errorMessage = document.getElementById('errorMessage');
+                const purchaseMessage = document.getElementById('purchaseMessage');
+                
+                if (!accessCode) {
+                    errorMessage.textContent = 'Kode akses harus diisi!';
+                    errorMessage.classList.remove('hidden');
+                    purchaseMessage.classList.add('hidden');
+                    return;
+                }
+
+                const isValid = await validateAccessCode(accessCode);
+                if (isValid) {
+                    document.getElementById('loginPage').classList.add('hidden');
+                    document.getElementById('mainApp').classList.remove('hidden');
+                    errorMessage.classList.add('hidden');
+                    purchaseMessage.classList.add('hidden');
+                    // Initialize database after successful login
+                    initDB();
+                } else {
+                    errorMessage.textContent = 'Kode akses salah atau tidak ditemukan!';
+                    errorMessage.classList.remove('hidden');
+                    purchaseMessage.classList.remove('hidden');
+                }
+            });
+
             // Set today's date as default
             document.getElementById('date').valueAsDate = new Date();
-            
-            // Initialize database
-            initDB();
             
             // Form submission
             document.getElementById('transactionForm').addEventListener('submit', function(e) {
@@ -792,5 +854,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98168cda47e03dc9',t:'MTc1ODI1ODM0OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
