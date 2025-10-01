@@ -1,599 +1,690 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pencatatan Keuangan Harian</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIM - Sistem Informasi Manajemen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .progress-bar {
+            transition: width 0.3s ease-in-out;
+        }
+        
+        .task-card {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-violet-600 via-fuchsia-600 to-indigo-700 text-gray-900">
-  <!-- Top Bar -->
-  <header class="sticky top-0 z-30 backdrop-blur supports-[backdrop-filter]:bg-white/10 bg-white/10 border-b border-white/20">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center shadow-inner">
-          <span class="text-2xl">💰</span>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-2 rounded-lg">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <h1 class="ml-3 text-xl font-bold text-gray-900">SIM Dashboard</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <select id="userRole" class="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="pimpinan">👨‍💼 Pimpinan</option>
+                        <option value="divisi">👥 Divisi</option>
+                    </select>
+                    <div class="text-sm text-gray-600">
+                        <span id="currentUser">Admin User</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div>
-          <h1 class="text-white text-lg md:text-xl font-extrabold tracking-tight">Pencatatan Keuangan</h1>
-          <p class="text-white/80 text-xs md:text-sm">Cepat, rapi, dan mudah dipahami</p>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Pimpinan Dashboard -->
+        <div id="pimpinanView" class="fade-in">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Tugas</p>
+                            <p class="text-2xl font-bold text-gray-900" id="totalTasks">24</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                    <div class="flex items-center">
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Selesai</p>
+                            <p class="text-2xl font-bold text-green-600" id="completedTasks">18</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                    <div class="flex items-center">
+                        <div class="bg-yellow-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Dalam Proses</p>
+                            <p class="text-2xl font-bold text-yellow-600" id="inProgressTasks">6</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                    <div class="flex items-center">
+                        <div class="bg-purple-100 p-3 rounded-full">
+                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Progres Rata-rata</p>
+                            <p class="text-2xl font-bold text-purple-600" id="avgProgress">75%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add New Task -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">📝 Tambah Tugas Baru</h2>
+                <form id="addTaskForm" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Divisi</label>
+                            <select id="taskDivision" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Pilih Divisi</option>
+                                <option value="IT">IT & Teknologi</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Finance">Finance</option>
+                                <option value="HR">Human Resources</option>
+                                <option value="Operations">Operations</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Deadline (Opsional)</label>
+                            <input type="date" id="taskDeadline" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">List Tugas</label>
+                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-sm text-gray-600">Masukkan tugas satu per satu (tekan Enter untuk tugas baru)</span>
+                                <button type="button" onclick="addTaskInput()" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                                    ➕ Tambah Input
+                                </button>
+                            </div>
+                            <div id="taskInputs" class="space-y-2">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm font-medium text-gray-500 w-6">1.</span>
+                                    <input type="text" class="task-input flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Masukkan nama tugas pertama..." onkeypress="handleTaskInputKeypress(event, this)">
+                                    <button type="button" onclick="removeTaskInput(this)" class="text-red-500 hover:text-red-700 p-1 opacity-0 transition-opacity">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium">
+                            ➕ Tambah Semua Tugas
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Division Progress -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-6">📊 Progres per Divisi</h2>
+                    <div id="divisionProgress" class="space-y-4">
+                        <!-- Division progress will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-6">🔔 Aktivitas Terbaru</h2>
+                    <div id="recentActivities" class="space-y-3">
+                        <!-- Recent activities will be populated here -->
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-      <a href="#riwayat" class="hidden md:inline-flex text-white/90 hover:text-white text-sm font-medium transition">Riwayat</a>
+
+        <!-- Divisi Dashboard -->
+        <div id="divisiView" class="hidden fade-in">
+            <!-- Division Header -->
+            <div class="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Dashboard Divisi IT & Teknologi</h2>
+                        <p class="text-gray-600 mt-1">Kelola dan pantau tugas-tugas divisi Anda</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-600">Tugas Selesai</p>
+                        <p class="text-3xl font-bold text-green-600" id="divisionCompletedTasks">12/15</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task List -->
+            <div class="bg-white rounded-xl shadow-md border border-gray-100">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">📋 Daftar Tugas</h3>
+                </div>
+                <div class="p-6">
+                    <div id="taskList" class="space-y-4">
+                        <!-- Tasks will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-  </header>
 
-  <!-- Main -->
-  <main class="max-w-7xl mx-auto px-4 py-8 md:py-12">
-    <!-- Hero -->
-    <section class="mb-8 md:mb-12">
-      <div class="rounded-3xl p-6 md:p-10 bg-white/10 border border-white/20 shadow-2xl">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div>
-            <h2 class="text-2xl md:text-4xl font-extrabold text-white leading-tight">
-              Atur uang Anda tanpa ribet
-            </h2>
-            <p class="text-white/85 mt-3 md:mt-4">
-              Catat pemasukan dan pengeluaran, pantau grafik, dan lihat ringkasan secara instan.
-            </p>
-          </div>
-          <div class="flex items-center gap-3">
-            <div class="px-4 py-2 rounded-xl bg-white text-violet-700 font-semibold shadow hover:shadow-md transition">
-              Siap digunakan
+    <!-- Photo Upload Modal -->
+    <div id="photoModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">📸 Upload Bukti Penyelesaian</h3>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Foto Bukti</label>
+                <input type="file" id="photoInput" accept="image/*" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
-            <div class="px-4 py-2 rounded-xl bg-white/20 text-white font-semibold border border-white/30">
-              Real‑time ringkasan
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Keterangan (Opsional)</label>
+                <textarea id="photoDescription" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tambahkan keterangan..."></textarea>
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Summary Cards -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-      <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-600">Total Pemasukan</p>
-            <p id="totalIncome" class="text-3xl font-extrabold text-emerald-600 mt-1">Rp 0</p>
-          </div>
-          <div class="h-12 w-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl">📈</div>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-600">Total Pengeluaran</p>
-            <p id="totalExpense" class="text-3xl font-extrabold text-rose-600 mt-1">Rp 0</p>
-          </div>
-          <div class="h-12 w-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-2xl">📉</div>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-sm font-medium text-gray-600">Saldo</p>
-            <p id="balance" class="text-3xl font-extrabold text-indigo-600 mt-1">Rp 0</p>
-          </div>
-          <div class="h-12 w-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl">💳</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Form + Laporan -->
-    <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <!-- Form Transaksi -->
-      <div class="bg-white rounded-2xl shadow-xl p-6 md:p-7 border border-gray-100">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <span>📝</span> Input Transaksi
-          </h3>
-          <span class="text-xs px-2 py-1 rounded-lg bg-gray-100 text-gray-600">Form</span>
-        </div>
-
-        <form id="transactionForm" class="space-y-5">
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal</label>
-            <input id="date" type="date" required
-              class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-4 focus:ring-violet-200 focus:border-violet-500 outline-none transition"/>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Tipe</label>
-              <select id="type" required
-                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-4 focus:ring-violet-200 focus:border-violet-500 outline-none transition">
-                <option value="">Pilih Tipe</option>
-                <option value="income">Pemasukan</option>
-                <option value="expense">Pengeluaran</option>
-              </select>
+            <div class="flex space-x-3">
+                <button onclick="closePhotoModal()" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">
+                    Batal
+                </button>
+                <button onclick="submitPhoto()" class="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-green-800 transition-all">
+                    ✅ Konfirmasi
+                </button>
             </div>
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Kategori</label>
-              <select id="category" required
-                class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-4 focus:ring-violet-200 focus:border-violet-500 outline-none transition">
-                <option value="">Pilih Kategori</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah (Rp)</label>
-            <input id="amount" type="number" min="1" step="0.01" placeholder="0" required
-              class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-4 focus:ring-violet-200 focus:border-violet-500 outline-none transition"/>
-          </div>
-
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Catatan</label>
-            <textarea id="notes" rows="3" placeholder="Catatan opsional..."
-              class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-4 focus:ring-violet-200 focus:border-violet-500 outline-none transition"></textarea>
-          </div>
-
-          <button type="submit"
-            class="w-full py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 shadow-lg shadow-fuchsia-500/25 transition transform hover:scale-[1.01]">
-            💾 Simpan Transaksi
-          </button>
-        </form>
-      </div>
-
-      <!-- Laporan -->
-      <div class="bg-white rounded-2xl shadow-xl p-6 md:p-7 border border-gray-100">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <span>📊</span> Laporan Keuangan
-          </h3>
-          <span class="text-xs px-2 py-1 rounded-lg bg-gray-100 text-gray-600">Grafik</span>
         </div>
-
-        <div class="mb-4">
-          <select id="reportPeriod"
-            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-4 focus:ring-violet-200 focus:border-violet-500 outline-none transition">
-            <option value="daily">Harian</option>
-            <option value="weekly">Mingguan</option>
-            <option value="monthly">Bulanan</option>
-            <option value="yearly">Tahunan</option>
-          </select>
-        </div>
-
-        <div class="mb-6">
-          <canvas id="reportChart" width="400" height="200"></canvas>
-        </div>
-
-        <div id="reportSummary" class="space-y-3"></div>
-      </div>
-    </section>
-
-    <!-- Riwayat -->
-    <section id="riwayat" class="mt-10 bg-white rounded-2xl shadow-xl p-6 md:p-7 border border-gray-100">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        <h3 class="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <span>📋</span> Riwayat Transaksi
-        </h3>
-        <button id="clearAllBtn"
-          class="px-4 py-2.5 rounded-xl font-semibold text-white bg-rose-600 hover:bg-rose-700 shadow transition">
-          🗑️ Hapus Semua
-        </button>
-      </div>
-
-      <!-- Filter Tanggal -->
-      <div class="mb-6 rounded-xl border border-gray-200 bg-gray-50 p-4">
-        <h4 class="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
-          <span>🔍</span> Filter Tanggal
-        </h4>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Dari</label>
-            <input id="filterStartDate" type="date"
-              class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-4 focus:ring-violet-200 focus:border-violet-500 outline-none transition"/>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Sampai</label>
-            <input id="filterEndDate" type="date"
-              class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-4 focus:ring-violet-200 focus:border-violet-500 outline-none transition"/>
-          </div>
-          <div class="flex items-end">
-            <button id="filterBtn"
-              class="w-full px-4 py-2.5 rounded-xl font-semibold text-white bg-violet-600 hover:bg-violet-700 shadow transition">
-              🔎 Filter
-            </button>
-          </div>
-          <div class="flex items-end">
-            <button id="resetFilterBtn"
-              class="w-full px-4 py-2.5 rounded-xl font-semibold text-gray-800 bg-gray-200 hover:bg-gray-300 shadow transition">
-              🔄 Reset
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto rounded-xl border border-gray-200">
-        <table class="w-full text-left">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-4 py-3 text-sm font-semibold text-gray-700">Tanggal</th>
-              <th class="px-4 py-3 text-sm font-semibold text-gray-700">Tipe</th>
-              <th class="px-4 py-3 text-sm font-semibold text-gray-700">Kategori</th>
-              <th class="px-4 py-3 text-sm font-semibold text-gray-700">Jumlah</th>
-              <th class="px-4 py-3 text-sm font-semibold text-gray-700">Catatan</th>
-              <th class="px-4 py-3 text-sm font-semibold text-gray-700">Aksi</th>
-            </tr>
-          </thead>
-          <tbody id="transactionHistory" class="divide-y divide-gray-100"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
-
-  <!-- Modal Edit -->
-  <div id="editModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-7 w-full max-w-md mx-4">
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xl font-bold text-gray-800">✏️ Edit Transaksi</h3>
-        <button id="closeEditModal" class="text-gray-500 hover:text-gray-700 text-2xl leading-none">×</button>
-      </div>
-
-      <form id="editTransactionForm" class="space-y-5">
-        <input type="hidden" id="editTransactionId"/>
-
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Tanggal</label>
-          <input id="editDate" type="date" required
-            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-4 focus:ring-violet-200 focus:border-violet-500 outline-none transition"/>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Tipe</label>
-            <select id="editType" required
-              class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-4 focus:ring-violet-200 focus:border-violet-500 outline-none transition">
-              <option value="">Pilih Tipe</option>
-              <option value="income">Pemasukan</option>
-              <option value="expense">Pengeluaran</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Kategori</label>
-            <select id="editCategory" required
-              class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-4 focus:ring-violet-200 focus:border-violet-500 outline-none transition">
-              <option value="">Pilih Kategori</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah (Rp)</label>
-          <input id="editAmount" type="number" min="1" step="0.01" required
-            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-4 focus:ring-violet-200 focus:border-violet-500 outline-none transition"/>
-        </div>
-
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-2">Catatan</label>
-          <textarea id="editNotes" rows="3" placeholder="Catatan opsional..."
-            class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-4 focus:ring-violet-200 focus:border-violet-500 outline-none transition"></textarea>
-        </div>
-
-        <div class="flex gap-3 pt-2">
-          <button type="submit"
-            class="flex-1 py-2.5 rounded-xl font-semibold text-white bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 shadow transition">
-            💾 Simpan Perubahan
-          </button>
-          <button type="button" id="cancelEdit"
-            class="flex-1 py-2.5 rounded-xl font-semibold bg-gray-200 hover:bg-gray-300 text-gray-800 transition">
-            ❌ Batal
-          </button>
-        </div>
-      </form>
     </div>
-  </div>
 
-  <script>
-    // IndexedDB setup
-    let db;
-    const dbName = 'FinanceTracker';
-    const dbVersion = 1;
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden notification">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span id="notificationText">Tugas berhasil diselesaikan!</span>
+        </div>
+    </div>
 
-    const categories = {
-      income: ['Gaji', 'Bonus', 'Investasi', 'Bisnis', 'Lainnya'],
-      expense: ['Makanan', 'Transportasi', 'Belanja', 'Tagihan', 'Hiburan', 'Kesehatan', 'Lainnya']
-    };
+    <script>
+        // Sample data
+        let tasks = [
+            { id: 1, name: 'Implementasi Sistem Keamanan', division: 'IT', status: 'completed', assignedDate: '2024-01-15', completedDate: '2024-01-20', photo: true },
+            { id: 2, name: 'Update Website Company Profile', division: 'IT', status: 'completed', assignedDate: '2024-01-16', completedDate: '2024-01-22', photo: true },
+            { id: 3, name: 'Backup Database Mingguan', division: 'IT', status: 'in-progress', assignedDate: '2024-01-18', photo: false },
+            { id: 4, name: 'Kampanye Media Sosial Q1', division: 'Marketing', status: 'completed', assignedDate: '2024-01-10', completedDate: '2024-01-25', photo: true },
+            { id: 5, name: 'Analisis ROI Campaign', division: 'Marketing', status: 'in-progress', assignedDate: '2024-01-20', photo: false },
+            { id: 6, name: 'Laporan Keuangan Bulanan', division: 'Finance', status: 'completed', assignedDate: '2024-01-12', completedDate: '2024-01-28', photo: true },
+            { id: 7, name: 'Audit Internal Q1', division: 'Finance', status: 'in-progress', assignedDate: '2024-01-22', photo: false },
+            { id: 8, name: 'Rekrutmen Developer', division: 'HR', status: 'completed', assignedDate: '2024-01-08', completedDate: '2024-01-30', photo: true },
+            { id: 9, name: 'Training Karyawan Baru', division: 'HR', status: 'in-progress', assignedDate: '2024-01-25', photo: false },
+            { id: 10, name: 'Optimasi Proses Produksi', division: 'Operations', status: 'completed', assignedDate: '2024-01-14', completedDate: '2024-01-26', photo: true }
+        ];
 
-    function initDB() {
-      const request = indexedDB.open(dbName, dbVersion);
-      request.onerror = (e) => console.error('Database error:', e.target.error);
-      request.onupgradeneeded = (e) => {
-        db = e.target.result;
-        const store = db.createObjectStore('transactions', { keyPath: 'id', autoIncrement: true });
-        store.createIndex('date', 'date', { unique: false });
-        store.createIndex('type', 'type', { unique: false });
-      };
-      request.onsuccess = (e) => {
-        db = e.target.result;
-        loadTransactions();
-        updateSummary();
-        updateReport();
-      };
-    }
+        let currentTaskId = null;
 
-    function saveTransaction(t) {
-      db.transaction(['transactions'], 'readwrite')
-        .objectStore('transactions').add(t).onsuccess = () => {
-          loadTransactions(); updateSummary(); updateReport();
-        };
-    }
-
-    function updateTransaction(id, t) {
-      db.transaction(['transactions'], 'readwrite')
-        .objectStore('transactions').put({ ...t, id }).onsuccess = () => {
-          loadTransactions(); updateSummary(); updateReport(); closeEditModal();
-        };
-    }
-
-    function deleteTransaction(id) {
-      db.transaction(['transactions'], 'readwrite')
-        .objectStore('transactions').delete(id).onsuccess = () => {
-          loadTransactions(); updateSummary(); updateReport();
-        };
-    }
-
-    function clearAllTransactions() {
-      if (!confirm('Apakah Anda yakin ingin menghapus semua transaksi?')) return;
-      db.transaction(['transactions'], 'readwrite')
-        .objectStore('transactions').clear().onsuccess = () => {
-          loadTransactions(); updateSummary(); updateReport();
-        };
-    }
-
-    function loadTransactions(filtered = null) {
-      if (filtered) { displayTransactions(filtered); return; }
-      db.transaction(['transactions'], 'readonly')
-        .objectStore('transactions').getAll().onsuccess = (e) => {
-          displayTransactions(e.target.result);
-        };
-    }
-
-    function filterTransactions() {
-      const start = document.getElementById('filterStartDate').value;
-      const end = document.getElementById('filterEndDate').value;
-      db.transaction(['transactions'], 'readonly')
-        .objectStore('transactions').getAll().onsuccess = (e) => {
-          let txs = e.target.result || [];
-          if (start) txs = txs.filter(t => t.date >= start);
-          if (end) txs = txs.filter(t => t.date <= end);
-          displayTransactions(txs);
-        };
-    }
-
-    function resetFilter() {
-      document.getElementById('filterStartDate').value = '';
-      document.getElementById('filterEndDate').value = '';
-      loadTransactions();
-    }
-
-    function displayTransactions(transactions) {
-      const tbody = document.getElementById('transactionHistory');
-      tbody.innerHTML = '';
-      (transactions || []).sort((a, b) => new Date(b.date) - new Date(a.date))
-        .forEach(t => {
-          const typeClass = t.type === 'income' ? 'text-emerald-600' : 'text-rose-600';
-          const typeIcon = t.type === 'income' ? '📈' : '📉';
-          const tr = document.createElement('tr');
-          tr.className = 'hover:bg-gray-50';
-          tr.innerHTML = `
-            <td class="px-4 py-3 text-sm text-gray-700">${new Date(t.date).toLocaleDateString('id-ID')}</td>
-            <td class="px-4 py-3 text-sm ${typeClass} font-semibold">${typeIcon} ${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}</td>
-            <td class="px-4 py-3 text-sm text-gray-700">${t.category}</td>
-            <td class="px-4 py-3 text-sm font-extrabold ${typeClass}">Rp ${t.amount.toLocaleString('id-ID')}</td>
-            <td class="px-4 py-3 text-sm text-gray-600">${t.notes || '-'}</td>
-            <td class="px-4 py-3 text-sm">
-              <button class="text-violet-700 hover:text-violet-900 font-semibold mr-3" onclick="editTransaction(${t.id})">✏️ Edit</button>
-              <button class="text-rose-600 hover:text-rose-800 font-semibold" onclick="deleteTransaction(${t.id})">🗑️ Hapus</button>
-            </td>
-          `;
-          tbody.appendChild(tr);
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDashboard();
+            renderDivisionProgress();
+            renderRecentActivities();
+            renderTaskList();
+            
+            document.getElementById('userRole').addEventListener('change', switchView);
+            document.getElementById('addTaskForm').addEventListener('submit', addNewTask);
         });
-    }
 
-    function editTransaction(id) {
-      db.transaction(['transactions'], 'readonly')
-        .objectStore('transactions').get(id).onsuccess = (e) => {
-          const t = e.target.result; if (!t) return;
-          document.getElementById('editTransactionId').value = t.id;
-          document.getElementById('editDate').value = t.date;
-          document.getElementById('editType').value = t.type;
-          document.getElementById('editAmount').value = t.amount;
-          document.getElementById('editNotes').value = t.notes || '';
-          updateEditCategories();
-          setTimeout(() => { document.getElementById('editCategory').value = t.category; }, 50);
-          openEditModal();
-        };
-    }
-
-    function openEditModal() {
-      const modal = document.getElementById('editModal');
-      modal.classList.remove('hidden'); modal.classList.add('flex');
-    }
-
-    function closeEditModal() {
-      const modal = document.getElementById('editModal');
-      modal.classList.add('hidden'); modal.classList.remove('flex');
-      document.getElementById('editTransactionForm').reset();
-    }
-
-    function updateCategories() {
-      const type = document.getElementById('type').value;
-      const sel = document.getElementById('category');
-      sel.innerHTML = '<option value="">Pilih Kategori</option>';
-      if (type && categories[type]) {
-        categories[type].forEach(c => {
-          const o = document.createElement('option');
-          o.value = c; o.textContent = c; sel.appendChild(o);
-        });
-      }
-    }
-
-    function updateEditCategories() {
-      const type = document.getElementById('editType').value;
-      const sel = document.getElementById('editCategory');
-      sel.innerHTML = '<option value="">Pilih Kategori</option>';
-      if (type && categories[type]) {
-        categories[type].forEach(c => {
-          const o = document.createElement('option');
-          o.value = c; o.textContent = c; sel.appendChild(o);
-        });
-      }
-    }
-
-    function updateSummary() {
-      db.transaction(['transactions'], 'readonly')
-        .objectStore('transactions').getAll().onsuccess = (e) => {
-          const txs = e.target.result || [];
-          const income = txs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-          const expense = txs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-          const balance = income - expense;
-          document.getElementById('totalIncome').textContent = `Rp ${income.toLocaleString('id-ID')}`;
-          document.getElementById('totalExpense').textContent = `Rp ${expense.toLocaleString('id-ID')}`;
-          const balanceEl = document.getElementById('balance');
-          balanceEl.textContent = `Rp ${balance.toLocaleString('id-ID')}`;
-          balanceEl.className = `text-3xl font-extrabold ${balance >= 0 ? 'text-emerald-600' : 'text-rose-600'} mt-1`;
-        };
-    }
-
-    let reportChart;
-    function updateReport() {
-      const period = document.getElementById('reportPeriod').value;
-      db.transaction(['transactions'], 'readonly')
-        .objectStore('transactions').getAll().onsuccess = (e) => {
-          const txs = e.target.result || [];
-          const data = buildReportData(txs, period);
-          renderChart(data);
-          renderReportSummary(data);
-        };
-    }
-
-    function buildReportData(transactions, period) {
-      const now = new Date();
-      const data = {};
-      transactions.forEach(t => {
-        const d = new Date(t.date); let key;
-        if (period === 'daily') {
-          if (d.toDateString() !== now.toDateString()) return;
-          key = 'Hari Ini';
-        } else if (period === 'weekly') {
-          const start = new Date(now); start.setDate(now.getDate() - now.getDay());
-          if (d < start) return; key = 'Minggu Ini';
-        } else if (period === 'monthly') {
-          if (d.getMonth() !== now.getMonth() || d.getFullYear() !== now.getFullYear()) return;
-          key = 'Bulan Ini';
-        } else {
-          if (d.getFullYear() !== now.getFullYear()) return;
-          key = 'Tahun Ini';
-        }
-        if (!data[key]) data[key] = { income: 0, expense: 0 };
-        data[key][t.type] += t.amount;
-      });
-      return data;
-    }
-
-    function renderChart(data) {
-      const ctx = document.getElementById('reportChart').getContext('2d');
-      if (reportChart) reportChart.destroy();
-      const labels = Object.keys(data);
-      const incomeData = labels.map(l => data[l].income || 0);
-      const expenseData = labels.map(l => data[l].expense || 0);
-      reportChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [
-            { label: 'Pemasukan', data: incomeData, backgroundColor: 'rgba(16,185,129,0.9)', borderRadius: 8 },
-            { label: 'Pengeluaran', data: expenseData, backgroundColor: 'rgba(244,63,94,0.9)', borderRadius: 8 }
-          ]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { labels: { color: '#111827', font: { family: 'Inter' } } },
-            tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: Rp ${ctx.parsed.y.toLocaleString('id-ID')}` } }
-          },
-          scales: {
-            x: { ticks: { color: '#6B7280' }, grid: { display: false } },
-            y: {
-              beginAtZero: true,
-              ticks: {
-                color: '#6B7280',
-                callback: (v) => 'Rp ' + Number(v).toLocaleString('id-ID')
-              },
-              grid: { color: 'rgba(0,0,0,0.05)' }
+        function switchView() {
+            const role = document.getElementById('userRole').value;
+            const pimpinanView = document.getElementById('pimpinanView');
+            const divisiView = document.getElementById('divisiView');
+            
+            if (role === 'pimpinan') {
+                pimpinanView.classList.remove('hidden');
+                divisiView.classList.add('hidden');
+                document.getElementById('currentUser').textContent = 'Pimpinan - Admin User';
+            } else {
+                pimpinanView.classList.add('hidden');
+                divisiView.classList.remove('hidden');
+                document.getElementById('currentUser').textContent = 'Divisi IT - Staff User';
+                renderTaskList();
             }
-          }
         }
-      });
-    }
 
-    function renderReportSummary(data) {
-      const wrap = document.getElementById('reportSummary');
-      wrap.innerHTML = '';
-      Object.keys(data).forEach(k => {
-        const income = data[k].income || 0;
-        const expense = data[k].expense || 0;
-        const balance = income - expense;
-        const box = document.createElement('div');
-        box.className = 'bg-gray-50 border border-gray-200 p-4 rounded-xl';
-        box.innerHTML = `
-          <h4 class="font-bold text-gray-800 mb-3">${k}</h4>
-          <div class="grid grid-cols-3 gap-4 text-sm">
-            <div><span class="text-emerald-600 font-semibold">📈 Pemasukan</span><p class="font-extrabold mt-1">Rp ${income.toLocaleString('id-ID')}</p></div>
-            <div><span class="text-rose-600 font-semibold">📉 Pengeluaran</span><p class="font-extrabold mt-1">Rp ${expense.toLocaleString('id-ID')}</p></div>
-            <div><span class="text-indigo-600 font-semibold">💳 Saldo</span>
-              <p class="font-extrabold mt-1 ${balance >= 0 ? 'text-emerald-600' : 'text-rose-600'}">Rp ${balance.toLocaleString('id-ID')}</p>
-            </div>
-          </div>
-        `;
-        wrap.appendChild(box);
-      });
-    }
+        function updateDashboard() {
+            const totalTasks = tasks.length;
+            const completedTasks = tasks.filter(task => task.status === 'completed').length;
+            const inProgressTasks = tasks.filter(task => task.status === 'in-progress').length;
+            const avgProgress = Math.round((completedTasks / totalTasks) * 100);
 
-    // Events
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('date').valueAsDate = new Date();
-      initDB();
+            document.getElementById('totalTasks').textContent = totalTasks;
+            document.getElementById('completedTasks').textContent = completedTasks;
+            document.getElementById('inProgressTasks').textContent = inProgressTasks;
+            document.getElementById('avgProgress').textContent = avgProgress + '%';
+        }
 
-      document.getElementById('transactionForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const formData = {
-          date: document.getElementById('date').value,
-          type: document.getElementById('type').value,
-          category: document.getElementById('category').value,
-          amount: parseFloat(document.getElementById('amount').value),
-          notes: document.getElementById('notes').value
-        };
-        if (!formData.type || !formData.category) { alert('Tipe dan kategori harus diisi!'); return; }
-        if (formData.amount <= 0) { alert('Jumlah harus lebih dari 0!'); return; }
-        saveTransaction(formData);
-        e.target.reset();
-        document.getElementById('date').valueAsDate = new Date();
-        updateCategories();
-        alert('Transaksi berhasil disimpan!');
-      });
+        function renderDivisionProgress() {
+            const divisions = ['IT', 'Marketing', 'Finance', 'HR', 'Operations'];
+            const progressContainer = document.getElementById('divisionProgress');
+            
+            progressContainer.innerHTML = divisions.map(division => {
+                const divisionTasks = tasks.filter(task => task.division === division);
+                const completed = divisionTasks.filter(task => task.status === 'completed').length;
+                const total = divisionTasks.length;
+                const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+                
+                return `
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium text-gray-900">${division}</span>
+                                <span class="text-sm text-gray-600">${completed}/${total}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="progress-bar bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full" style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                        <div class="ml-4 text-right">
+                            <span class="text-lg font-bold text-gray-900">${percentage}%</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
 
-      document.getElementById('type').addEventListener('change', updateCategories);
-      document.getElementById('reportPeriod').addEventListener('change', updateReport);
-      document.getElementById('clearAllBtn').addEventListener('click', clearAllTransactions);
-      document.getElementById('filterBtn').addEventListener('click', filterTransactions);
-      document.getElementById('resetFilterBtn').addEventListener('click', resetFilter);
+        function renderRecentActivities() {
+            const recentTasks = tasks
+                .filter(task => task.status === 'completed' && task.completedDate)
+                .sort((a, b) => new Date(b.completedDate) - new Date(a.completedDate))
+                .slice(0, 5);
+            
+            const activitiesContainer = document.getElementById('recentActivities');
+            
+            activitiesContainer.innerHTML = recentTasks.map(task => `
+                <div class="flex items-center p-3 bg-green-50 rounded-lg border border-green-200">
+                    <div class="bg-green-500 text-white p-2 rounded-full mr-3">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium text-gray-900">${task.name}</p>
+                        <p class="text-sm text-gray-600">Divisi ${task.division} • ${formatDate(task.completedDate)}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-      document.getElementById('closeEditModal').addEventListener('click', closeEditModal);
-      document.getElementById('cancelEdit').addEventListener('click', closeEditModal);
-      document.getElementById('editType').addEventListener('change', updateEditCategories);
-      document.getElementById('editModal').addEventListener('click', (e) => { if (e.target.id === 'editModal') closeEditModal(); });
-    });
-  </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98634deba1729de7',t:'MTc1OTA2MzE3NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+        function renderTaskList() {
+            const itTasks = tasks.filter(task => task.division === 'IT');
+            const taskListContainer = document.getElementById('taskList');
+            
+            taskListContainer.innerHTML = itTasks.map(task => `
+                <div class="task-card border border-gray-200 rounded-lg p-4 ${task.status === 'completed' ? 'bg-green-50 border-green-200' : 'bg-white'}">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-900 ${task.status === 'completed' ? 'line-through text-gray-600' : ''}">${task.name}</h4>
+                            <p class="text-sm text-gray-600 mt-1">Ditugaskan: ${formatDate(task.assignedDate)}</p>
+                            ${task.status === 'completed' && task.completedDate ? `<p class="text-sm text-green-600 mt-1">✅ Selesai: ${formatDate(task.completedDate)}</p>` : ''}
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            ${task.status === 'completed' ? 
+                                `<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">✅ Selesai</span>` :
+                                `<button onclick="completeTask(${task.id})" class="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-green-800 transition-all text-sm font-medium">
+                                    📸 Selesaikan Tugas
+                                </button>`
+                            }
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Update division completed tasks counter
+            const completed = itTasks.filter(task => task.status === 'completed').length;
+            const total = itTasks.length;
+            document.getElementById('divisionCompletedTasks').textContent = `${completed}/${total}`;
+        }
+
+        function addNewTask(e) {
+            e.preventDefault();
+            
+            const taskDivision = document.getElementById('taskDivision').value;
+            const taskDeadline = document.getElementById('taskDeadline').value;
+            const taskInputs = document.querySelectorAll('.task-input');
+            
+            if (!taskDivision) {
+                showNotification('Mohon pilih divisi!', 'error');
+                return;
+            }
+            
+            // Collect all non-empty task names
+            const taskNames = [];
+            taskInputs.forEach(input => {
+                const taskName = input.value.trim();
+                if (taskName) {
+                    taskNames.push(taskName);
+                }
+            });
+            
+            if (taskNames.length === 0) {
+                showNotification('Mohon masukkan minimal satu tugas!', 'error');
+                return;
+            }
+            
+            // Add each task separately
+            let addedCount = 0;
+            taskNames.forEach(taskName => {
+                const newTask = {
+                    id: tasks.length + 1,
+                    name: taskName,
+                    division: taskDivision,
+                    status: 'in-progress',
+                    assignedDate: new Date().toISOString().split('T')[0],
+                    deadline: taskDeadline || null,
+                    photo: false
+                };
+                
+                tasks.push(newTask);
+                addedCount++;
+            });
+            
+            // Reset form
+            document.getElementById('taskDivision').value = '';
+            document.getElementById('taskDeadline').value = '';
+            resetTaskInputs();
+            
+            // Update displays
+            updateDashboard();
+            renderDivisionProgress();
+            renderRecentActivities();
+            if (document.getElementById('userRole').value === 'divisi') {
+                renderTaskList();
+            }
+            
+            showNotification(`${addedCount} tugas berhasil ditambahkan ke divisi ${taskDivision}!`, 'success');
+        }
+
+        function addTaskInput() {
+            const taskInputsContainer = document.getElementById('taskInputs');
+            const currentInputs = taskInputsContainer.querySelectorAll('.task-input');
+            const nextNumber = currentInputs.length + 1;
+            
+            const newInputDiv = document.createElement('div');
+            newInputDiv.className = 'flex items-center space-x-2';
+            newInputDiv.innerHTML = `
+                <span class="text-sm font-medium text-gray-500 w-6">${nextNumber}.</span>
+                <input type="text" class="task-input flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Masukkan nama tugas ${nextNumber}..." onkeypress="handleTaskInputKeypress(event, this)">
+                <button type="button" onclick="removeTaskInput(this)" class="text-red-500 hover:text-red-700 p-1 transition-opacity">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            `;
+            
+            taskInputsContainer.appendChild(newInputDiv);
+            
+            // Focus on the new input
+            const newInput = newInputDiv.querySelector('.task-input');
+            newInput.focus();
+            
+            // Show remove buttons when there are multiple inputs
+            updateRemoveButtonsVisibility();
+        }
+
+        function removeTaskInput(button) {
+            const inputDiv = button.parentElement;
+            const container = document.getElementById('taskInputs');
+            
+            // Don't remove if it's the only input
+            if (container.children.length <= 1) {
+                return;
+            }
+            
+            inputDiv.remove();
+            
+            // Renumber all inputs
+            renumberTaskInputs();
+            updateRemoveButtonsVisibility();
+        }
+
+        function renumberTaskInputs() {
+            const taskInputsContainer = document.getElementById('taskInputs');
+            const inputDivs = taskInputsContainer.querySelectorAll('div');
+            
+            inputDivs.forEach((div, index) => {
+                const numberSpan = div.querySelector('span');
+                const input = div.querySelector('.task-input');
+                
+                numberSpan.textContent = `${index + 1}.`;
+                input.placeholder = `Masukkan nama tugas ${index + 1}...`;
+            });
+        }
+
+        function updateRemoveButtonsVisibility() {
+            const taskInputsContainer = document.getElementById('taskInputs');
+            const removeButtons = taskInputsContainer.querySelectorAll('button[onclick*="removeTaskInput"]');
+            
+            if (removeButtons.length <= 1) {
+                removeButtons.forEach(btn => btn.classList.add('opacity-0'));
+            } else {
+                removeButtons.forEach(btn => btn.classList.remove('opacity-0'));
+            }
+        }
+
+        function handleTaskInputKeypress(event, input) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                
+                // If current input has value and it's the last input, add new input
+                if (input.value.trim() && input === document.querySelector('#taskInputs div:last-child .task-input')) {
+                    addTaskInput();
+                }
+            }
+        }
+
+        function resetTaskInputs() {
+            const taskInputsContainer = document.getElementById('taskInputs');
+            taskInputsContainer.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium text-gray-500 w-6">1.</span>
+                    <input type="text" class="task-input flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Masukkan nama tugas pertama..." onkeypress="handleTaskInputKeypress(event, this)">
+                    <button type="button" onclick="removeTaskInput(this)" class="text-red-500 hover:text-red-700 p-1 opacity-0 transition-opacity">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+        }
+
+        function completeTask(taskId) {
+            currentTaskId = taskId;
+            document.getElementById('photoModal').classList.remove('hidden');
+            document.getElementById('photoModal').classList.add('flex');
+        }
+
+        function closePhotoModal() {
+            document.getElementById('photoModal').classList.add('hidden');
+            document.getElementById('photoModal').classList.remove('flex');
+            document.getElementById('photoInput').value = '';
+            document.getElementById('photoDescription').value = '';
+            currentTaskId = null;
+        }
+
+        function submitPhoto() {
+            const photoInput = document.getElementById('photoInput');
+            
+            if (!photoInput.files || photoInput.files.length === 0) {
+                showNotification('Mohon upload foto bukti penyelesaian!', 'error');
+                return;
+            }
+            
+            // Update task status
+            const taskIndex = tasks.findIndex(task => task.id === currentTaskId);
+            if (taskIndex !== -1) {
+                tasks[taskIndex].status = 'completed';
+                tasks[taskIndex].completedDate = new Date().toISOString().split('T')[0];
+                tasks[taskIndex].photo = true;
+            }
+            
+            // Update displays
+            updateDashboard();
+            renderDivisionProgress();
+            renderRecentActivities();
+            renderPerformanceSummary();
+            renderTaskList();
+            
+            closePhotoModal();
+            showNotification('Tugas berhasil diselesaikan dengan bukti foto!', 'success');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            
+            if (type === 'error') {
+                notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg notification';
+            } else {
+                notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg notification';
+            }
+            
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        function renderPerformanceSummary() {
+            const divisions = ['IT', 'Marketing', 'Finance', 'HR', 'Operations'];
+            const summaryContainer = document.getElementById('performanceSummary');
+            
+            const divisionStats = divisions.map(division => {
+                const divisionTasks = tasks.filter(task => task.division === division);
+                const completed = divisionTasks.filter(task => task.status === 'completed').length;
+                const total = divisionTasks.length;
+                const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+                
+                return { division, completed, total, percentage };
+            }).sort((a, b) => b.percentage - a.percentage);
+            
+            const bestPerformer = divisionStats[0];
+            const needsAttention = divisionStats.filter(stat => stat.percentage < 50);
+            
+            summaryContainer.innerHTML = `
+                <!-- Best Performer -->
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+                    <div class="flex items-center mb-2">
+                        <div class="bg-green-500 text-white p-2 rounded-full mr-3">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-green-800">🏆 Divisi Terbaik</h4>
+                            <p class="text-sm text-green-700">Divisi ${bestPerformer.division} - ${bestPerformer.percentage}% (${bestPerformer.completed}/${bestPerformer.total})</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Overall Stats -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-blue-600">${Math.round(divisionStats.reduce((sum, stat) => sum + stat.percentage, 0) / divisionStats.length)}%</div>
+                        <div class="text-sm text-blue-700">Rata-rata Progres</div>
+                    </div>
+                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+                        <div class="text-2xl font-bold text-purple-600">${divisionStats.filter(stat => stat.percentage >= 80).length}</div>
+                        <div class="text-sm text-purple-700">Divisi Berkinerja Baik</div>
+                    </div>
+                </div>
+                
+                ${needsAttention.length > 0 ? `
+                <!-- Needs Attention -->
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="flex items-center mb-2">
+                        <div class="bg-red-500 text-white p-2 rounded-full mr-3">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-red-800">⚠️ Perlu Perhatian</h4>
+                            <p class="text-sm text-red-700">${needsAttention.map(stat => `${stat.division} (${stat.percentage}%)`).join(', ')}</p>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('id-ID', options);
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987b77c770d66112',t:'MTc1OTMxNjU0OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
