@@ -6,448 +6,378 @@
     <title>SIM - Sistem Informasi Manajemen</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            box-sizing: border-box;
-        }
-        
-        .progress-bar {
-            transition: width 0.3s ease-in-out;
-        }
-        
-        .task-card {
-            transition: all 0.2s ease-in-out;
-        }
-        
-        .task-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .notification {
-            animation: slideIn 0.3s ease-out;
-        }
-        
-        @keyframes slideIn {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
-        }
-        /* Styling for modal scrollbar */
-        .modal-content::-webkit-scrollbar {
-            width: 8px;
-        }
-        .modal-content::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
-        }
-        .modal-content::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-        }
-        .modal-content::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
+        body { box-sizing: border-box; }
+        .progress-bar { transition: width 0.3s ease-in-out; }
+        .task-card { transition: all 0.2s ease-in-out; }
+        .task-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .notification { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        .modal-content::-webkit-scrollbar { width: 8px; }
+        .modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .modal-content::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+        .modal-content::-webkit-scrollbar-thumb:hover { background: #555; }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-lg border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
-                    <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-2 rounded-lg">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                        </svg>
-                    </div>
-                    <h1 class="ml-3 text-xl font-bold text-gray-900">SIM Dashboard</h1>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <select id="userRole" class="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="pimpinan">👨‍💼 Pimpinan</option>
-                        <option value="divisi">👥 Divisi</option>
-                    </select>
-                    <div class="text-sm text-gray-600">
-                        <span id="currentUser">Admin User</span>
-                    </div>
-                </div>
+
+    <!-- Login View -->
+    <div id="loginView" class="flex items-center justify-center min-h-screen">
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md mx-4 text-center">
+            <div class="mx-auto bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
             </div>
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">Sistem Informasi Manajemen</h1>
+            <p class="text-gray-600 mb-6">Silakan masukkan kode akses Anda.</p>
+            <form id="loginForm">
+                <input type="password" id="accessCode" class="w-full text-center tracking-widest font-bold text-lg border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="••••••">
+                <p id="loginError" class="text-red-500 text-sm mt-2 hidden">Kode akses salah. Silakan coba lagi.</p>
+                <button type="submit" class="w-full mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl">
+                    Masuk
+                </button>
+            </form>
         </div>
-    </nav>
+    </div>
 
-    <!-- Main Content -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        <!-- Pimpinan Dashboard -->
-        <div id="pimpinanView" class="fade-in">
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+    <!-- Main Application View (Initially Hidden) -->
+    <div id="mainApp" class="hidden">
+        <!-- Navigation -->
+        <nav class="bg-white shadow-lg border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
                     <div class="flex items-center">
-                        <div class="bg-blue-100 p-3 rounded-full">
-                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                            </svg>
+                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-2 rounded-lg">
+                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                         </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-600">Total Tugas</p>
-                            <p class="text-2xl font-bold text-gray-900" id="totalTasks">24</p>
-                        </div>
+                        <h1 class="ml-3 text-xl font-bold text-gray-900">SIM Dashboard</h1>
                     </div>
-                </div>
-                
-                <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-                    <div class="flex items-center">
-                        <div class="bg-green-100 p-3 rounded-full">
-                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-sm text-gray-600">
+                            <span id="currentUser" class="font-medium"></span>
                         </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-600">Selesai</p>
-                            <p class="text-2xl font-bold text-green-600" id="completedTasks">18</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-                    <div class="flex items-center">
-                        <div class="bg-yellow-100 p-3 rounded-full">
-                            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-600">Dalam Proses</p>
-                            <p class="text-2xl font-bold text-yellow-600" id="inProgressTasks">6</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-                    <div class="flex items-center">
-                        <div class="bg-purple-100 p-3 rounded-full">
-                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                            </svg>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-600">Progres Rata-rata</p>
-                            <p class="text-2xl font-bold text-purple-600" id="avgProgress">75%</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Add New Task -->
-            <div class="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">📝 Tambah Tugas Baru</h2>
-                <form id="addTaskForm" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Divisi</label>
-                            <select id="taskDivision" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="">Pilih Divisi</option>
-                                <option value="IT">IT & Teknologi</option>
-                                <option value="Marketing">Marketing</option>
-                                <option value="Finance">Finance</option>
-                                <option value="HR">Human Resources</option>
-                                <option value="Operations">Operations</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Deadline (Opsional)</label>
-                            <input type="date" id="taskDeadline" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">List Tugas</label>
-                        <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-sm text-gray-600">Masukkan tugas satu per satu (tekan Enter untuk tugas baru)</span>
-                                <button type="button" onclick="addTaskInput()" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                                    ➕ Tambah Input
-                                </button>
-                            </div>
-                            <div id="taskInputs" class="space-y-2">
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-sm font-medium text-gray-500 w-6">1.</span>
-                                    <input type="text" class="task-input flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Masukkan nama tugas pertama..." onkeypress="handleTaskInputKeypress(event, this)">
-                                    <button type="button" onclick="removeTaskInput(this)" class="text-red-500 hover:text-red-700 p-1 opacity-0 transition-opacity">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end">
-                        <button type="submit" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium">
-                            ➕ Tambah Semua Tugas
+                        <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm font-medium">
+                            Logout
                         </button>
                     </div>
-                </form>
+                </div>
             </div>
+        </nav>
 
-            <!-- Division Progress -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-6">📊 Progres per Divisi</h2>
-                    <div id="divisionProgress" class="space-y-4">
-                        <!-- Division progress will be populated here -->
+        <!-- Main Content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            <!-- Pimpinan Dashboard -->
+            <div id="pimpinanView" class="hidden fade-in">
+                 <!-- Stats Cards, Add Task, etc. (Existing Code) -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100"><div class="flex items-center"><div class="bg-blue-100 p-3 rounded-full"><svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg></div><div class="ml-4"><p class="text-sm font-medium text-gray-600">Total Tugas</p><p class="text-2xl font-bold text-gray-900" id="totalTasks">0</p></div></div></div>
+                    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100"><div class="flex items-center"><div class="bg-green-100 p-3 rounded-full"><svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><div class="ml-4"><p class="text-sm font-medium text-gray-600">Selesai</p><p class="text-2xl font-bold text-green-600" id="completedTasks">0</p></div></div></div>
+                    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100"><div class="flex items-center"><div class="bg-yellow-100 p-3 rounded-full"><svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><div class="ml-4"><p class="text-sm font-medium text-gray-600">Dalam Proses</p><p class="text-2xl font-bold text-yellow-600" id="inProgressTasks">0</p></div></div></div>
+                    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100"><div class="flex items-center"><div class="bg-purple-100 p-3 rounded-full"><svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg></div><div class="ml-4"><p class="text-sm font-medium text-gray-600">Progres Rata-rata</p><p class="text-2xl font-bold text-purple-600" id="avgProgress">0%</p></div></div></div>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">📝 Tambah Tugas Baru</h2>
+                    <form id="addTaskForm" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Divisi</label>
+                                <select id="taskDivision" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">Pilih Divisi</option></select>
+                            </div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-2">Deadline (Opsional)</label><input type="date" id="taskDeadline" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">List Tugas</label>
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200"><div class="flex items-center justify-between mb-3"><span class="text-sm text-gray-600">Masukkan tugas satu per satu (tekan Enter)</span><button type="button" onclick="addTaskInput()" class="text-blue-600 hover:text-blue-700 text-sm font-medium">➕ Tambah Input</button></div><div id="taskInputs" class="space-y-2"><div class="flex items-center space-x-2"><span class="text-sm font-medium text-gray-500 w-6">1.</span><input type="text" class="task-input flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Masukkan nama tugas pertama..." onkeypress="handleTaskInputKeypress(event, this)"><button type="button" onclick="removeTaskInput(this)" class="text-red-500 hover:text-red-700 p-1 opacity-0 transition-opacity"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div></div></div>
+                        </div>
+                        <div class="flex justify-end"><button type="submit" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium">➕ Tambah Semua Tugas</button></div>
+                    </form>
+                </div>
+                <!-- Division Management Section -->
+                <div class="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">🔑 Kelola Divisi & Kode Akses</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Form to Add/Edit Division -->
+                        <div class="md:col-span-1">
+                            <form id="divisionForm" class="bg-gray-50 p-4 rounded-lg border">
+                                <h3 id="divisionFormTitle" class="font-semibold mb-3 text-gray-800">Tambah Divisi Baru</h3>
+                                <input type="hidden" id="divisionId">
+                                <div class="space-y-3">
+                                    <div>
+                                        <label for="divisionName" class="block text-sm font-medium text-gray-700">Nama Divisi</label>
+                                        <input type="text" id="divisionName" required class="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div>
+                                        <label for="divisionAccessCode" class="block text-sm font-medium text-gray-700">Kode Akses</label>
+                                        <input type="text" id="divisionAccessCode" required class="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button type="submit" id="divisionSubmitBtn" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">Tambah</button>
+                                        <button type="button" id="divisionCancelBtn" onclick="resetDivisionForm()" class="hidden flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">Batal</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- Table of Divisions -->
+                        <div class="md:col-span-2">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full bg-white border rounded-lg">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="text-left py-2 px-3 font-semibold text-gray-600 text-sm">Nama Divisi</th>
+                                            <th class="text-left py-2 px-3 font-semibold text-gray-600 text-sm">Kode Akses</th>
+                                            <th class="text-left py-2 px-3 font-semibold text-gray-600 text-sm">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="divisionTableBody">
+                                        <!-- Division rows will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Recent Activities -->
-                <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-6">🔔 Aktivitas Terbaru</h2>
-                    <div id="recentActivities" class="space-y-3">
-                        <!-- Recent activities will be populated here -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Divisi Dashboard -->
-        <div id="divisiView" class="hidden fade-in">
-            <!-- Division Header -->
-            <div class="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-900">Dashboard Divisi IT & Teknologi</h2>
-                        <p class="text-gray-600 mt-1">Kelola dan pantau tugas-tugas divisi Anda</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-sm text-gray-600">Tugas Selesai</p>
-                        <p class="text-3xl font-bold text-green-600" id="divisionCompletedTasks">12/15</p>
-                    </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100"><h2 class="text-lg font-semibold text-gray-900 mb-6">📊 Progres per Divisi</h2><div id="divisionProgress" class="space-y-4"></div></div>
+                    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100"><h2 class="text-lg font-semibold text-gray-900 mb-6">🔔 Aktivitas Terbaru</h2><div id="recentActivities" class="space-y-3"></div></div>
                 </div>
             </div>
 
-            <!-- Task List -->
-            <div class="bg-white rounded-xl shadow-md border border-gray-100">
-                <div class="p-6 border-b border-gray-200">
-                    <h3 class="text-lg font-semibold text-gray-900">📋 Daftar Tugas</h3>
-                </div>
-                <div class="p-6">
-                    <div id="taskList" class="space-y-4">
-                        <!-- Tasks will be populated here -->
+            <!-- Divisi Dashboard -->
+            <div id="divisiView" class="hidden fade-in">
+                <div class="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <div><h2 id="divisiTitle" class="text-2xl font-bold text-gray-900"></h2><p class="text-gray-600 mt-1">Kelola dan pantau tugas-tugas divisi Anda</p></div>
+                        <div class="text-right"><p class="text-sm text-gray-600">Tugas Selesai</p><p class="text-3xl font-bold text-green-600" id="divisionCompletedTasks">0/0</p></div>
                     </div>
                 </div>
+                <div class="bg-white rounded-xl shadow-md border border-gray-100">
+                    <div class="p-6 border-b border-gray-200"><h3 class="text-lg font-semibold text-gray-900">📋 Daftar Tugas</h3></div>
+                    <div class="p-6"><div id="taskList" class="space-y-4"></div></div>
+                </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Photo Upload Modal -->
-    <div id="photoModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">📸 Upload Bukti Penyelesaian</h3>
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Upload Foto Bukti</label>
-                <input type="file" id="photoInput" accept="image/*" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Keterangan (Opsional)</label>
-                <textarea id="photoDescription" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tambahkan keterangan..."></textarea>
-            </div>
-            <div class="flex space-x-3">
-                <button onclick="closePhotoModal()" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">
-                    Batal
-                </button>
-                <button onclick="submitPhoto()" class="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-green-800 transition-all">
-                    ✅ Konfirmasi
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Progress Detail Modal -->
-    <div id="progressDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-6 max-w-3xl w-full mx-4 flex flex-col" style="height: 90vh;">
-            <div class="flex justify-between items-center mb-4 border-b pb-3">
-                <h3 id="progressDetailTitle" class="text-xl font-semibold text-gray-900">Detail Progres Divisi</h3>
-                <button onclick="closeProgressDetailModal()" class="text-gray-500 hover:text-gray-800">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            <div id="progressDetailContent" class="modal-content flex-grow overflow-y-auto pr-2">
-                <!-- Detailed progress content will be populated here -->
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Notification -->
-    <div id="notification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden notification">
-        <div class="flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-            <span id="notificationText">Tugas berhasil diselesaikan!</span>
         </div>
     </div>
+
+    <!-- Modals (Photo Upload, Progress Detail) -->
+    <div id="photoModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-xl p-6 max-w-md w-full mx-4"><h3 class="text-lg font-semibold text-gray-900 mb-4">📸 Upload Bukti Penyelesaian</h3><div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2">Upload Foto Bukti</label><input type="file" id="photoInput" accept="image/*" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></div><div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2">Keterangan (Opsional)</label><textarea id="photoDescription" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tambahkan keterangan..."></textarea></div><div class="flex space-x-3"><button onclick="closePhotoModal()" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">Batal</button><button onclick="submitPhoto()" class="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-green-800 transition-all">✅ Konfirmasi</button></div></div></div>
+    <div id="progressDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-xl p-6 max-w-3xl w-full mx-4 flex flex-col" style="height: 90vh;"><div class="flex justify-between items-center mb-4 border-b pb-3"><h3 id="progressDetailTitle" class="text-xl font-semibold text-gray-900"></h3><button onclick="closeProgressDetailModal()" class="text-gray-500 hover:text-gray-800"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div id="progressDetailContent" class="modal-content flex-grow overflow-y-auto pr-2"></div></div></div>
+    <div id="notification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden notification"><div class="flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span id="notificationText"></span></div></div>
 
     <script>
-        // Sample data
+        // --- DATABASE SIMULATION ---
+        let pimpinanAccessCode = '123';
+        let divisions = [
+            { id: 1, name: 'IT', accessCode: '321' },
+            { id: 2, name: 'Marketing', accessCode: '111' },
+            { id: 3, name: 'HR', accessCode: '222' },
+            { id: 4, name: 'Operations', accessCode: '333' },
+            { id: 5, name: 'Finance', accessCode: '444' }
+        ];
         let tasks = [
             { id: 1, name: 'Implementasi Sistem Keamanan', division: 'IT', status: 'completed', assignedDate: '2024-07-15', completedDate: '2024-07-20', photo: true, deadline: '2024-07-25', photoUrl: 'https://placehold.co/600x400/1D4ED8/FFFFFF?text=Bukti+Keamanan' },
             { id: 2, name: 'Update Website Company Profile', division: 'IT', status: 'completed', assignedDate: '2024-07-16', completedDate: '2024-07-22', photo: true, deadline: '2024-07-30', photoUrl: 'https://placehold.co/600x400/1D4ED8/FFFFFF?text=Update+Website' },
             { id: 3, name: 'Backup Database Mingguan', division: 'IT', status: 'in-progress', assignedDate: '2024-07-18', photo: false, deadline: '2024-08-01', photoUrl: null },
             { id: 4, name: 'Kampanye Media Sosial Q3', division: 'Marketing', status: 'completed', assignedDate: '2024-07-10', completedDate: '2024-07-25', photo: true, deadline: '2024-07-28', photoUrl: 'https://placehold.co/600x400/D946EF/FFFFFF?text=Kampanye+Medsos' },
-            { id: 5, name: 'Analisis ROI Campaign', division: 'Marketing', status: 'in-progress', assignedDate: '2024-07-20', photo: false, deadline: '2024-08-10', photoUrl: null },
-            { id: 6, name: 'Laporan Keuangan Bulanan', division: 'Finance', status: 'completed', assignedDate: '2024-07-12', completedDate: '2024-07-28', photo: true, deadline: '2024-07-31', photoUrl: 'https://placehold.co/600x400/F59E0B/FFFFFF?text=Laporan+Keuangan' },
-            { id: 7, name: 'Audit Internal Q3', division: 'Finance', status: 'in-progress', assignedDate: '2024-07-22', photo: false, deadline: null, photoUrl: null },
-            { id: 8, name: 'Rekrutmen Developer', division: 'HR', status: 'completed', assignedDate: '2024-07-08', completedDate: '2024-07-30', photo: true, deadline: '2024-07-29', photoUrl: 'https://placehold.co/600x400/10B981/FFFFFF?text=Rekrutmen' },
-            { id: 9, name: 'Training Karyawan Baru', division: 'HR', status: 'in-progress', assignedDate: '2024-07-25', photo: false, deadline: '2024-08-15', photoUrl: null },
-            { id: 10, name: 'Optimasi Proses Produksi', division: 'Operations', status: 'completed', assignedDate: '2024-07-14', completedDate: '2024-07-26', photo: true, deadline: null, photoUrl: 'https://placehold.co/600x400/6366F1/FFFFFF?text=Optimasi+Produksi' }
         ];
-
         let currentTaskId = null;
+        let loggedInUser = null; // { role: 'pimpinan' } or { role: 'divisi', name: 'IT' }
 
-        // Initialize
+        // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', function() {
-            updateDashboard();
-            renderDivisionProgress();
-            renderRecentActivities();
-            renderTaskList();
-            
-            document.getElementById('userRole').addEventListener('change', switchView);
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
             document.getElementById('addTaskForm').addEventListener('submit', addNewTask);
+            document.getElementById('divisionForm').addEventListener('submit', handleDivisionFormSubmit);
         });
 
-        function switchView() {
-            const role = document.getElementById('userRole').value;
-            const pimpinanView = document.getElementById('pimpinanView');
-            const divisiView = document.getElementById('divisiView');
+        // --- AUTHENTICATION & VIEW MANAGEMENT ---
+        function handleLogin(e) {
+            e.preventDefault();
+            const code = document.getElementById('accessCode').value;
+            const loginError = document.getElementById('loginError');
             
-            if (role === 'pimpinan') {
-                pimpinanView.classList.remove('hidden');
-                divisiView.classList.add('hidden');
-                document.getElementById('currentUser').textContent = 'Pimpinan - Admin User';
+            if (code === pimpinanAccessCode) {
+                loggedInUser = { role: 'pimpinan' };
+                showAppView();
+                renderPimpinanView();
             } else {
-                pimpinanView.classList.add('hidden');
-                divisiView.classList.remove('hidden');
-                document.getElementById('currentUser').textContent = 'Divisi IT - Staff User';
-                renderTaskList();
+                const division = divisions.find(d => d.accessCode === code);
+                if (division) {
+                    loggedInUser = { role: 'divisi', name: division.name };
+                    showAppView();
+                    renderDivisiView(division.name);
+                } else {
+                    loginError.classList.remove('hidden');
+                }
             }
         }
 
-        function updateDashboard() {
-            const totalTasks = tasks.length;
-            const completedTasks = tasks.filter(task => task.status === 'completed').length;
-            const inProgressTasks = tasks.filter(task => task.status === 'in-progress').length;
-            const avgProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+        function logout() {
+            loggedInUser = null;
+            document.getElementById('loginView').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('accessCode').value = '';
+            document.getElementById('loginError').classList.add('hidden');
+        }
 
-            document.getElementById('totalTasks').textContent = totalTasks;
-            document.getElementById('completedTasks').textContent = completedTasks;
-            document.getElementById('inProgressTasks').textContent = inProgressTasks;
-            document.getElementById('avgProgress').textContent = avgProgress + '%';
+        function showAppView() {
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+        }
+
+        function renderPimpinanView() {
+            document.getElementById('pimpinanView').classList.remove('hidden');
+            document.getElementById('divisiView').classList.add('hidden');
+            document.getElementById('currentUser').textContent = 'Role: Pimpinan';
+            updateAllPimpinanDashboards();
+            renderDivisionManagementTable();
+            populateDivisionDropdown();
+        }
+
+        function renderDivisiView(divisionName) {
+            document.getElementById('pimpinanView').classList.add('hidden');
+            document.getElementById('divisiView').classList.remove('hidden');
+            document.getElementById('currentUser').textContent = `Divisi: ${divisionName}`;
+            document.getElementById('divisiTitle').textContent = `Dashboard Divisi ${divisionName}`;
+            renderTaskList(divisionName);
+        }
+
+        // --- PIMPINAN: DIVISION MANAGEMENT ---
+        function renderDivisionManagementTable() {
+            const tableBody = document.getElementById('divisionTableBody');
+            tableBody.innerHTML = divisions.map(div => `
+                <tr class="border-b">
+                    <td class="py-2 px-3">${div.name}</td>
+                    <td class="py-2 px-3">${div.accessCode}</td>
+                    <td class="py-2 px-3 flex space-x-2">
+                        <button onclick="editDivision(${div.id})" class="text-blue-500 hover:text-blue-700 text-sm">Edit</button>
+                        <button onclick="deleteDivision(${div.id})" class="text-red-500 hover:text-red-700 text-sm">Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function handleDivisionFormSubmit(e) {
+            e.preventDefault();
+            const id = document.getElementById('divisionId').value;
+            const name = document.getElementById('divisionName').value;
+            const accessCode = document.getElementById('divisionAccessCode').value;
+
+            if (id) { // Editing existing
+                const index = divisions.findIndex(d => d.id == id);
+                if (index > -1) {
+                    divisions[index] = { ...divisions[index], name, accessCode };
+                }
+            } else { // Adding new
+                const newId = divisions.length > 0 ? Math.max(...divisions.map(d => d.id)) + 1 : 1;
+                divisions.push({ id: newId, name, accessCode });
+            }
+            
+            resetDivisionForm();
+            renderDivisionManagementTable();
+            updateAllPimpinanDashboards(); // Refresh progress chart & dropdown
+        }
+        
+        function editDivision(id) {
+            const division = divisions.find(d => d.id === id);
+            if (division) {
+                document.getElementById('divisionId').value = division.id;
+                document.getElementById('divisionName').value = division.name;
+                document.getElementById('divisionAccessCode').value = division.accessCode;
+                document.getElementById('divisionFormTitle').textContent = 'Edit Divisi';
+                document.getElementById('divisionSubmitBtn').textContent = 'Simpan';
+                document.getElementById('divisionCancelBtn').classList.remove('hidden');
+            }
+        }
+        
+        function deleteDivision(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus divisi ini?')) {
+                divisions = divisions.filter(d => d.id !== id);
+                tasks = tasks.filter(t => t.division !== divisions.find(d => d.id === id)?.name); // Remove tasks of deleted division
+                renderDivisionManagementTable();
+                updateAllPimpinanDashboards();
+            }
+        }
+        
+        function resetDivisionForm() {
+            document.getElementById('divisionForm').reset();
+            document.getElementById('divisionId').value = '';
+            document.getElementById('divisionFormTitle').textContent = 'Tambah Divisi Baru';
+            document.getElementById('divisionSubmitBtn').textContent = 'Tambah';
+            document.getElementById('divisionCancelBtn').classList.add('hidden');
+        }
+
+        // --- PIMPINAN: DASHBOARD RENDERING ---
+        function updateAllPimpinanDashboards() {
+            updateDashboardStats();
+            renderDivisionProgress();
+            renderRecentActivities();
+            populateDivisionDropdown();
+        }
+
+        function updateDashboardStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.status === 'completed').length;
+            const inProgress = total - completed;
+            const avg = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('inProgressTasks').textContent = inProgress;
+            document.getElementById('avgProgress').textContent = `${avg}%`;
         }
 
         function renderDivisionProgress() {
-            const divisions = ['IT', 'Marketing', 'Finance', 'HR', 'Operations'];
-            const progressContainer = document.getElementById('divisionProgress');
-            
-            progressContainer.innerHTML = divisions.map(division => {
-                const divisionTasks = tasks.filter(task => task.division === division);
-                const completed = divisionTasks.filter(task => task.status === 'completed').length;
-                const total = divisionTasks.length;
+            const container = document.getElementById('divisionProgress');
+            container.innerHTML = divisions.map(div => {
+                const divTasks = tasks.filter(t => t.division === div.name);
+                const completed = divTasks.filter(t => t.status === 'completed').length;
+                const total = divTasks.length;
                 const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
                 
-                return `
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <div class="flex items-center justify-between">
-                            <div class="flex-1">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="font-medium text-gray-900">${division}</span>
-                                    <span class="text-sm text-gray-600">${completed}/${total}</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div class="progress-bar bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full" style="width: ${percentage}%"></div>
-                                </div>
-                            </div>
-                            <div class="ml-4 text-right">
-                                <span class="text-lg font-bold text-gray-900">${percentage}%</span>
-                            </div>
-                        </div>
-                        <div class="mt-3 text-right">
-                            <button onclick="showProgressDetail('${division}')" class="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline">
-                                Lihat Detail
-                            </button>
-                        </div>
-                    </div>
-                `;
+                return `<div class="p-4 bg-gray-50 rounded-lg"><div class="flex items-center justify-between"><div class="flex-1"><div class="flex items-center justify-between mb-2"><span class="font-medium text-gray-900">${div.name}</span><span class="text-sm text-gray-600">${completed}/${total}</span></div><div class="w-full bg-gray-200 rounded-full h-2"><div class="progress-bar bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full" style="width: ${percentage}%"></div></div></div><div class="ml-4 text-right"><span class="text-lg font-bold text-gray-900">${percentage}%</span></div></div><div class="mt-3 text-right"><button onclick="showProgressDetail('${div.name}')" class="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline">Lihat Detail</button></div></div>`;
             }).join('');
         }
 
-        function renderRecentActivities() {
-            const recentTasks = tasks
-                .filter(task => task.status === 'completed' && task.completedDate)
-                .sort((a, b) => new Date(b.completedDate) - new Date(a.completedDate))
-                .slice(0, 5);
-            
-            const activitiesContainer = document.getElementById('recentActivities');
-            
-            activitiesContainer.innerHTML = recentTasks.map(task => `
-                <div class="flex items-center p-3 bg-green-50 rounded-lg border border-green-200">
-                    <div class="bg-green-500 text-white p-2 rounded-full mr-3">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-medium text-gray-900">${task.name}</p>
-                        <p class="text-sm text-gray-600">Divisi ${task.division} • ${formatDate(task.completedDate)}</p>
-                    </div>
-                </div>
-            `).join('');
+        function populateDivisionDropdown() {
+            const select = document.getElementById('taskDivision');
+            select.innerHTML = '<option value="">Pilih Divisi</option>' + divisions.map(d => `<option value="${d.name}">${d.name}</option>`).join('');
         }
-
-        function renderTaskList() {
-            const itTasks = tasks.filter(task => task.division === 'IT');
-            const taskListContainer = document.getElementById('taskList');
+        
+        // --- DIVISI: TASK LIST RENDERING ---
+        function renderTaskList(divisionName) {
+            const divTasks = tasks.filter(task => task.division === divisionName);
+            const container = document.getElementById('taskList');
             
-            taskListContainer.innerHTML = itTasks.map(task => `
-                <div class="task-card border border-gray-200 rounded-lg p-4 ${task.status === 'completed' ? 'bg-green-50 border-green-200' : 'bg-white'}">
-                    <div class="flex items-center justify-between">
-                        <div class="flex-1">
-                            <h4 class="font-semibold text-gray-900 ${task.status === 'completed' ? 'line-through text-gray-600' : ''}">${task.name}</h4>
-                            <p class="text-sm text-gray-600 mt-1">Ditugaskan: ${formatDate(task.assignedDate)}</p>
-                            ${task.deadline ? `<p class="text-sm text-red-600 mt-1">🚨 Deadline: ${formatDate(task.deadline)}</p>` : ''}
-                            ${task.status === 'completed' && task.completedDate ? `<p class="text-sm text-green-600 mt-1">✅ Selesai: ${formatDate(task.completedDate)}</p>` : ''}
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            ${task.status === 'completed' ? 
-                                `<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">✅ Selesai</span>` :
-                                `<button onclick="completeTask(${task.id})" class="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-green-800 transition-all text-sm font-medium">
-                                    📸 Selesaikan Tugas
-                                </button>`
-                            }
+            if (divTasks.length === 0) {
+                container.innerHTML = `<div class="text-center text-gray-500 p-10">Belum ada tugas untuk divisi ini.</div>`;
+            } else {
+                 container.innerHTML = divTasks.map(task => `
+                    <div class="task-card border border-gray-200 rounded-lg p-4 ${task.status === 'completed' ? 'bg-green-50 border-green-200' : 'bg-white'}">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-900 ${task.status === 'completed' ? 'line-through text-gray-600' : ''}">${task.name}</h4>
+                                <p class="text-sm text-gray-600 mt-1">Ditugaskan: ${formatDate(task.assignedDate)}</p>
+                                ${task.deadline ? `<p class="text-sm text-red-600 mt-1">🚨 Deadline: ${formatDate(task.deadline)}</p>` : ''}
+                                ${task.status === 'completed' && task.completedDate ? `<p class="text-sm text-green-600 mt-1">✅ Selesai: ${formatDate(task.completedDate)}</p>` : ''}
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                ${task.status === 'completed' ? `<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">✅ Selesai</span>` : `<button onclick="completeTask(${task.id})" class="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-green-800 transition-all text-sm font-medium">📸 Selesaikan Tugas</button>`}
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
-            
-            const completed = itTasks.filter(task => task.status === 'completed').length;
-            const total = itTasks.length;
-            document.getElementById('divisionCompletedTasks').textContent = `${completed}/${total}`;
+                `).join('');
+            }
+           
+            const completed = divTasks.filter(t => t.status === 'completed').length;
+            document.getElementById('divisionCompletedTasks').textContent = `${completed}/${divTasks.length}`;
         }
-
+        
+        // --- EXISTING HELPER FUNCTIONS (UNCHANGED OR MINOR TWEAKS) ---
         function addNewTask(e) {
-            e.preventDefault();
+             e.preventDefault();
             const taskDivision = document.getElementById('taskDivision').value;
             const taskDeadline = document.getElementById('taskDeadline').value;
             const taskInputs = document.querySelectorAll('.task-input');
@@ -460,131 +390,21 @@
             });
             document.getElementById('addTaskForm').reset();
             resetTaskInputs();
-            updateDashboard();
-            renderDivisionProgress();
-            renderRecentActivities();
-            if (document.getElementById('userRole').value === 'divisi') renderTaskList();
+            updateAllPimpinanDashboards();
             showNotification(`${taskNames.length} tugas berhasil ditambahkan!`, 'success');
         }
-        
-        function addTaskInput() {
-            const container = document.getElementById('taskInputs');
-            const nextNumber = container.children.length + 1;
-            const div = document.createElement('div');
-            div.className = 'flex items-center space-x-2';
-            div.innerHTML = `<span class="text-sm font-medium text-gray-500 w-6">${nextNumber}.</span><input type="text" class="task-input flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Masukkan nama tugas ${nextNumber}..." onkeypress="handleTaskInputKeypress(event, this)"><button type="button" onclick="removeTaskInput(this)" class="text-red-500 hover:text-red-700 p-1 transition-opacity"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>`;
-            container.appendChild(div);
-            div.querySelector('input').focus();
-            updateRemoveButtonsVisibility();
-        }
 
-        function removeTaskInput(button) {
-            const container = document.getElementById('taskInputs');
-            if (container.children.length > 1) { button.parentElement.remove(); renumberTaskInputs(); updateRemoveButtonsVisibility(); }
-        }
-
-        function renumberTaskInputs() {
-            document.querySelectorAll('#taskInputs > div').forEach((div, index) => {
-                div.querySelector('span').textContent = `${index + 1}.`;
-                div.querySelector('input').placeholder = `Masukkan nama tugas ${index + 1}...`;
-            });
-        }
-
-        function updateRemoveButtonsVisibility() {
-            const buttons = document.querySelectorAll('#taskInputs button');
-            buttons.forEach(btn => btn.classList.toggle('opacity-0', buttons.length <= 1));
-        }
-
-        function handleTaskInputKeypress(event, input) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                if (input.value.trim() && input.closest('div') === document.querySelector('#taskInputs > div:last-child')) addTaskInput();
-            }
-        }
-
-        function resetTaskInputs() {
-            document.getElementById('taskInputs').innerHTML = `<div class="flex items-center space-x-2"><span class="text-sm font-medium text-gray-500 w-6">1.</span><input type="text" class="task-input flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Masukkan nama tugas pertama..." onkeypress="handleTaskInputKeypress(event, this)"><button type="button" onclick="removeTaskInput(this)" class="text-red-500 hover:text-red-700 p-1 opacity-0 transition-opacity"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div>`;
-        }
-
-        function completeTask(taskId) {
-            currentTaskId = taskId;
-            document.getElementById('photoModal').classList.add('flex');
-            document.getElementById('photoModal').classList.remove('hidden');
-        }
-
-        function closePhotoModal() {
-            document.getElementById('photoModal').classList.add('hidden');
-            document.getElementById('photoModal').classList.remove('flex');
-            document.getElementById('photoInput').value = '';
-            document.getElementById('photoDescription').value = '';
-            currentTaskId = null;
-        }
-
-        function submitPhoto() {
-            if (!document.getElementById('photoInput').files.length) { showNotification('Mohon upload foto bukti penyelesaian!', 'error'); return; }
-            const task = tasks.find(t => t.id === currentTaskId);
-            if (task) {
-                task.status = 'completed';
-                task.completedDate = new Date().toISOString().split('T')[0];
-                task.photo = true;
-                task.photoUrl = `https://placehold.co/600x400/CCCCCC/333333?text=Bukti+Upload`; // Placeholder for uploaded image
-            }
-            updateDashboard();
-            renderDivisionProgress();
-            renderRecentActivities();
-            renderTaskList();
-            closePhotoModal();
-            showNotification('Tugas berhasil diselesaikan!', 'success');
-        }
-
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            const notificationText = document.getElementById('notificationText');
-            notificationText.textContent = message;
-            notification.className = `fixed top-4 right-4 text-white px-6 py-3 rounded-lg shadow-lg notification ${type === 'error' ? 'bg-red-500' : 'bg-green-500'}`;
-            notification.classList.remove('hidden');
-            setTimeout(() => notification.classList.add('hidden'), 3000);
-        }
-
-        function formatDate(dateString) {
-            if (!dateString) return '';
-            return new Date(dateString).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
-        }
-        
-        // --- NEW FUNCTIONS FOR PROGRESS DETAIL ---
-
-        function showProgressDetail(division) {
-            const modal = document.getElementById('progressDetailModal');
-            const title = document.getElementById('progressDetailTitle');
-            const content = document.getElementById('progressDetailContent');
-            
-            const completedTasks = tasks.filter(task => task.division === division && task.status === 'completed' && task.photoUrl);
-            
-            title.textContent = `Detail Progres Divisi ${division}`;
-            
-            if (completedTasks.length === 0) {
-                content.innerHTML = `<div class="text-center text-gray-500 p-10">Belum ada tugas yang diselesaikan dengan bukti foto untuk divisi ini.</div>`;
+        function renderRecentActivities() {
+            const container = document.getElementById('recentActivities');
+            const recent = tasks.filter(t => t.status === 'completed' && t.completedDate).sort((a, b) => new Date(b.completedDate) - new Date(a.completedDate)).slice(0, 5);
+             if (recent.length === 0) {
+                container.innerHTML = `<div class="text-center text-gray-500 p-4">Belum ada aktivitas.</div>`;
             } else {
-                content.innerHTML = completedTasks.map(task => `
-                    <div class="border rounded-lg mb-4 overflow-hidden bg-white shadow-sm">
-                        <img src="${task.photoUrl}" alt="Bukti foto untuk ${task.name}" class="w-full h-48 object-cover">
-                        <div class="p-4">
-                            <h4 class="font-semibold text-gray-800">${task.name}</h4>
-                            <p class="text-sm text-green-600 mt-1">✅ Selesai pada: ${formatDate(task.completedDate)}</p>
-                        </div>
-                    </div>
-                `).join('');
+                 container.innerHTML = recent.map(task => `<div class="flex items-center p-3 bg-green-50 rounded-lg border border-green-200"><div class="bg-green-500 text-white p-2 rounded-full mr-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><div class="flex-1"><p class="font-medium text-gray-900">${task.name}</p><p class="text-sm text-gray-600">Divisi ${task.division} • ${formatDate(task.completedDate)}</p></div></div>`).join('');
             }
-            
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
         }
-
-        function closeProgressDetailModal() {
-            const modal = document.getElementById('progressDetailModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
+        function addTaskInput(){const c=document.getElementById("taskInputs"),d=c.children.length+1,a=document.createElement("div");a.className="flex items-center space-x-2";a.innerHTML=`<span class="text-sm font-medium text-gray-500 w-6">${d}.</span><input type="text" class="task-input flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Masukkan nama tugas ${d}..." onkeypress="handleTaskInputKeypress(event, this)"><button type="button" onclick="removeTaskInput(this)" class="text-red-500 hover:text-red-700 p-1 transition-opacity"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>`;c.appendChild(a);a.querySelector("input").focus();updateRemoveButtonsVisibility()}function removeTaskInput(a){const b=document.getElementById("taskInputs");1<b.children.length&&(a.parentElement.remove(),renumberTaskInputs(),updateRemoveButtonsVisibility())}function renumberTaskInputs(){document.querySelectorAll("#taskInputs > div").forEach((b,c)=>{b.querySelector("span").textContent=`${c+1}.`;b.querySelector("input").placeholder=`Masukkan nama tugas ${c+1}...`})}function updateRemoveButtonsVisibility(){const a=document.querySelectorAll("#taskInputs button");a.forEach(b=>b.classList.toggle("opacity-0",a.length<=1))}function handleTaskInputKeypress(a,b){"Enter"===a.key&&(a.preventDefault(),b.value.trim()&&b.closest("div")===document.querySelector("#taskInputs > div:last-child")&&addTaskInput())}function resetTaskInputs(){document.getElementById("taskInputs").innerHTML='<div class="flex items-center space-x-2"><span class="text-sm font-medium text-gray-500 w-6">1.</span><input type="text" class="task-input flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Masukkan nama tugas pertama..." onkeypress="handleTaskInputKeypress(event, this)"><button type="button" onclick="removeTaskInput(this)" class="text-red-500 hover:text-red-700 p-1 opacity-0 transition-opacity"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div>'}function completeTask(a){currentTaskId=a;document.getElementById("photoModal").classList.add("flex");document.getElementById("photoModal").classList.remove("hidden")}function closePhotoModal(){document.getElementById("photoModal").classList.add("hidden");document.getElementById("photoModal").classList.remove("flex");document.getElementById("photoInput").value="";document.getElementById("photoDescription").value="";currentTaskId=null}
+        function submitPhoto(){if(!document.getElementById("photoInput").files.length){showNotification("Mohon upload foto bukti penyelesaian!","error");return}const a=tasks.find(b=>b.id===currentTaskId);a&&(a.status="completed",a.completedDate=(new Date).toISOString().split("T")[0],a.photo=!0,a.photoUrl="https://placehold.co/600x400/CCCCCC/333333?text=Bukti+Upload");updateAllPimpinanDashboards();renderTaskList(loggedInUser.name);closePhotoModal();showNotification("Tugas berhasil diselesaikan!","success")}function showNotification(b,c="success"){const a=document.getElementById("notification"),d=document.getElementById("notificationText");d.textContent=b;a.className=`fixed top-4 right-4 text-white px-6 py-3 rounded-lg shadow-lg notification ${"error"===c?"bg-red-500":"bg-green-500"}`;a.classList.remove("hidden");setTimeout(()=>a.classList.add("hidden"),3E3)}function formatDate(a){return a?new Date(a).toLocaleDateString("id-ID",{year:"numeric",month:"long",day:"numeric"}):""}function showProgressDetail(c){const a=document.getElementById("progressDetailModal"),d=document.getElementById("progressDetailTitle"),b=document.getElementById("progressDetailContent"),e=tasks.filter(f=>f.division===c&&"completed"===f.status&&f.photoUrl);d.textContent=`Detail Progres Divisi ${c}`;b.innerHTML=0===e.length?'<div class="text-center text-gray-500 p-10">Belum ada tugas yang diselesaikan dengan bukti foto untuk divisi ini.</div>':e.map(f=>`<div class="border rounded-lg mb-4 overflow-hidden bg-white shadow-sm"><img src="${f.photoUrl}" alt="Bukti foto untuk ${f.name}" class="w-full h-48 object-cover"><div class="p-4"><h4 class="font-semibold text-gray-800">${f.name}</h4><p class="text-sm text-green-600 mt-1">\u2705 Selesai pada: ${formatDate(f.completedDate)}</p></div></div>`).join("");a.classList.remove("hidden");a.classList.add("flex")}function closeProgressDetailModal(){const a=document.getElementById("progressDetailModal");a.classList.add("hidden");a.classList.remove("flex")};
 
     </script>
 </body>
