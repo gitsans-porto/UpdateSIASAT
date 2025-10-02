@@ -270,16 +270,16 @@
     <script>
         // Sample data
         let tasks = [
-            { id: 1, name: 'Implementasi Sistem Keamanan', division: 'IT', status: 'completed', assignedDate: '2024-01-15', completedDate: '2024-01-20', photo: true },
-            { id: 2, name: 'Update Website Company Profile', division: 'IT', status: 'completed', assignedDate: '2024-01-16', completedDate: '2024-01-22', photo: true },
-            { id: 3, name: 'Backup Database Mingguan', division: 'IT', status: 'in-progress', assignedDate: '2024-01-18', photo: false },
-            { id: 4, name: 'Kampanye Media Sosial Q1', division: 'Marketing', status: 'completed', assignedDate: '2024-01-10', completedDate: '2024-01-25', photo: true },
-            { id: 5, name: 'Analisis ROI Campaign', division: 'Marketing', status: 'in-progress', assignedDate: '2024-01-20', photo: false },
-            { id: 6, name: 'Laporan Keuangan Bulanan', division: 'Finance', status: 'completed', assignedDate: '2024-01-12', completedDate: '2024-01-28', photo: true },
-            { id: 7, name: 'Audit Internal Q1', division: 'Finance', status: 'in-progress', assignedDate: '2024-01-22', photo: false },
-            { id: 8, name: 'Rekrutmen Developer', division: 'HR', status: 'completed', assignedDate: '2024-01-08', completedDate: '2024-01-30', photo: true },
-            { id: 9, name: 'Training Karyawan Baru', division: 'HR', status: 'in-progress', assignedDate: '2024-01-25', photo: false },
-            { id: 10, name: 'Optimasi Proses Produksi', division: 'Operations', status: 'completed', assignedDate: '2024-01-14', completedDate: '2024-01-26', photo: true }
+            { id: 1, name: 'Implementasi Sistem Keamanan', division: 'IT', status: 'completed', assignedDate: '2024-07-15', completedDate: '2024-07-20', photo: true, deadline: '2024-07-25' },
+            { id: 2, name: 'Update Website Company Profile', division: 'IT', status: 'completed', assignedDate: '2024-07-16', completedDate: '2024-07-22', photo: true, deadline: '2024-07-30' },
+            { id: 3, name: 'Backup Database Mingguan', division: 'IT', status: 'in-progress', assignedDate: '2024-07-18', photo: false, deadline: '2024-08-01' },
+            { id: 4, name: 'Kampanye Media Sosial Q3', division: 'Marketing', status: 'completed', assignedDate: '2024-07-10', completedDate: '2024-07-25', photo: true, deadline: '2024-07-28' },
+            { id: 5, name: 'Analisis ROI Campaign', division: 'Marketing', status: 'in-progress', assignedDate: '2024-07-20', photo: false, deadline: '2024-08-10' },
+            { id: 6, name: 'Laporan Keuangan Bulanan', division: 'Finance', status: 'completed', assignedDate: '2024-07-12', completedDate: '2024-07-28', photo: true, deadline: '2024-07-31' },
+            { id: 7, name: 'Audit Internal Q3', division: 'Finance', status: 'in-progress', assignedDate: '2024-07-22', photo: false, deadline: null },
+            { id: 8, name: 'Rekrutmen Developer', division: 'HR', status: 'completed', assignedDate: '2024-07-08', completedDate: '2024-07-30', photo: true, deadline: '2024-07-29' },
+            { id: 9, name: 'Training Karyawan Baru', division: 'HR', status: 'in-progress', assignedDate: '2024-07-25', photo: false, deadline: '2024-08-15' },
+            { id: 10, name: 'Optimasi Proses Produksi', division: 'Operations', status: 'completed', assignedDate: '2024-07-14', completedDate: '2024-07-26', photo: true, deadline: null }
         ];
 
         let currentTaskId = null;
@@ -316,7 +316,7 @@
             const totalTasks = tasks.length;
             const completedTasks = tasks.filter(task => task.status === 'completed').length;
             const inProgressTasks = tasks.filter(task => task.status === 'in-progress').length;
-            const avgProgress = Math.round((completedTasks / totalTasks) * 100);
+            const avgProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
             document.getElementById('totalTasks').textContent = totalTasks;
             document.getElementById('completedTasks').textContent = completedTasks;
@@ -377,6 +377,8 @@
         }
 
         function renderTaskList() {
+            // NOTE: For simplicity, this view always shows 'IT' division tasks.
+            // A real application might have dynamic division selection.
             const itTasks = tasks.filter(task => task.division === 'IT');
             const taskListContainer = document.getElementById('taskList');
             
@@ -386,6 +388,8 @@
                         <div class="flex-1">
                             <h4 class="font-semibold text-gray-900 ${task.status === 'completed' ? 'line-through text-gray-600' : ''}">${task.name}</h4>
                             <p class="text-sm text-gray-600 mt-1">Ditugaskan: ${formatDate(task.assignedDate)}</p>
+                            <!-- PERUBAHAN DI SINI: Menampilkan deadline jika ada -->
+                            ${task.deadline ? `<p class="text-sm text-red-600 mt-1">🚨 Deadline: ${formatDate(task.deadline)}</p>` : ''}
                             ${task.status === 'completed' && task.completedDate ? `<p class="text-sm text-green-600 mt-1">✅ Selesai: ${formatDate(task.completedDate)}</p>` : ''}
                         </div>
                         <div class="flex items-center space-x-3">
@@ -418,25 +422,17 @@
                 return;
             }
             
-            // Collect all non-empty task names
-            const taskNames = [];
-            taskInputs.forEach(input => {
-                const taskName = input.value.trim();
-                if (taskName) {
-                    taskNames.push(taskName);
-                }
-            });
+            const taskNames = Array.from(taskInputs).map(input => input.value.trim()).filter(name => name);
             
             if (taskNames.length === 0) {
                 showNotification('Mohon masukkan minimal satu tugas!', 'error');
                 return;
             }
             
-            // Add each task separately
-            let addedCount = 0;
             taskNames.forEach(taskName => {
+                const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
                 const newTask = {
-                    id: tasks.length + 1,
+                    id: newId,
                     name: taskName,
                     division: taskDivision,
                     status: 'in-progress',
@@ -444,17 +440,12 @@
                     deadline: taskDeadline || null,
                     photo: false
                 };
-                
                 tasks.push(newTask);
-                addedCount++;
             });
             
-            // Reset form
-            document.getElementById('taskDivision').value = '';
-            document.getElementById('taskDeadline').value = '';
+            document.getElementById('addTaskForm').reset();
             resetTaskInputs();
             
-            // Update displays
             updateDashboard();
             renderDivisionProgress();
             renderRecentActivities();
@@ -462,13 +453,12 @@
                 renderTaskList();
             }
             
-            showNotification(`${addedCount} tugas berhasil ditambahkan ke divisi ${taskDivision}!`, 'success');
+            showNotification(`${taskNames.length} tugas berhasil ditambahkan ke divisi ${taskDivision}!`, 'success');
         }
-
+        
         function addTaskInput() {
             const taskInputsContainer = document.getElementById('taskInputs');
-            const currentInputs = taskInputsContainer.querySelectorAll('.task-input');
-            const nextNumber = currentInputs.length + 1;
+            const nextNumber = taskInputsContainer.children.length + 1;
             
             const newInputDiv = document.createElement('div');
             newInputDiv.className = 'flex items-center space-x-2';
@@ -483,69 +473,45 @@
             `;
             
             taskInputsContainer.appendChild(newInputDiv);
-            
-            // Focus on the new input
-            const newInput = newInputDiv.querySelector('.task-input');
-            newInput.focus();
-            
-            // Show remove buttons when there are multiple inputs
+            newInputDiv.querySelector('input').focus();
             updateRemoveButtonsVisibility();
         }
 
         function removeTaskInput(button) {
-            const inputDiv = button.parentElement;
             const container = document.getElementById('taskInputs');
-            
-            // Don't remove if it's the only input
-            if (container.children.length <= 1) {
-                return;
+            if (container.children.length > 1) {
+                button.parentElement.remove();
+                renumberTaskInputs();
+                updateRemoveButtonsVisibility();
             }
-            
-            inputDiv.remove();
-            
-            // Renumber all inputs
-            renumberTaskInputs();
-            updateRemoveButtonsVisibility();
         }
 
         function renumberTaskInputs() {
-            const taskInputsContainer = document.getElementById('taskInputs');
-            const inputDivs = taskInputsContainer.querySelectorAll('div');
-            
+            const inputDivs = document.querySelectorAll('#taskInputs > div');
             inputDivs.forEach((div, index) => {
-                const numberSpan = div.querySelector('span');
-                const input = div.querySelector('.task-input');
-                
-                numberSpan.textContent = `${index + 1}.`;
-                input.placeholder = `Masukkan nama tugas ${index + 1}...`;
+                div.querySelector('span').textContent = `${index + 1}.`;
+                div.querySelector('input').placeholder = `Masukkan nama tugas ${index + 1}...`;
             });
         }
 
         function updateRemoveButtonsVisibility() {
-            const taskInputsContainer = document.getElementById('taskInputs');
-            const removeButtons = taskInputsContainer.querySelectorAll('button[onclick*="removeTaskInput"]');
-            
-            if (removeButtons.length <= 1) {
-                removeButtons.forEach(btn => btn.classList.add('opacity-0'));
-            } else {
-                removeButtons.forEach(btn => btn.classList.remove('opacity-0'));
-            }
+            const removeButtons = document.querySelectorAll('#taskInputs button');
+            const show = removeButtons.length > 1;
+            removeButtons.forEach(btn => btn.classList.toggle('opacity-0', !show));
         }
 
         function handleTaskInputKeypress(event, input) {
             if (event.key === 'Enter') {
                 event.preventDefault();
-                
-                // If current input has value and it's the last input, add new input
-                if (input.value.trim() && input === document.querySelector('#taskInputs div:last-child .task-input')) {
+                if (input.value.trim() && input.parentElement === document.querySelector('#taskInputs > div:last-child')) {
                     addTaskInput();
                 }
             }
         }
 
         function resetTaskInputs() {
-            const taskInputsContainer = document.getElementById('taskInputs');
-            taskInputsContainer.innerHTML = `
+            const container = document.getElementById('taskInputs');
+            container.innerHTML = `
                 <div class="flex items-center space-x-2">
                     <span class="text-sm font-medium text-gray-500 w-6">1.</span>
                     <input type="text" class="task-input flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Masukkan nama tugas pertama..." onkeypress="handleTaskInputKeypress(event, this)">
@@ -560,8 +526,8 @@
 
         function completeTask(taskId) {
             currentTaskId = taskId;
-            document.getElementById('photoModal').classList.remove('hidden');
             document.getElementById('photoModal').classList.add('flex');
+            document.getElementById('photoModal').classList.remove('hidden');
         }
 
         function closePhotoModal() {
@@ -573,26 +539,21 @@
         }
 
         function submitPhoto() {
-            const photoInput = document.getElementById('photoInput');
-            
-            if (!photoInput.files || photoInput.files.length === 0) {
+            if (!document.getElementById('photoInput').files.length) {
                 showNotification('Mohon upload foto bukti penyelesaian!', 'error');
                 return;
             }
             
-            // Update task status
-            const taskIndex = tasks.findIndex(task => task.id === currentTaskId);
-            if (taskIndex !== -1) {
-                tasks[taskIndex].status = 'completed';
-                tasks[taskIndex].completedDate = new Date().toISOString().split('T')[0];
-                tasks[taskIndex].photo = true;
+            const task = tasks.find(t => t.id === currentTaskId);
+            if (task) {
+                task.status = 'completed';
+                task.completedDate = new Date().toISOString().split('T')[0];
+                task.photo = true;
             }
             
-            // Update displays
             updateDashboard();
             renderDivisionProgress();
             renderRecentActivities();
-            renderPerformanceSummary();
             renderTaskList();
             
             closePhotoModal();
@@ -604,13 +565,8 @@
             const notificationText = document.getElementById('notificationText');
             
             notificationText.textContent = message;
-            
-            if (type === 'error') {
-                notification.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg notification';
-            } else {
-                notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg notification';
-            }
-            
+            notification.classList.remove('bg-green-500', 'bg-red-500');
+            notification.classList.add(type === 'error' ? 'bg-red-500' : 'bg-green-500');
             notification.classList.remove('hidden');
             
             setTimeout(() => {
@@ -618,73 +574,11 @@
             }, 3000);
         }
 
-        function renderPerformanceSummary() {
-            const divisions = ['IT', 'Marketing', 'Finance', 'HR', 'Operations'];
-            const summaryContainer = document.getElementById('performanceSummary');
-            
-            const divisionStats = divisions.map(division => {
-                const divisionTasks = tasks.filter(task => task.division === division);
-                const completed = divisionTasks.filter(task => task.status === 'completed').length;
-                const total = divisionTasks.length;
-                const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
-                
-                return { division, completed, total, percentage };
-            }).sort((a, b) => b.percentage - a.percentage);
-            
-            const bestPerformer = divisionStats[0];
-            const needsAttention = divisionStats.filter(stat => stat.percentage < 50);
-            
-            summaryContainer.innerHTML = `
-                <!-- Best Performer -->
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
-                    <div class="flex items-center mb-2">
-                        <div class="bg-green-500 text-white p-2 rounded-full mr-3">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-green-800">🏆 Divisi Terbaik</h4>
-                            <p class="text-sm text-green-700">Divisi ${bestPerformer.division} - ${bestPerformer.percentage}% (${bestPerformer.completed}/${bestPerformer.total})</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Overall Stats -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-                        <div class="text-2xl font-bold text-blue-600">${Math.round(divisionStats.reduce((sum, stat) => sum + stat.percentage, 0) / divisionStats.length)}%</div>
-                        <div class="text-sm text-blue-700">Rata-rata Progres</div>
-                    </div>
-                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
-                        <div class="text-2xl font-bold text-purple-600">${divisionStats.filter(stat => stat.percentage >= 80).length}</div>
-                        <div class="text-sm text-purple-700">Divisi Berkinerja Baik</div>
-                    </div>
-                </div>
-                
-                ${needsAttention.length > 0 ? `
-                <!-- Needs Attention -->
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <div class="flex items-center mb-2">
-                        <div class="bg-red-500 text-white p-2 rounded-full mr-3">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-red-800">⚠️ Perlu Perhatian</h4>
-                            <p class="text-sm text-red-700">${needsAttention.map(stat => `${stat.division} (${stat.percentage}%)`).join(', ')}</p>
-                        </div>
-                    </div>
-                </div>
-                ` : ''}
-            `;
-        }
-
         function formatDate(dateString) {
-            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            if (!dateString) return '';
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
             return new Date(dateString).toLocaleDateString('id-ID', options);
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987b77c770d66112',t:'MTc1OTMxNjU0OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
