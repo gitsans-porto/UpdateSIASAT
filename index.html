@@ -182,7 +182,7 @@
         function updateAllPimpinanDashboards(){updateDashboardStats();renderEventProgress();renderRecentActivities()}
         function updateDashboardStats(){const a=tasks.length,b=tasks.filter(d=>"completed"===d.status).length,c=a-b,e=0<a?Math.round(b/a*100):0;document.getElementById("totalTasks").textContent=a;document.getElementById("completedTasks").textContent=b;document.getElementById("inProgressTasks").textContent=c;document.getElementById("avgProgress").textContent=`${e}%`}
         
-        // --- NEW/REVAMPED: EVENT PROGRESS RENDERING ---
+        // --- REVAMPED: EVENT PROGRESS RENDERING ---
         function renderEventProgress() {
             const container = document.getElementById('eventProgressContainer');
             const uniqueEvents = [...new Set(tasks.map(task => task.eventName))];
@@ -220,11 +220,15 @@
                             <div class="flex items-center justify-between">
                                 <h3 class="font-bold text-lg text-gray-800">${eventName}</h3>
                                 <div class="flex items-center">
-                                    <span class="text-lg font-bold text-gray-900 mr-3">${totalPercentage}%</span>
-                                    <svg class="w-5 h-5 text-gray-500 chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    <div class="text-center">
+                                        <span class="text-lg font-bold text-gray-900">${totalPercentage}%</span>
+                                        <div class="w-24 bg-gray-200 rounded-full h-1.5 mt-1 mx-auto">
+                                            <div class="progress-bar bg-gradient-to-r from-blue-500 to-indigo-600 h-1.5 rounded-full" style="width: ${totalPercentage}%"></div>
+                                        </div>
+                                    </div>
+                                    <svg class="w-5 h-5 text-gray-500 chevron ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                 </div>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2 mt-2"><div class="progress-bar bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full" style="width: ${totalPercentage}%"></div></div>
                         </div>
                         <div id="details-${index}" class="details-container mt-2 pt-3 border-t border-gray-200">
                             ${divisionDetailsHTML}
