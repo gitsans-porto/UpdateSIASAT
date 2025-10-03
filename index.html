@@ -132,9 +132,9 @@
 
     <!-- Modals -->
     <div id="photoModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-xl p-6 max-w-md w-full mx-4"><h3 class="text-lg font-semibold text-gray-900 mb-4">📸 Upload Bukti Penyelesaian</h3><div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2">Upload Foto Bukti</label><input type="file" id="photoInput" accept="image/*" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></div><div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2">Keterangan (Opsional)</label><textarea id="photoDescription" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tambahkan keterangan..."></textarea></div><div class="flex space-x-3"><button onclick="closePhotoModal()" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">Batal</button><button onclick="submitPhoto()" class="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-green-800 transition-all">✅ Konfirmasi</button></div></div></div>
-    <div id="progressDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-xl p-6 max-w-3xl w-full mx-4 flex flex-col" style="height: 90vh;"><div class="flex justify-between items-center mb-4 border-b pb-3"><h3 id="progressDetailTitle" class="text-xl font-semibold text-gray-900"></h3><button onclick="closeProgressDetailModal()" class="text-gray-500 hover:text-gray-800"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div id="progressDetailContent" class="modal-content flex-grow overflow-y-auto pr-2"></div></div></div>
+    <div id="progressDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-xl p-6 max-w-4xl w-full mx-4 flex flex-col" style="height: 90vh;"><div class="flex justify-between items-center mb-4 border-b pb-3"><h3 id="progressDetailTitle" class="text-xl font-semibold text-gray-900"></h3><button onclick="closeProgressDetailModal()" class="text-gray-500 hover:text-gray-800"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div id="progressDetailContent" class="modal-content flex-grow overflow-y-auto pr-2"></div></div></div>
     <div id="notification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden notification"><div class="flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span id="notificationText"></span></div></div>
-    <div id="eventModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl mx-4 flex flex-col" style="height: 90vh;"><div class="p-6 border-b"><div class="flex justify-between items-center"><h2 class="text-xl font-bold text-gray-800">Buat Event & Alokasi Tugas</h2><button onclick="closeEventModal()" class="text-gray-500 hover:text-gray-800">&times;</button></div></div><form id="addEventForm" class="flex-grow contents"><div class="p-6 modal-content overflow-y-auto"><div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"><div><label for="eventName" class="block text-sm font-medium text-gray-700 mb-1">Nama Event</label><input type="text" id="eventName" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: Rapat Kerja Tahunan 2025"></div><div><label for="eventDeadline" class="block text-sm font-medium text-gray-700 mb-1">Deadline Event</label><input type="date" id="eventDeadline" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></div></div><div id="divisionTaskContainer" class="space-y-6"></div></div><div class="p-6 border-t bg-gray-50 rounded-b-2xl"><button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all">Simpan Event & Tugaskan</button></div></form></div></div>
+    <div id="eventModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl mx-4 flex flex-col" style="height: 90vh;"><div class="p-6 border-b"><div class="flex justify-between items-center"><h2 class="text-xl font-bold text-gray-800">Buat Event & Alokasi Tugas</h2><button onclick="closeEventModal()" class="text-gray-500 hover:text-gray-800">&times;</button></div></div><form id="addEventForm" class="flex-grow contents"><div class="p-6 modal-content overflow-y-auto"><div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"><div><label for="eventName" class="block text-sm font-medium text-gray-700 mb-1">Nama Event</label><input type="text" id="eventName" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: Rapat Kerja Tahunan 2025"></div><div><label for="eventDate" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Event</label><input type="date" id="eventDate" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></div></div><div id="divisionTaskContainer" class="space-y-6"></div></div><div class="p-6 border-t bg-gray-50 rounded-b-2xl"><button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all">Tugaskan</button></div></form></div></div>
 
     <script>
         // --- DATABASE SIMULATION ---
@@ -147,14 +147,15 @@
             { id: 5, name: 'Finance', accessCode: '444' }
         ];
         let tasks = [
-            { id: 1, eventName: 'Peluncuran Produk Baru', name: 'Siapkan Halaman Website', division: 'IT', status: 'completed', assignedDate: '2024-07-15', completedDate: '2024-07-20', photo: true, deadline: '2024-07-25', photoUrl: 'https://placehold.co/600x400/1D4ED8/FFFFFF?text=Bukti+Website' },
-            { id: 2, eventName: 'Peluncuran Produk Baru', name: 'Buat Kampanye Iklan Digital', division: 'Marketing', status: 'in-progress', assignedDate: '2024-07-16', completedDate: null, photo: false, deadline: '2024-07-30', photoUrl: null },
-            { id: 3, eventName: 'Peluncuran Produk Baru', name: 'Analisis Pasar', division: 'Marketing', status: 'completed', assignedDate: '2024-07-16', completedDate: '2024-07-28', photo: true, deadline: '2024-07-30', photoUrl: 'https://placehold.co/600x400/D946EF/FFFFFF?text=Analisis+Pasar' },
-            { id: 4, eventName: 'Raker Tahunan', name: 'Siapkan Server dan Jaringan', division: 'IT', status: 'completed', assignedDate: '2024-07-18', completedDate: '2024-07-29', photo: true, deadline: '2024-08-01', photoUrl: 'https://placehold.co/600x400/1D4ED8/FFFFFF?text=Server+Raker' },
-            { id: 5, eventName: 'Raker Tahunan', name: 'Cetak Materi dan Banner', division: 'Operations', status: 'in-progress', assignedDate: '2024-07-20', photo: false, deadline: '2024-08-05', photoUrl: null },
+            { id: 1, eventName: 'Peluncuran Produk Baru', eventDate: '2025-10-30', name: 'Siapkan Halaman Website', division: 'IT', status: 'completed', assignedDate: '2025-10-01', completedDate: '2025-10-03', photo: true, deadline: '2025-10-10', photoUrl: 'https://placehold.co/600x400/1D4ED8/FFFFFF?text=Bukti+Website' },
+            { id: 2, eventName: 'Peluncuran Produk Baru', eventDate: '2025-10-30', name: 'Buat Kampanye Iklan Digital', division: 'Marketing', status: 'in-progress', assignedDate: '2025-10-01', completedDate: null, photo: false, deadline: '2025-10-25', photoUrl: null },
+            { id: 3, eventName: 'Peluncuran Produk Baru', eventDate: '2025-10-30', name: 'Analisis Pasar', division: 'Marketing', status: 'completed', assignedDate: '2025-10-01', completedDate: '2025-10-02', photo: true, deadline: '2025-10-05', photoUrl: 'https://placehold.co/600x400/D946EF/FFFFFF?text=Analisis+Pasar' },
+            { id: 4, eventName: 'Raker Tahunan', eventDate: '2025-11-15', name: 'Siapkan Server dan Jaringan', division: 'IT', status: 'completed', assignedDate: '2025-10-01', completedDate: '2025-10-03', photo: true, deadline: '2025-10-20', photoUrl: 'https://placehold.co/600x400/1D4ED8/FFFFFF?text=Server+Raker' },
+            { id: 5, eventName: 'Raker Tahunan', eventDate: '2025-11-15', name: 'Cetak Materi dan Banner', division: 'Operations', status: 'in-progress', assignedDate: '2025-10-02', photo: false, deadline: '2025-10-05', photoUrl: null },
         ];
         let currentTaskId = null;
         let loggedInUser = null; 
+        let countdownInterval = null;
 
         // --- INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', function() {
@@ -162,6 +163,7 @@
             document.getElementById('logoutBtn').addEventListener('click', logout);
             document.getElementById('addEventForm').addEventListener('submit', addNewEventTasks);
             document.getElementById('divisionForm').addEventListener('submit', handleDivisionFormSubmit);
+            startCountdownTimers();
         });
 
         // --- AUTHENTICATION & VIEW MANAGEMENT ---
@@ -179,22 +181,21 @@
         function resetDivisionForm(){document.getElementById("divisionForm").reset();document.getElementById("divisionId").value="";document.getElementById("divisionFormTitle").textContent="Tambah Divisi Baru";document.getElementById("divisionSubmitBtn").textContent="Tambah";document.getElementById("divisionCancelBtn").classList.add("hidden")}
         
         // --- PIMPINAN: DASHBOARD RENDERING ---
-        function updateAllPimpinanDashboards(){updateDashboardStats();renderEventProgress();renderRecentActivities()}
+        function updateAllPimpinanDashboards(){updateDashboardStats();renderEventProgress();renderRecentActivities();updateAllCountdowns()}
         function updateDashboardStats(){const a=tasks.length,b=tasks.filter(d=>"completed"===d.status).length,c=a-b,e=0<a?Math.round(b/a*100):0;document.getElementById("totalTasks").textContent=a;document.getElementById("completedTasks").textContent=b;document.getElementById("inProgressTasks").textContent=c;document.getElementById("avgProgress").textContent=`${e}%`}
         
-        // --- REVAMPED: EVENT PROGRESS RENDERING ---
         function renderEventProgress() {
             const container = document.getElementById('eventProgressContainer');
-            const uniqueEvents = [...new Set(tasks.map(task => task.eventName))];
+            const uniqueEvents = [...new Map(tasks.map(item => [item['eventName'], item])).values()];
 
             if (uniqueEvents.length === 0) {
-                container.innerHTML = `<div class="text-center text-gray-500 p-4">Belum ada event yang sedang berjalan.</div>`;
-                return;
+                container.innerHTML = `<div class="text-center text-gray-500 p-4">Belum ada event yang sedang berjalan.</div>`; return;
             }
 
-            container.innerHTML = uniqueEvents.map((eventName, index) => {
-                const eventTasks = tasks.filter(t => t.eventName === eventName);
+            container.innerHTML = uniqueEvents.map((event, index) => {
+                const eventTasks = tasks.filter(t => t.eventName === event.eventName);
                 const completedTasks = eventTasks.filter(t => t.status === 'completed');
+                const inProgressTasks = eventTasks.length - completedTasks.length;
                 const totalPercentage = eventTasks.length > 0 ? Math.round((completedTasks.length / eventTasks.length) * 100) : 0;
                 const divisionsInEvent = [...new Set(eventTasks.map(t => t.division))];
 
@@ -202,97 +203,139 @@
                     const divTasks = eventTasks.filter(t => t.division === divName);
                     const completedDivTasks = divTasks.filter(t => t.status === 'completed');
                     const divPercentage = divTasks.length > 0 ? Math.round((completedDivTasks.length / divTasks.length) * 100) : 0;
-                    return `
-                        <div class="mt-3">
-                            <div class="flex items-center justify-between mb-1">
-                                <span class="font-medium text-gray-700 text-sm">${divName}</span>
-                                <span class="text-xs text-gray-500">${completedDivTasks.length}/${divTasks.length}</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-1.5"><div class="bg-indigo-500 h-1.5 rounded-full" style="width: ${divPercentage}%"></div></div>
-                             <div class="mt-2 text-right"><button onclick="showProgressDetail('${eventName}', '${divName}')" class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline">Lihat Detail</button></div>
-                        </div>
-                    `;
+                    return `<div class="mt-3"><div class="flex items-center justify-between mb-1"><span class="font-medium text-gray-700 text-sm">${divName}</span><span class="text-xs text-gray-500">${completedDivTasks.length}/${divTasks.length}</span></div><div class="w-full bg-gray-200 rounded-full h-1.5"><div class="bg-indigo-500 h-1.5 rounded-full" style="width: ${divPercentage}%"></div></div><div class="mt-2 text-right"><button onclick="showProgressDetail('${event.eventName}', '${divName}')" class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline">Lihat Detail</button></div></div>`;
                 }).join('');
 
-                return `
-                    <div class="bg-gray-50 rounded-lg border p-4">
-                        <div id="event-${index}" class="cursor-pointer" onclick="toggleEventDetails('details-${index}', this)">
-                            <div class="flex items-center justify-between">
-                                <h3 class="font-bold text-lg text-gray-800">${eventName}</h3>
-                                <div class="flex items-center">
-                                    <div class="text-center">
-                                        <span class="text-lg font-bold text-gray-900">${totalPercentage}%</span>
-                                        <div class="w-24 bg-gray-200 rounded-full h-1.5 mt-1 mx-auto">
-                                            <div class="progress-bar bg-gradient-to-r from-blue-500 to-indigo-600 h-1.5 rounded-full" style="width: ${totalPercentage}%"></div>
-                                        </div>
-                                    </div>
-                                    <svg class="w-5 h-5 text-gray-500 chevron ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="details-${index}" class="details-container mt-2 pt-3 border-t border-gray-200">
-                            ${divisionDetailsHTML}
-                        </div>
-                    </div>
-                `;
+                return `<div class="bg-gray-50 rounded-lg border p-4"><div id="event-${index}" class="cursor-pointer" onclick="toggleEventDetails('details-${index}', this)"><div class="flex items-start justify-between"><div><h3 class="font-bold text-lg text-gray-800">${event.eventName}</h3><div class="text-xs text-gray-500 mt-1 space-x-2"><span>🗓️ ${formatDate(event.eventDate)}</span><span class="text-green-600">✓ ${completedTasks.length} Selesai</span><span class="text-yellow-600">⌛ ${inProgressTasks} Proses</span></div><div class="mt-2 text-sm font-semibold text-blue-700 countdown" data-deadline="${event.eventDate}"></div></div><div class="flex items-center"><div class="text-center"><span class="text-lg font-bold text-gray-900">${totalPercentage}%</span><div class="w-24 bg-gray-200 rounded-full h-1.5 mt-1 mx-auto"><div class="progress-bar bg-gradient-to-r from-blue-500 to-indigo-600 h-1.5 rounded-full" style="width: ${totalPercentage}%"></div></div></div><svg class="w-5 h-5 text-gray-500 chevron ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></div></div></div><div id="details-${index}" class="details-container mt-2 pt-3 border-t border-gray-200">${divisionDetailsHTML}</div></div>`;
             }).join('');
         }
 
-        function toggleEventDetails(detailsId, headerElement) {
-            const detailsContainer = document.getElementById(detailsId);
-            headerElement.classList.toggle('open');
-            detailsContainer.classList.toggle('open');
-        }
 
+        function toggleEventDetails(a,b){const c=document.getElementById(a);b.classList.toggle("open");c.classList.toggle("open")}
         function renderRecentActivities(){const a=document.getElementById("recentActivities"),b=tasks.filter(d=>"completed"===d.status&&d.completedDate).sort((d,e)=>new Date(e.completedDate)-new Date(d.completedDate)).slice(0,5);a.innerHTML=0===b.length?'<div class="text-center text-gray-500 p-4">Belum ada aktivitas.</div>':b.map(d=>`<div class="flex items-center p-3 bg-green-50 rounded-lg border border-green-200"><div class="bg-green-500 text-white p-2 rounded-full mr-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><div class="flex-1"><p class="text-sm text-blue-600 font-semibold">${d.eventName}</p><p class="font-medium text-gray-900">${d.name}</p><p class="text-sm text-gray-600">Divisi ${d.division} \u2022 ${formatDate(d.completedDate)}</p></div></div>`).join("")}
 
         // --- EVENT & TASK CREATION ---
         function openEventModal(){renderEventTaskForm();document.getElementById("eventModal").classList.remove("hidden");document.getElementById("eventModal").classList.add("flex")}
         function closeEventModal(){document.getElementById("eventModal").classList.add("hidden");document.getElementById("eventModal").classList.remove("flex");document.getElementById("addEventForm").reset()}
-        function renderEventTaskForm(){const a=document.getElementById("divisionTaskContainer");a.innerHTML=divisions.map(b=>`<div class="bg-gray-50 p-4 rounded-lg border"><h3 class="font-bold text-lg text-gray-800">${b.name}</h3><div class="mt-3 space-y-2" id="tasks-for-${b.id}"><div class="flex items-center space-x-2"><input type="text" class="event-task-input flex-1 border border-gray-300 rounded-lg px-3 py-2" placeholder="Ketik tugas untuk ${b.name}..."><button type="button" onclick="removeEventTaskInput(this)" class="text-red-500 hover:text-red-700 p-1 opacity-0">&times;</button></div></div><button type="button" onclick="addEventTaskInput(${b.id})" class="mt-3 text-sm font-medium text-blue-600 hover:text-blue-800">+ Tambah Tugas</button></div>`).join("")}
-        function addEventTaskInput(a){const b=document.getElementById(`tasks-for-${a}`),c=document.createElement("div");c.className="flex items-center space-x-2";c.innerHTML='<input type="text" class="event-task-input flex-1 border border-gray-300 rounded-lg px-3 py-2" placeholder="Ketik tugas lainnya..."><button type="button" onclick="removeEventTaskInput(this)" class="text-red-500 hover:text-red-700 p-1">&times;</button>';b.appendChild(c);b.querySelectorAll("button").forEach(d=>d.classList.remove("opacity-0"))}
-        function removeEventTaskInput(a){const b=a.parentElement.parentElement;1<b.children.length&&a.parentElement.remove();1>=b.children.length&&b.querySelectorAll("button").forEach(c=>c.classList.add("opacity-0"))}
-        function addNewEventTasks(e){e.preventDefault();const a=document.getElementById("eventName").value,b=document.getElementById("eventDeadline").value;let c=0;divisions.forEach(d=>{const f=document.getElementById(`tasks-for-${d.id}`),g=f.querySelectorAll(".event-task-input");g.forEach(h=>{const i=h.value.trim();i&&(tasks.push({id:0<tasks.length?Math.max(...tasks.map(k=>k.id))+1:1,eventName:a,name:i,division:d.name,status:"in-progress",assignedDate:(new Date).toISOString().split("T")[0],deadline:b,photo:!1,photoUrl:null}),c++)})});0<c?(showNotification(`${c} tugas untuk event "${a}" berhasil ditambahkan!`,"success"),updateAllPimpinanDashboards(),closeEventModal()):showNotification("Tidak ada tugas yang ditambahkan. Mohon isi minimal satu tugas.","error")}
+        
+        function renderEventTaskForm() {
+            const container = document.getElementById('divisionTaskContainer');
+            container.innerHTML = divisions.map(div => `
+                <div class="bg-gray-50 p-4 rounded-lg border">
+                    <h3 class="font-bold text-lg text-gray-800">${div.name}</h3>
+                    <div class="mt-3 space-y-3" id="tasks-for-${div.id}">
+                        <div class="task-entry space-y-2">
+                           <input type="text" class="event-task-input w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Ketik tugas untuk ${div.name}..." required>
+                           <input type="date" class="event-task-deadline w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-600" required>
+                        </div>
+                    </div>
+                    <button type="button" onclick="addEventTaskInput(${div.id})" class="mt-3 text-sm font-medium text-blue-600 hover:text-blue-800">+ Tambah Tugas</button>
+                </div>
+            `).join('');
+        }
+
+        function addEventTaskInput(divisionId) {
+            const container = document.getElementById(`tasks-for-${divisionId}`);
+            const div = document.createElement('div');
+            div.className = 'task-entry space-y-2 mt-2 pt-2 border-t';
+            div.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <input type="text" class="event-task-input flex-1 border border-gray-300 rounded-lg px-3 py-2" placeholder="Ketik tugas lainnya..." required>
+                    <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-red-500 hover:text-red-700 p-1">&times;</button>
+                </div>
+                <input type="date" class="event-task-deadline w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-600" required>
+            `;
+            container.appendChild(div);
+        }
+
+        function addNewEventTasks(e) {
+            e.preventDefault();
+            const eventName = document.getElementById('eventName').value;
+            const eventDate = document.getElementById('eventDate').value;
+            let tasksAdded = 0;
+
+            divisions.forEach(div => {
+                const container = document.getElementById(`tasks-for-${div.id}`);
+                const entries = container.querySelectorAll('.task-entry');
+                entries.forEach(entry => {
+                    const taskName = entry.querySelector('.event-task-input').value.trim();
+                    const deadline = entry.querySelector('.event-task-deadline').value;
+                    if (taskName && deadline) {
+                        const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
+                        tasks.push({ id: newId, eventName, eventDate, name: taskName, division: div.name, status: 'in-progress', assignedDate: new Date().toISOString().split('T')[0], deadline, photo: false, photoUrl: null });
+                        tasksAdded++;
+                    }
+                });
+            });
+
+            if (tasksAdded > 0) {
+                showNotification(`${tasksAdded} tugas untuk event "${eventName}" berhasil ditambahkan!`, 'success');
+                updateAllPimpinanDashboards();
+                closeEventModal();
+            } else { showNotification('Tidak ada tugas yang ditambahkan. Mohon isi nama tugas dan deadline.', 'error'); }
+        }
 
         // --- DIVISI: TASK LIST RENDERING ---
-        function renderTaskList(a){const b=tasks.filter(d=>d.division===a),c=document.getElementById("taskList");c.innerHTML=0===b.length?'<div class="text-center text-gray-500 p-10">Belum ada tugas untuk divisi ini.</div>':b.map(d=>`<div class="task-card border border-gray-200 rounded-lg p-4 ${"completed"===d.status?"bg-green-50 border-green-200":"bg-white"}"><div class="flex items-center justify-between"><div class="flex-1"> ${d.eventName?`<span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-blue-600 bg-blue-200 last:mr-0 mr-1">${d.eventName}</span>`:""}<h4 class="font-semibold text-gray-900 mt-2 ${"completed"===d.status?"line-through text-gray-600":""}">${d.name}</h4><p class="text-sm text-gray-600 mt-1">Ditugaskan: ${formatDate(d.assignedDate)}</p>${d.deadline?`<p class="text-sm text-red-600 mt-1">\uD83D\uDEA8 Deadline: ${formatDate(d.deadline)}</p>`:""}${"completed"===d.status&&d.completedDate?`<p class="text-sm text-green-600 mt-1">\u2705 Selesai: ${formatDate(d.completedDate)}</p>`:""}</div><div class="flex items-center space-x-3">${"completed"===d.status?'<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">\u2705 Selesai</span>':`<button onclick="completeTask(${d.id})" class="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-green-800 transition-all text-sm font-medium">\uD83D\uDCF8 Selesaikan Tugas</button>`}</div></div></div>`).join("");const d=b.filter(e=>"completed"===e.status).length;document.getElementById("divisionCompletedTasks").textContent=`${d}/${b.length}`}
+        function renderTaskList(a){const b=tasks.filter(d=>d.division===a),c=document.getElementById("taskList");c.innerHTML=0===b.length?'<div class="text-center text-gray-500 p-10">Belum ada tugas untuk divisi ini.</div>':b.map(d=>`<div class="task-card border border-gray-200 rounded-lg p-4 ${"completed"===d.status?"bg-green-50 border-green-200":"bg-white"}"><div class="flex items-center justify-between"><div class="flex-1"> ${d.eventName?`<span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-blue-600 bg-blue-200 last:mr-0 mr-1">${d.eventName}</span>`:""}<h4 class="font-semibold text-gray-900 mt-2 ${"completed"===d.status?"line-through text-gray-600":""}">${d.name}</h4><p class="text-sm text-gray-600 mt-1">Ditugaskan: ${formatDate(d.assignedDate)}</p>${d.deadline?`<p class="text-sm text-red-600 mt-1 flex items-center">🚨 <span class="ml-1 countdown" data-deadline="${d.deadline}"></span></p>`:""}${"completed"===d.status&&d.completedDate?`<p class="text-sm text-green-600 mt-1">\u2705 Selesai: ${formatDate(d.completedDate)}</p>`:""}</div><div class="flex items-center space-x-3">${"completed"===d.status?'<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">\u2705 Selesai</span>':`<button onclick="completeTask(${d.id})" class="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-green-800 transition-all text-sm font-medium">\uD83D\uDCF8 Selesaikan Tugas</button>`}</div></div></div>`).join("");updateAllCountdowns();const d=b.filter(e=>"completed"===e.status).length;document.getElementById("divisionCompletedTasks").textContent=`${d}/${b.length}`}
         
         // --- HELPER FUNCTIONS ---
         function completeTask(a){currentTaskId=a;document.getElementById("photoModal").classList.add("flex");document.getElementById("photoModal").classList.remove("hidden")}
         function closePhotoModal(){document.getElementById("photoModal").classList.add("hidden");document.getElementById("photoModal").classList.remove("flex");document.getElementById("photoInput").value="";document.getElementById("photoDescription").value="";currentTaskId=null}
-        function submitPhoto(){if(!document.getElementById("photoInput").files.length){showNotification("Mohon upload foto bukti penyelesaian!","error");return}const a=tasks.find(b=>b.id===currentTaskId);a&&(a.status="completed",a.completedDate=(new Date).toISOString().split("T")[0],a.photo=!0,a.photoUrl="https://placehold.co/600x400/CCCCCC/333333?text=Bukti+Upload");updateAllPimpinanDashboards();renderTaskList(loggedInUser.name);closePhotoModal();showNotification("Tugas berhasil diselesaikan!","success")}
+        function submitPhoto(){if(!document.getElementById("photoInput").files.length){showNotification("Mohon upload foto bukti penyelesaian!","error");return}const a=tasks.find(b=>b.id===currentTaskId);a&&(a.status="completed",a.completedDate=(new Date).toISOString().split("T")[0],a.photo=!0,a.photoUrl="https://placehold.co/600x400/CCCCCC/333333?text=Bukti+Upload");updateAllPimpinanDashboards();if(loggedInUser.role==='divisi')renderTaskList(loggedInUser.name);closePhotoModal();showNotification("Tugas berhasil diselesaikan!","success")}
         function showNotification(b,c="success"){const a=document.getElementById("notification"),d=document.getElementById("notificationText");d.textContent=b;a.className=`fixed top-4 right-4 text-white px-6 py-3 rounded-lg shadow-lg notification ${"error"===c?"bg-red-500":"bg-green-500"}`;a.classList.remove("hidden");setTimeout(()=>a.classList.add("hidden"),3E3)}
         function formatDate(a){return a?new Date(a).toLocaleDateString("id-ID",{year:"numeric",month:"long",day:"numeric"}):""}
         
         function showProgressDetail(eventName, divisionName) {
-            const modal = document.getElementById('progressDetailModal');
-            const title = document.getElementById('progressDetailTitle');
-            const content = document.getElementById('progressDetailContent');
-            
-            const completedTasks = tasks.filter(t => t.eventName === eventName && t.division === divisionName && t.status === 'completed' && t.photoUrl);
-            
-            title.textContent = `Detail Progres: ${eventName} (${divisionName})`;
-            
-            if (completedTasks.length === 0) {
-                content.innerHTML = `<div class="text-center text-gray-500 p-10">Belum ada tugas yang diselesaikan dengan bukti foto untuk divisi ini pada event ini.</div>`;
-            } else {
-                content.innerHTML = completedTasks.map(task => `
-                    <div class="border rounded-lg mb-4 overflow-hidden bg-white shadow-sm">
-                        <img src="${task.photoUrl}" alt="Bukti foto untuk ${task.name}" class="w-full h-48 object-cover">
-                        <div class="p-4">
-                            <h4 class="font-semibold text-gray-800">${task.name}</h4>
-                            <p class="text-sm text-green-600 mt-1">✅ Selesai pada: ${formatDate(task.completedDate)}</p>
-                        </div>
-                    </div>
-                `).join('');
-            }
-            
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
+            const modal = document.getElementById('progressDetailModal'), title = document.getElementById('progressDetailTitle'), content = document.getElementById('progressDetailContent');
+            const eventTasks = tasks.filter(t => t.eventName === eventName && t.division === divisionName);
+            const completed = eventTasks.filter(t => t.status === 'completed' && t.photoUrl);
+            const inProgress = eventTasks.filter(t => t.status === 'in-progress');
 
+            title.textContent = `Detail Progres: ${eventName} (${divisionName})`;
+            let contentHTML = '';
+
+            if (inProgress.length > 0) {
+                contentHTML += '<h4 class="font-semibold text-lg text-gray-800 mb-3">Tugas Dalam Proses</h4><div class="space-y-4">';
+                inProgress.forEach(task => {
+                    const deadlineDate = new Date(task.deadline + 'T23:59:59');
+                    const timeDiff = deadlineDate.getTime() - new Date().getTime();
+                    const isApproaching = timeDiff > 0 && timeDiff < 3 * 24 * 60 * 60 * 1000;
+                    contentHTML += `<div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg"><div class="flex justify-between items-start"><div class="flex-1"><p class="font-semibold text-gray-900">${task.name}</p><p class="text-sm text-red-600 font-bold mt-1 countdown" data-deadline="${task.deadline}"></p></div>${isApproaching ? `<button onclick="sendReminder('${divisionName}')" class="ml-4 text-sm bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600">Kirim Notifikasi</button>` : ''}</div></div>`;
+                });
+                contentHTML += '</div>';
+            }
+            if (completed.length > 0) {
+                contentHTML += '<h4 class="font-semibold text-lg text-gray-800 mb-3 mt-6 pt-6 border-t">Tugas Selesai</h4><div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+                completed.forEach(task => { contentHTML += `<div class="border rounded-lg overflow-hidden bg-white shadow-sm"><img src="${task.photoUrl}" alt="Bukti foto untuk ${task.name}" class="w-full h-40 object-cover"><div class="p-3"><h5 class="font-semibold text-gray-800">${task.name}</h5><p class="text-xs text-green-600 mt-1">✓ Selesai pada: ${formatDate(task.completedDate)}</p></div></div>`; });
+                contentHTML += '</div>';
+            }
+            content.innerHTML = contentHTML || '<div class="text-center text-gray-500 p-10">Tidak ada tugas untuk divisi ini pada event ini.</div>';
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            updateAllCountdowns();
+        }
+        function sendReminder(divisionName){ showNotification(`Pemberitahuan tenggat waktu terkirim ke Divisi ${divisionName}!`, 'success');}
         function closeProgressDetailModal(){const a=document.getElementById("progressDetailModal");a.classList.add("hidden");a.classList.remove("flex")};
 
+        // --- COUNTDOWN TIMER LOGIC ---
+        function startCountdownTimers(){if(countdownInterval)clearInterval(countdownInterval);countdownInterval=setInterval(updateAllCountdowns,1E3)}
+        function updateAllCountdowns() {
+            document.querySelectorAll('.countdown').forEach(el => {
+                const deadline = el.dataset.deadline;
+                if (!deadline) return;
+                const deadlineTime = new Date(deadline + 'T23:59:59').getTime();
+                const now = new Date().getTime();
+                const distance = deadlineTime - now;
+
+                if (distance < 0) { el.innerHTML = "Waktu Habis"; el.classList.add('text-red-700'); return; }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                el.innerHTML = `${days}h ${hours}j ${minutes}m ${seconds}d`;
+            });
+        }
     </script>
 </body>
 </html>
