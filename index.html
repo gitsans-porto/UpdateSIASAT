@@ -197,7 +197,11 @@
                 const completedTasks = eventTasks.filter(t => t.status === 'completed');
                 const inProgressTasks = eventTasks.length - completedTasks.length;
                 const totalPercentage = eventTasks.length > 0 ? Math.round((completedTasks.length / eventTasks.length) * 100) : 0;
+                
                 const tasksAreCompleted = totalPercentage === 100;
+                const eventDateHasPassed = new Date(event.eventDate + 'T23:59:59') < new Date();
+                const isOverdue = eventDateHasPassed && !tasksAreCompleted;
+
                 const divisionsInEvent = [...new Set(eventTasks.map(t => t.division))];
 
                 const divisionDetailsHTML = divisionsInEvent.map(divName => {
@@ -206,8 +210,17 @@
                     const divPercentage = divTasks.length > 0 ? Math.round((completedDivTasks.length / divTasks.length) * 100) : 0;
                     return `<div class="mt-3"><div class="flex items-center justify-between mb-1"><span class="font-medium text-gray-700 text-sm">${divName}</span><span class="text-xs text-gray-500">${completedDivTasks.length}/${divTasks.length}</span></div><div class="w-full bg-gray-200 rounded-full h-1.5"><div class="bg-indigo-500 h-1.5 rounded-full" style="width: ${divPercentage}%"></div></div><div class="mt-2 text-right"><button onclick="showProgressDetail('${event.eventName}', '${divName}')" class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline">Lihat Detail</button></div></div>`;
                 }).join('');
+                
+                let countdownDiv;
+                if (isOverdue) {
+                    countdownDiv = `<div class="mt-2 text-sm font-semibold text-red-700">Event Terlambat</div>`;
+                } else if (eventDateHasPassed) {
+                    countdownDiv = `<div class="mt-2 text-sm font-semibold text-green-700">Event Selesai</div>`;
+                } else {
+                    countdownDiv = `<div class="mt-2 text-sm font-semibold ${tasksAreCompleted ? 'text-green-700' : 'text-blue-700'} countdown" data-deadline="${event.eventDate}"></div>`;
+                }
 
-                return `<div class="rounded-lg border p-4 ${tasksAreCompleted ? 'bg-green-100 border-green-300' : 'bg-gray-50'}"><div id="event-${index}" class="cursor-pointer" onclick="toggleEventDetails('details-${index}', this)"><div class="flex items-start justify-between"><div><h3 class="font-bold text-lg ${tasksAreCompleted ? 'text-green-800' : 'text-gray-800'}">${tasksAreCompleted ? '✅ ' : ''}${event.eventName}</h3><div class="text-xs text-gray-500 mt-1 space-x-2"><span>🗓️ ${formatDate(event.eventDate)}</span><span class="text-green-600">✓ ${completedTasks.length} Selesai</span><span class="text-yellow-600">⌛ ${inProgressTasks} Proses</span></div><div class="mt-2 text-sm font-semibold ${tasksAreCompleted ? 'text-green-700' : 'text-blue-700'} countdown" data-deadline="${event.eventDate}"></div></div><div class="flex items-center"><div class="text-center"><span class="text-lg font-bold ${tasksAreCompleted ? 'text-green-800' : 'text-gray-900'}">${totalPercentage}%</span><div class="w-24 bg-gray-200 rounded-full h-1.5 mt-1 mx-auto"><div class="progress-bar ${tasksAreCompleted ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 'bg-gradient-to-r from-blue-500 to-indigo-600'} h-1.5 rounded-full" style="width: ${totalPercentage}%"></div></div></div><svg class="w-5 h-5 text-gray-500 chevron ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></div></div></div><div id="details-${index}" class="details-container mt-2 pt-3 border-t ${tasksAreCompleted ? 'border-green-300' : 'border-gray-200'}">${divisionDetailsHTML}</div></div>`;
+                return `<div class="rounded-lg border p-4 ${isOverdue ? 'bg-red-100 border-red-300' : (tasksAreCompleted ? 'bg-green-100 border-green-300' : 'bg-gray-50')}"><div id="event-${index}" class="cursor-pointer" onclick="toggleEventDetails('details-${index}', this)"><div class="flex items-start justify-between"><div><h3 class="font-bold text-lg ${isOverdue ? 'text-red-800' : (tasksAreCompleted ? 'text-green-800' : 'text-gray-800')}">${isOverdue ? '⚠️ ' : (tasksAreCompleted ? '✅ ' : '')}${event.eventName}</h3><div class="text-xs text-gray-500 mt-1 space-x-2"><span>🗓️ ${formatDate(event.eventDate)}</span><span class="text-green-600">✓ ${completedTasks.length} Selesai</span><span class="text-yellow-600">⌛ ${inProgressTasks} Proses</span></div>${countdownDiv}</div><div class="flex items-center"><div class="text-center"><span class="text-lg font-bold ${isOverdue ? 'text-red-800' : (tasksAreCompleted ? 'text-green-800' : 'text-gray-900')}">${totalPercentage}%</span><div class="w-24 bg-gray-200 rounded-full h-1.5 mt-1 mx-auto"><div class="progress-bar ${isOverdue ? 'bg-gradient-to-r from-red-500 to-red-600' : (tasksAreCompleted ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 'bg-gradient-to-r from-blue-500 to-indigo-600')} h-1.5 rounded-full" style="width: ${totalPercentage}%"></div></div></div><svg class="w-5 h-5 text-gray-500 chevron ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></div></div></div><div id="details-${index}" class="details-container mt-2 pt-3 border-t ${isOverdue ? 'border-red-300' : (tasksAreCompleted ? 'border-green-300' : 'border-gray-200')}">${divisionDetailsHTML}</div></div>`;
             }).join('');
         }
 
@@ -329,7 +342,8 @@
                 const distance = deadlineTime - now;
 
                 if (distance < 0) {
-                    el.innerHTML = "Selesai";
+                    el.innerHTML = "Waktu Habis";
+                    el.classList.add('text-red-700');
                     return;
                 }
 
