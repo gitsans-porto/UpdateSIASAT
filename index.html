@@ -3,1150 +3,1071 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SI-PAJUR - Sistem Peminjaman Aset Jurusan</title>
+    <title>InventaJur - Sistem Inventaris Jurusan</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        /* Menggunakan font yang bersih dan modern */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Custom styles untuk warna tema */
-        .bg-primary { background-color: #800000; } /* Maroon */
-        .text-primary { color: #800000; }
-        .border-primary { border-color: #800000; }
-        .bg-secondary { background-color: #FFD700; } /* Kuning Emas */
-        .text-secondary { color: #FFD700; }
-        .btn-primary {
-            background-color: #800000;
-            color: white;
-            transition: background-color 0.3s;
+        /* Custom scrollbar untuk tampilan yang lebih bersih */
+        ::-webkit-scrollbar {
+            width: 6px;
         }
-        .btn-primary:hover {
-            background-color: #660000;
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
         }
-        .btn-secondary {
-            background-color: #FFD700;
-            color: #333;
-            transition: background-color 0.3s;
+        ::-webkit-scrollbar-thumb {
+            background: #800000;
+            border-radius: 6px;
         }
-        .btn-secondary:hover {
-            background-color: #FFC700;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a00000;
         }
-        .tab-active {
-            border-bottom: 2px solid #800000;
-            color: #800000;
-            font-weight: 600;
+        .hidden {
+            display: none;
         }
-        .tab-inactive {
-            border-bottom: 2px solid transparent;
-            color: #6b7280;
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-in-out;
         }
-        .toast {
-            visibility: hidden;
-            min-width: 250px;
-            margin-left: -125px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 2px;
-            padding: 16px;
-            position: fixed;
-            z-index: 100;
-            left: 50%;
-            bottom: 30px;
-            font-size: 17px;
-            opacity: 0;
-            transition: visibility 0s 0.5s, opacity 0.5s linear;
-        }
-        .toast.show {
-            visibility: visible;
-            opacity: 1;
-            transition: opacity 0.5s;
-        }
-        .btn-ai {
-            background: linear-gradient(to right, #800000, #c04848);
-            color: white;
-        }
-        .btn-ai:disabled {
-            background: #d1d5db;
-            cursor: not-allowed;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
+    <script>
+        // Konfigurasi warna custom untuk Tailwind CSS
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#800000', // Maroon
+                        'primary-dark': '#660000',
+                        secondary: '#FFD700', // Kuning (Gold)
+                        'secondary-dark': '#E6C200',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 <body class="bg-gray-100">
 
-    <!-- Container Utama -->
-    <div id="app" class="max-w-md mx-auto bg-white min-h-screen shadow-lg">
+    <div id="app" class="max-w-md mx-auto bg-white min-h-screen shadow-2xl">
 
-        <!-- =================================================================== -->
-        <!--                          LAYAR LOGIN                                -->
-        <!-- =================================================================== -->
-        <div id="login-screen" class="p-6">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-primary">SI-PAJUR</h1>
-                <p class="text-gray-500">Sistem Informasi Peminjaman Aset Jurusan</p>
+        <!-- ===== HALAMAN SPLASH ===== -->
+        <main id="splashPage" class="flex flex-col items-center justify-center min-h-screen p-6 bg-primary">
+            <div class="text-center text-white mb-12">
+                <i data-lucide="archive" class="w-24 h-24 mx-auto text-secondary"></i>
+                <h1 class="text-4xl font-bold mt-4">InventaJur</h1>
+                <p class="text-lg text-yellow-200">Sistem Inventaris Peralatan Jurusan</p>
             </div>
-
-            <!-- Tab Pilihan Login -->
-            <div class="flex border-b mb-6">
-                <button id="login-user-tab" class="flex-1 py-2 text-center tab-active" onclick="switchLoginTab('user')">Pengguna</button>
-                <button id="login-admin-tab" class="flex-1 py-2 text-center tab-inactive" onclick="switchLoginTab('admin')">Admin</button>
-            </div>
-
-            <!-- Form Login Pengguna -->
-            <form id="login-user-form" onsubmit="event.preventDefault(); login('user');">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Login sebagai:</label>
-                    <div class="flex space-x-4">
-                        <label class="flex items-center">
-                            <input type="radio" name="login_user_type" value="mahasiswa" class="text-primary focus:ring-primary" onchange="switchLoginFormIdentifier('mahasiswa')" checked>
-                            <span class="ml-2">Mahasiswa</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="radio" name="login_user_type" value="dosen" class="text-primary focus:ring-primary" onchange="switchLoginFormIdentifier('dosen')">
-                            <span class="ml-2">Dosen</span>
-                        </label>
-                         <label class="flex items-center">
-                            <input type="radio" name="login_user_type" value="pegawai" class="text-primary focus:ring-primary" onchange="switchLoginFormIdentifier('pegawai')">
-                            <span class="ml-2">Pegawai</span>
-                        </label>
-                    </div>
-                </div>
-                
-                <div id="login-nim-input" class="mb-4">
-                    <label for="login-identifier" class="block text-sm font-medium text-gray-700">NIM</label>
-                    <input type="text" id="login-identifier" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Masukkan NIM" required>
-                </div>
-
-                <div class="mb-6">
-                    <label for="login-password-user" class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" id="login-password-user" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="******" required>
-                </div>
-                <button type="submit" class="w-full btn-primary font-bold py-2 px-4 rounded-md">
+            <div class="w-full space-y-4">
+                 <button id="goToLoginBtn" class="w-full bg-white text-primary font-bold py-4 px-4 rounded-lg text-lg shadow-lg hover:bg-gray-100 transition-colors duration-300">
                     Login
                 </button>
-            </form>
-            
-            <!-- Form Login Admin -->
-            <form id="login-admin-form" class="hidden" onsubmit="event.preventDefault(); login('admin');">
-                 <div class="mb-4">
-                    <label for="login-admin-id" class="block text-sm font-medium text-gray-700">ID Admin</label>
-                    <input type="text" id="login-admin-id" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Default: admin" required>
-                </div>
-                <div class="mb-6">
-                    <label for="login-password-admin" class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" id="login-password-admin" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Default: admin" required>
-                </div>
-                <button type="submit" class="w-full btn-primary font-bold py-2 px-4 rounded-md">
-                    Login Admin
-                </button>
-            </form>
-
-            <p class="mt-8 text-center text-sm">
-                Belum punya akun? 
-                <button class="font-medium text-primary hover:underline" onclick="showScreen('register-screen')">Registrasi di sini</button>
-            </p>
-        </div>
-
-        <!-- =================================================================== -->
-        <!--                        LAYAR REGISTRASI                             -->
-        <!-- =================================================================== -->
-        <div id="register-screen" class="p-6 hidden">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-primary">Registrasi Akun</h1>
-                <p class="text-gray-500">Pilih jenis pengguna</p>
-            </div>
-
-            <!-- Pilihan Jenis Pengguna -->
-            <div class="mb-6">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Saya adalah seorang:</label>
-                <div class="flex space-x-4">
-                    <label class="flex items-center">
-                        <input type="radio" name="user_type" value="mahasiswa" class="text-primary focus:ring-primary" onchange="switchRegisterForm('mahasiswa')" checked>
-                        <span class="ml-2">Mahasiswa</span>
-                    </label>
-                    <label class="flex items-center">
-                        <input type="radio" name="user_type" value="dosen_pegawai" class="text-primary focus:ring-primary" onchange="switchRegisterForm('dosen_pegawai')">
-                        <span class="ml-2">Dosen / Pegawai</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Form Registrasi Mahasiswa -->
-            <form id="register-mahasiswa-form" onsubmit="event.preventDefault(); registerUser();">
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
-                    <input type="text" id="reg-mhs-nama" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Nama Lengkap" required>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700">NIM</label>
-                    <input type="text" id="reg-mhs-nim" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Nomor Induk Mahasiswa" required>
-                </div>
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Angkatan</label>
-                        <input type="number" id="reg-mhs-angkatan" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="2022" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Prodi</label>
-                        <input type="text" id="reg-mhs-prodi" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Sistem Informasi" required>
-                    </div>
-                </div>
-                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" id="reg-mhs-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="******" required>
-                </div>
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
-                    <input type="password" id="reg-mhs-confirm-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="******" required>
-                </div>
-                 <button type="submit" class="w-full btn-primary font-bold py-2 px-4 rounded-md">
+                 <button id="goToRegisterBtn" class="w-full bg-secondary text-primary font-bold py-4 px-4 rounded-lg text-lg shadow-lg hover:bg-secondary-dark transition-colors duration-300">
                     Registrasi
                 </button>
-            </form>
+            </div>
+        </main>
+
+        <!-- ===== HALAMAN LOGIN ===== -->
+        <main id="loginPage" class="hidden min-h-screen p-6 bg-gray-100">
+             <button class="back-to-splash-btn flex items-center text-primary font-semibold mb-6">
+                <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                Kembali
+            </button>
+            <h2 class="text-3xl font-bold text-primary mb-2">Login Akun</h2>
+            <p class="text-gray-600 mb-6">Pilih tipe akun Anda untuk melanjutkan.</p>
             
-            <!-- Form Registrasi Dosen/Pegawai -->
-            <form id="register-dosen-pegawai-form" class="hidden" onsubmit="event.preventDefault(); registerUser();">
-                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
-                    <input type="text" id="reg-dp-nama" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="Nama Lengkap dengan Gelar" required>
+            <div class="mb-5">
+                <label for="loginUserType" class="block text-sm font-medium text-gray-700 mb-1">Saya ingin login sebagai:</label>
+                <select id="loginUserType" class="w-full p-3 border border-gray-300 rounded-lg bg-white">
+                    <option value="">-- Pilih Tipe Akun --</option>
+                    <option value="mahasiswa">Mahasiswa</option>
+                    <option value="dosen">Dosen / Pegawai</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            
+            <div id="loginFormContainer">
+                <!-- Form login dinamis akan muncul di sini -->
+            </div>
+        </main>
+
+        <!-- ===== HALAMAN REGISTRASI ===== -->
+        <main id="registerPage" class="hidden min-h-screen p-6 bg-gray-100">
+            <button class="back-to-splash-btn flex items-center text-primary font-semibold mb-6">
+                <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
+                Kembali
+            </button>
+            <h2 class="text-3xl font-bold text-primary mb-2">Buat Akun Baru</h2>
+            <p class="text-gray-600 mb-6">Pilih tipe akun yang ingin Anda daftarkan.</p>
+
+            <div class="mb-5">
+                <label for="registerUserType" class="block text-sm font-medium text-gray-700 mb-1">Saya ingin mendaftar sebagai:</label>
+                <select id="registerUserType" class="w-full p-3 border border-gray-300 rounded-lg bg-white">
+                    <option value="">-- Pilih Tipe Akun --</option>
+                    <option value="mahasiswa">Mahasiswa</option>
+                    <option value="dosen">Dosen</option>
+                    <option value="pegawai">Pegawai</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            
+            <form id="registerForm" class="hidden">
+                 <!-- Form registrasi dinamis akan muncul di sini -->
+                <div id="registerFormContainer" class="space-y-4"></div>
+
+                <!-- Common fields -->
+                <div class="mt-4 space-y-4">
+                    <div>
+                        <label for="regPassword" class="block text-sm font-medium text-gray-700">Password</label>
+                        <input type="password" id="regPassword" class="mt-1 w-full p-3 border border-gray-300 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label for="regConfirmPassword" class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
+                        <input type="password" id="regConfirmPassword" class="mt-1 w-full p-3 border border-gray-300 rounded-lg" required>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700">NIP</label>
-                    <input type="text" id="reg-dp-nip" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="Nomor Induk Pegawai" required>
-                </div>
-                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700">Jabatan</label>
-                    <input type="text" id="reg-dp-jabatan" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. Dosen, Staf Akademik" required>
-                </div>
-                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" id="reg-dp-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="******" required>
-                </div>
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
-                    <input type="password" id="reg-dp-confirm-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="******" required>
-                </div>
-                <button type="submit" class="w-full btn-primary font-bold py-2 px-4 rounded-md">
-                    Registrasi
-                </button>
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-dark mt-6">Registrasi</button>
             </form>
+        </main>
 
-             <p class="mt-8 text-center text-sm">
-                Sudah punya akun? 
-                <button class="font-medium text-primary hover:underline" onclick="showScreen('login-screen')">Login di sini</button>
-            </p>
-        </div>
-
-        <!-- =================================================================== -->
-        <!--                        BERANDA PENGGUNA                             -->
-        <!-- =================================================================== -->
-        <div id="user-dashboard-screen" class="hidden">
-            <!-- Header -->
-            <header class="bg-primary p-4 flex justify-between items-center">
-                <h1 class="text-white text-xl font-bold">Beranda Pengguna</h1>
-                <button class="text-white hover:bg-red-900 p-2 rounded-full" title="Logout" onclick="logout()">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
+        <!-- ===== HALAMAN PENGGUNA (Mahasiswa, Dosen, dll) ===== -->
+        <main id="userHomePage" class="hidden">
+            <div id="userPageContent" class="pb-20">
+                <!-- Konten akan dirender oleh JS -->
+            </div>
+            
+            <!-- Navbar Bawah -->
+            <nav id="userBottomNav" class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 flex justify-around items-center h-16 shadow-lg">
+                <a href="#" data-page="home" class="user-nav-link text-primary flex flex-col items-center justify-center w-1/5">
+                    <i data-lucide="home" class="w-6 h-6"></i><span class="text-xs font-medium">Beranda</span>
+                </a>
+                <a href="#" data-page="borrow" class="user-nav-link text-gray-500 flex flex-col items-center justify-center w-1/5">
+                    <i data-lucide="shopping-basket" class="w-6 h-6"></i><span class="text-xs font-medium">Pinjam</span>
+                </a>
+                <a href="#" data-page="return" class="user-nav-link text-gray-500 flex flex-col items-center justify-center w-1/5">
+                    <i data-lucide="undo-2" class="w-6 h-6"></i><span class="text-xs font-medium">Kembalikan</span>
+                </a>
+                <a href="#" data-page="history" class="user-nav-link text-gray-500 flex flex-col items-center justify-center w-1/5">
+                    <i data-lucide="history" class="w-6 h-6"></i><span class="text-xs font-medium">Riwayat</span>
+                </a>
+                 <a href="#" data-page="profile" class="user-nav-link text-gray-500 flex flex-col items-center justify-center w-1/5">
+                    <i data-lucide="user-circle" class="w-6 h-6"></i><span class="text-xs font-medium">Profil</span>
+                </a>
+            </nav>
+        </main>
+        
+        <!-- ===== HALAMAN ADMIN ===== -->
+        <main id="adminDashboardPage" class="hidden">
+            <header class="bg-primary text-white p-4 flex justify-between items-center sticky top-0 z-10 shadow-md">
+                <div>
+                    <h1 class="text-xl font-bold">Dashboard Admin</h1>
+                    <p id="adminName" class="text-sm text-yellow-200"></p>
+                </div>
+                <button id="adminLogoutBtn" class="p-2 rounded-full hover:bg-primary-dark">
+                    <i data-lucide="log-out" class="w-5 h-5"></i>
                 </button>
             </header>
-
-            <div class="p-6">
-                <!-- Info Pengguna -->
-                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-                    <p id="user-info-name" class="font-bold text-lg text-gray-800"></p>
-                    <p id="user-info-detail" class="text-sm text-gray-500"></p>
-                </div>
-
-                <!-- Menu Utama -->
-                <div class="grid grid-cols-2 gap-4 mb-8">
-                    <button class="bg-primary text-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center space-y-2 hover:bg-red-900" onclick="showModal('peminjaman-modal')">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span class="font-semibold">Pinjam Alat</span>
-                    </button>
-                    <button class="bg-gray-200 text-gray-800 p-4 rounded-lg shadow-md flex flex-col items-center justify-center space-y-2 hover:bg-gray-300" onclick="showModal('daftar-alat-modal')">
-                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
-                        <span class="font-semibold">Daftar Alat</span>
-                    </button>
-                </div>
-
-                <!-- Peminjaman Terkini -->
-                <div>
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">Peminjaman Terkini</h2>
-                    <div id="peminjaman-terkini-list" class="space-y-4">
-                        <!-- Konten dinamis dari JS -->
-                    </div>
+            
+            <div class="border-b border-gray-200">
+                <nav class="flex justify-around -mb-px" aria-label="Tabs">
+                    <a href="#" data-tab="input" class="admin-tab-link w-1/4 py-4 text-center font-medium text-sm text-primary border-b-2 border-primary">
+                        <i data-lucide="plus-circle" class="mx-auto w-5 h-5 mb-1"></i> Input
+                    </a>
+                    <a href="#" data-tab="manage" class="admin-tab-link w-1/4 py-4 text-center font-medium text-sm text-gray-500 border-b-2 border-transparent">
+                         <i data-lucide="edit" class="mx-auto w-5 h-5 mb-1"></i> Alat
+                    </a>
+                    <a href="#" data-tab="validation" class="admin-tab-link w-1/4 py-4 text-center font-medium text-sm text-gray-500 border-b-2 border-transparent relative">
+                         <i data-lucide="check-square" class="mx-auto w-5 h-5 mb-1"></i> Validasi
+                         <span id="validation-badge" class="hidden absolute top-2 right-2 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full"></span>
+                    </a>
+                    <a href="#" data-tab="history" class="admin-tab-link w-1/4 py-4 text-center font-medium text-sm text-gray-500 border-b-2 border-transparent">
+                         <i data-lucide="users" class="mx-auto w-5 h-5 mb-1"></i> Peminjam
+                    </a>
+                </nav>
+            </div>
+            
+            <div class="p-4 pb-20">
+                <!-- Konten Input Alat -->
+                <div id="adminContentInput" class="admin-content-panel">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Tambah Data Alat Baru</h3>
+                    <form id="addItemForm" class="space-y-4">
+                        <div>
+                            <label for="itemName" class="block text-sm font-medium text-gray-700">Nama Alat</label>
+                            <input type="text" id="itemName" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm">
+                        </div>
+                        <div>
+                            <label for="itemTotal" class="block text-sm font-medium text-gray-700">Jumlah Total</label>
+                            <input type="number" id="itemTotal" min="1" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm">
+                        </div>
+                         <div>
+                            <label for="itemCompleteness" class="block text-sm font-medium text-gray-700">Kelengkapan</label>
+                            <input type="text" id="itemCompleteness" placeholder="cth: Kabel HDMI, Tas" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm">
+                        </div>
+                        <div>
+                            <label for="itemDescription" class="block text-sm font-medium text-gray-700">Deskripsi (Opsional)</label>
+                            <textarea id="itemDescription" rows="3" class="mt-1 block w-full p-3 border border-gray-300 rounded-md shadow-sm"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-secondary text-primary font-bold py-3 px-4 rounded-lg hover:bg-secondary-dark transition-colors duration-300">
+                            Tambah Alat
+                        </button>
+                    </form>
                 </div>
                 
-                <!-- Riwayat Peminjaman -->
-                <div class="mt-8">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">Riwayat Peminjaman</h2>
-                    <div id="riwayat-peminjaman-list" class="space-y-3">
-                         <!-- Konten dinamis dari JS -->
+                <!-- Konten Manajemen Alat -->
+                <div id="adminContentManage" class="admin-content-panel hidden">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Manajemen Data Alat</h3>
+                    <div id="adminItemList" class="space-y-3">
+                        <!-- Daftar alat akan dirender di sini -->
                     </div>
+                </div>
+
+                <!-- Konten Validasi Pengembalian -->
+                <div id="adminContentValidation" class="admin-content-panel hidden">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Validasi Pengembalian Alat</h3>
+                    <div id="adminValidationList" class="space-y-3">
+                        <!-- Daftar pengembalian akan dirender di sini -->
+                    </div>
+                </div>
+
+                <!-- Konten Riwayat Peminjam -->
+                <div id="adminContentHistory" class="admin-content-panel hidden">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Riwayat Peminjaman Real-time</h3>
+                    <div class="my-2">
+                        <input type="date" id="historyDateFilter" class="w-full p-2 border rounded-md">
+                    </div>
+                    <div id="adminBorrowingHistory" class="space-y-3">
+                        <!-- Riwayat Peminjaman akan dirender di sini -->
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- MODAL NOTIFIKASI -->
+        <div id="notificationModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full text-center">
+                <div id="notificationIcon" class="mx-auto mb-4"></div>
+                <h3 id="notificationTitle" class="text-lg font-medium text-gray-900"></h3>
+                <div class="mt-2">
+                    <p id="notificationMessage" class="text-sm text-gray-500"></p>
+                </div>
+                <div class="mt-4">
+                    <button type="button" id="notificationCloseBtn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary-dark">
+                        Tutup
+                    </button>
                 </div>
             </div>
         </div>
         
-        <!-- =================================================================== -->
-        <!--                        BERANDA ADMIN                                -->
-        <!-- =================================================================== -->
-        <div id="admin-dashboard-screen" class="hidden">
-            <!-- Header -->
-            <header class="bg-primary p-4 flex justify-between items-center">
-                <h1 class="text-white text-xl font-bold">Dashboard Admin</h1>
-                <button class="text-white hover:bg-red-900 p-2 rounded-full" title="Logout" onclick="logout()">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                </button>
-            </header>
-            
-            <div class="p-6">
-                <!-- Info Admin -->
-                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
-                    <p class="font-bold text-lg text-gray-800">Admin Jurusan</p>
-                    <p class="text-sm text-gray-500">Operator Aktif</p>
+        <!-- MODAL KONFIRMASI -->
+        <div id="confirmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <i data-lucide="alert-triangle" class="h-6 w-6 text-red-600"></i>
                 </div>
-
-                <!-- Menu Utama Admin -->
-                <div class="grid grid-cols-2 gap-4 mb-8">
-                    <button class="bg-primary text-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center space-y-2 hover:bg-red-900" onclick="showModal('input-alat-modal')">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
-                        <span class="font-semibold text-center">Input Data Alat</span>
+                <h3 id="confirmTitle" class="text-lg font-medium text-gray-900 mt-4"></h3>
+                <p id="confirmMessage" class="text-sm text-gray-500 mt-2"></p>
+                <div class="mt-5 sm:mt-6 sm:grid sm:grid-flow-row-dense sm:grid-cols-2 sm:gap-3">
+                    <button id="confirmBtn" type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700">
+                        Hapus
                     </button>
-                    <button class="bg-gray-200 text-gray-800 p-4 rounded-lg shadow-md flex flex-col items-center justify-center space-y-2 hover:bg-gray-300" onclick="showModal('daftar-alat-admin-modal')">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        <span class="font-semibold text-center">Kelola Daftar Alat</span>
-                    </button>
-                    <button class="bg-gray-200 text-gray-800 p-4 rounded-lg shadow-md flex flex-col items-center justify-center space-y-2 hover:bg-gray-300 col-span-2" onclick="showModal('riwayat-peminjam-modal')">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" /></svg>
-                        <span class="font-semibold text-center">Lihat Riwayat Peminjam</span>
+                    <button id="cancelConfirmBtn" type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0">
+                        Batal
                     </button>
                 </div>
-                
-                <!-- Daftar Peminjam Real-time -->
-                <div>
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">Peminjaman Aktif</h2>
-                    <div id="admin-peminjaman-aktif-list" class="space-y-4">
-                        <!-- Konten dinamis dari JS -->
-                    </div>
-                </div>
             </div>
         </div>
-
-    </div>
-
-    <!-- =================================================================== -->
-    <!--                             MODALS                                  -->
-    <!-- =================================================================== -->
-    <!-- Modal Peminjaman -->
-    <div id="peminjaman-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-screen overflow-y-auto">
-            <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-800" onclick="closeModal('peminjaman-modal')">&times;</button>
-            <h2 class="text-2xl font-bold text-primary mb-4">Form Peminjaman</h2>
-            <form id="form-peminjaman" onsubmit="event.preventDefault(); ajukanPeminjaman();" class="space-y-4">
-                <!-- Fitur Asisten AI -->
-                <div class="bg-gray-50 p-3 rounded-lg border">
-                    <label for="ai-helper-prompt" class="block text-sm font-medium text-gray-700">Bingung cari alat? Jelaskan kebutuhanmu:</label>
-                    <div class="flex mt-1 gap-2">
-                        <input type="text" id="ai-helper-prompt" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm" placeholder="cth: untuk menyambungkan laptop ke proyektor">
-                        <button type="button" id="ai-find-tool-btn" class="px-4 py-2 text-sm font-semibold rounded-md btn-ai" onclick="findToolWithAI()">
-                            ✨ Cari
-                        </button>
-                    </div>
+        
+        <!-- MODAL FORM PEMINJAMAN -->
+        <div id="borrowModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-40 flex items-center justify-center p-4 overflow-y-auto">
+             <div class="bg-white rounded-lg shadow-xl w-full max-w-md m-auto">
+                <div class="p-4 border-b flex justify-between items-center">
+                    <h3 class="text-xl font-semibold text-primary">Form Peminjaman</h3>
+                    <button id="closeBorrowModalBtn" class="text-gray-500 hover:text-gray-800">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
                 </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Jenis Alat</label>
-                    <select id="pinjam-jenis-alat" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
-                        <!-- Opsi dinamis dari JS -->
-                    </select>
-                </div>
-
-                <!-- Form Peminjaman Mahasiswa -->
-                <div id="peminjaman-form-mahasiswa" class="hidden space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Keperluan</label>
-                        <select id="pinjam-keperluan-mhs" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" onchange="handleKeperluanChange(this.value,'mahasiswa')" required>
-                            <option value="">Pilih Keperluan...</option>
-                            <option value="matakuliah">Untuk Mata Kuliah</option>
-                            <option value="lainnya">Lainnya</option>
-                        </select>
-                    </div>
-                    <div id="detail-matkul-form" class="hidden space-y-4 p-4 bg-gray-50 rounded-md border">
+                <form id="borrowForm" class="p-6 space-y-4">
+                    <input type="hidden" id="borrowItemId">
+                    <h4 id="borrowItemName" class="text-lg font-bold text-gray-800 text-center mb-4"></h4>
+                    <div id="borrowDynamicFields" class="space-y-4"></div>
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Mata Kuliah</label>
-                            <input type="text" id="pinjam-matkul" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. Basis Data">
+                           <label for="borrowDate" class="block text-sm font-medium text-gray-700">Waktu Pinjam</label>
+                           <input type="datetime-local" id="borrowDate" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md">
                         </div>
-                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Dosen Pengampu</label>
-                            <input type="text" id="pinjam-dosen" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. Dr. Jane Smith">
-                        </div>
-                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Kelas</label>
-                            <input type="text" id="pinjam-kelas" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. SI-3A">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Form Peminjaman Dosen -->
-                <div id="peminjaman-form-dosen" class="hidden space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Keperluan</label>
-                        <select id="pinjam-keperluan-dosen" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" onchange="handleKeperluanChange(this.value, 'dosen')" required>
-                            <option value="">Pilih Keperluan...</option>
-                            <option value="mengajar">Untuk Mengajar</option>
-                            <option value="lainnya">Lainnya</option>
-                        </select>
-                    </div>
-                    <div id="detail-mengajar-form" class="hidden space-y-4 p-4 bg-gray-50 rounded-md border">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Mata Kuliah</label>
-                            <input type="text" id="pinjam-matkul-dosen" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. Algoritma Pemrograman">
-                        </div>
-                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Kelas</label>
-                            <input type="text" id="pinjam-kelas-dosen" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. SI-1A, SI-1B">
+                           <label for="returnDate" class="block text-sm font-medium text-gray-700">Batas Kembali</label>
+                           <input type="datetime-local" id="returnDate" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md">
                         </div>
                     </div>
-                </div>
-                
-                <!-- Form Peminjaman Pegawai -->
-                <div id="peminjaman-form-pegawai" class="hidden space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Keperluan</label>
-                        <select id="pinjam-keperluan-pegawai" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" onchange="handleKeperluanChange(this.value, 'pegawai')" required>
-                            <option value="">Pilih Keperluan...</option>
-                            <option value="kegiatan">Untuk Kegiatan Kampus</option>
-                            <option value="lainnya">Lainnya</option>
-                        </select>
-                    </div>
-                    <div id="detail-kegiatan-form" class="hidden space-y-4 p-4 bg-gray-50 rounded-md border">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Nama Kegiatan</label>
-                            <input type="text" id="pinjam-kegiatan" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. Rapat Anggaran">
-                        </div>
-                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Lokasi Kegiatan</label>
-                            <input type="text" id="pinjam-lokasi" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. Ruang Rapat Jurusan">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4 pt-4 border-t">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Tgl & Waktu Pinjam</label>
-                        <input type="datetime-local" id="pinjam-waktu-pinjam" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
-                    </div>
-                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Batas Pengembalian</label>
-                        <input type="datetime-local" id="pinjam-waktu-kembali" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
-                    </div>
-                </div>
-                <button type="submit" class="w-full btn-primary font-bold py-2 px-4 rounded-md">Ajukan Peminjaman</button>
-            </form>
+                    <button type="submit" class="w-full bg-secondary text-primary font-bold py-3 px-4 rounded-lg hover:bg-secondary-dark transition-colors duration-300">
+                        Ajukan Peminjaman
+                    </button>
+                </form>
+            </div>
         </div>
-    </div>
-    
-    <!-- Modal Daftar Alat -->
-    <div id="daftar-alat-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-screen overflow-y-auto">
-            <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-800" onclick="closeModal('daftar-alat-modal')">&times;</button>
-            <h2 class="text-2xl font-bold text-primary mb-4">Daftar Alat Tersedia</h2>
-            <ul id="user-daftar-alat-list" class="space-y-3">
-                <!-- Konten dinamis dari JS -->
-            </ul>
-        </div>
-    </div>
-    
-    <!-- Modal Kembalikan Alat -->
-    <div id="kembalikan-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
-            <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-800" onclick="closeModal('kembalikan-modal')">&times;</button>
-            <h2 class="text-2xl font-bold text-primary mb-4">Konfirmasi Pengembalian</h2>
-            <p class="text-gray-600 mb-4">Silakan unggah bukti pengembalian alat (misal: foto alat sudah diletakkan di tempatnya).</p>
-            <form id="form-kembalikan" onsubmit="event.preventDefault(); kembalikanAlat();">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Bukti</label>
-                    <input type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-red-900" required/>
-                </div>
-                <button type="submit" class="w-full mt-6 btn-primary font-bold py-2 px-4 rounded-md">Konfirmasi Pengembalian</button>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Modal Input Alat (Admin) -->
-    <div id="input-alat-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-screen overflow-y-auto">
-            <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-800" onclick="closeModal('input-alat-modal')">&times;</button>
-            <h2 class="text-2xl font-bold text-primary mb-4">Input Data Alat Baru</h2>
-             <form id="form-input-alat" onsubmit="event.preventDefault(); simpanAlatBaru();" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Nama Alat</label>
-                    <input id="input-nama-alat" type="text" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. Proyektor InFocus" required>
-                </div>
-                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Jumlah</label>
-                        <input id="input-jumlah-alat" type="number" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="5" required>
-                    </div>
-                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Kelengkapan</label>
-                        <input id="input-kelengkapan-alat" type="text" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="Kabel Power, Tas" required>
-                    </div>
-                </div>
-                 <div>
-                    <div class="flex justify-between items-center">
-                        <label class="block text-sm font-medium text-gray-700">Deskripsi (Opsional)</label>
-                        <button type="button" id="generate-desc-btn" class="text-xs btn-ai px-2 py-1 rounded-md" onclick="generateDescription()">
-                            ✨ Buat Otomatis
-                        </button>
-                    </div>
-                    <textarea id="input-deskripsi-alat" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="Proyektor untuk ruang kelas besar..."></textarea>
-                </div>
-                <button type="submit" class="w-full btn-primary font-bold py-2 px-4 rounded-md">Simpan Alat</button>
-            </form>
-        </div>
-    </div>
 
-    <!-- Modal Kelola Daftar Alat (Admin) -->
-    <div id="daftar-alat-admin-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-screen overflow-y-auto">
-             <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-800" onclick="closeModal('daftar-alat-admin-modal')">&times;</button>
-            <h2 class="text-2xl font-bold text-primary mb-4">Kelola Daftar Alat</h2>
-            <div id="admin-kelola-alat-list" class="space-y-3">
-                <!-- Konten dinamis dari JS -->
-            </div>
-        </div>
-    </div>
-    
-    <!-- Modal Edit Alat (Admin) -->
-    <div id="edit-alat-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-screen overflow-y-auto">
-            <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-800" onclick="closeModal('edit-alat-modal')">&times;</button>
-            <h2 class="text-2xl font-bold text-primary mb-4">Edit Data Alat</h2>
-             <form id="form-edit-alat" onsubmit="event.preventDefault(); simpanPerubahanAlat();" class="space-y-4">
-                <input type="hidden" id="edit-alat-id">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Nama Alat</label>
-                    <input id="edit-nama-alat" type="text" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
-                </div>
-                 <div class="grid grid-cols-2 gap-4">
+        <!-- MODAL FORM PENGEMBALIAN -->
+        <div id="returnModal" class="hidden fixed inset-0 bg-black bg-opacity-60 z-40 flex items-center justify-center p-4 overflow-y-auto">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md m-auto">
+               <div class="p-4 border-b flex justify-between items-center">
+                   <h3 class="text-xl font-semibold text-primary">Form Pengembalian</h3>
+                   <button id="closeReturnModalBtn" class="text-gray-500 hover:text-gray-800">
+                       <i data-lucide="x" class="w-6 h-6"></i>
+                   </button>
+               </div>
+               <form id="returnForm" class="p-6 space-y-4">
+                   <input type="hidden" id="returnBorrowId">
+                   <h4 id="returnItemName" class="text-lg font-bold text-gray-800 text-center mb-4"></h4>
+                   
+                   <div>
+                       <label for="returnCondition" class="block text-sm font-medium text-gray-700">Kondisi Alat</label>
+                       <select id="returnCondition" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md">
+                           <option value="Baik">Baik</option>
+                           <option value="Rusak Ringan">Rusak Ringan</option>
+                           <option value="Rusak Berat">Rusak Berat</option>
+                           <option value="Hilang">Hilang</option>
+                       </select>
+                   </div>
+                   <div>
+                       <label for="returnNotes" class="block text-sm font-medium text-gray-700">Keterangan Tambahan (Opsional)</label>
+                       <textarea id="returnNotes" rows="2" class="mt-1 block w-full p-3 border border-gray-300 rounded-md"></textarea>
+                   </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Jumlah</label>
-                        <input id="edit-jumlah-alat" type="number" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
-                    </div>
-                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Kelengkapan</label>
-                        <input id="edit-kelengkapan-alat" type="text" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
-                    </div>
-                </div>
-                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Deskripsi (Opsional)</label>
-                    <textarea id="edit-deskripsi-alat" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></textarea>
-                </div>
-                <button type="submit" class="w-full btn-primary font-bold py-2 px-4 rounded-md">Simpan Perubahan</button>
-            </form>
-        </div>
-    </div>
+                       <label for="returnProof" class="block text-sm font-medium text-gray-700">Bukti Pengembalian (Simulasi)</label>
+                       <input type="text" id="returnProof" placeholder="cth: foto_alat.jpg" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md">
+                   </div>
+                   
+                   <button type="submit" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-dark transition-colors duration-300">
+                       Ajukan Pengembalian
+                   </button>
+               </form>
+           </div>
+       </div>
 
-    <!-- Modal Riwayat Peminjam (Admin) -->
-    <div id="riwayat-peminjam-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-screen overflow-y-auto">
-             <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-800" onclick="closeModal('riwayat-peminjam-modal')">&times;</button>
-            <h2 class="text-2xl font-bold text-primary mb-4">Riwayat Peminjaman</h2>
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700">Filter berdasarkan tanggal</label>
-                <input type="date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
-            </div>
-            <div id="admin-riwayat-list" class="space-y-4">
-                <!-- Konten dinamis dari JS -->
-            </div>
-        </div>
     </div>
-    
-    <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
 
     <script>
-    // ===================================================================
-    //                           DATABASE SEMENTARA
-    // ===================================================================
-    let users = [];
-    let alat = [];
-    let peminjaman = [];
-    let currentUser = null;
-    let nextPeminjamanId = 1;
+        // Inisialisasi Lucide Icons
+        lucide.createIcons();
 
-    // ===================================================================
-    //                           STATE MANAGEMENT
-    // ===================================================================
-    function showScreen(screenId) {
-        document.querySelectorAll('#app > div').forEach(screen => screen.classList.add('hidden'));
-        document.getElementById(screenId).classList.remove('hidden');
-    }
-
-    function showModal(modalId) {
-        // Persiapan sebelum menampilkan modal
-        if (modalId === 'peminjaman-modal') preparePeminjamanForm();
-        if (modalId === 'daftar-alat-modal') renderDaftarAlatUser();
-        if (modalId === 'daftar-alat-admin-modal') renderKelolaAlatAdmin();
-        if (modalId === 'riwayat-peminjam-modal') renderAdminRiwayat();
-
-        document.getElementById(modalId).classList.remove('hidden');
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).classList.add('hidden');
-    }
-    
-    function showToast(message) {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.classList.add('show');
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 3000);
-    }
-
-    // ===================================================================
-    //                           GEMINI API INTEGRATION
-    // ===================================================================
-    async function callGeminiAPI(prompt, buttonElement) {
-        const apiKey = ""; // API Key is handled by the environment
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-        
-        const originalButtonText = buttonElement.innerHTML;
-        buttonElement.disabled = true;
-        buttonElement.innerHTML = `<svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
-
-        try {
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
+        document.addEventListener('DOMContentLoaded', () => {
+            // ===== ELEMEN DOM =====
+            const pages = {
+                splash: document.getElementById('splashPage'),
+                login: document.getElementById('loginPage'),
+                register: document.getElementById('registerPage'),
+                userHome: document.getElementById('userHomePage'),
+                adminDashboard: document.getElementById('adminDashboardPage')
             };
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
+            // ... (sisa elemen DOM akan didefinisikan di sini)
+            const borrowModal = document.getElementById('borrowModal');
+            const closeBorrowModalBtn = document.getElementById('closeBorrowModalBtn');
+            const borrowForm = document.getElementById('borrowForm');
 
-            if (!response.ok) {
-                throw new Error(`API call failed with status: ${response.status}`);
-            }
-
-            const result = await response.json();
-            const candidate = result.candidates?.[0];
-
-            if (candidate && candidate.content?.parts?.[0]?.text) {
-                return candidate.content.parts[0].text.trim();
-            } else {
-                throw new Error("Invalid response structure from API.");
-            }
-        } catch (error) {
-            console.error("Gemini API Error:", error);
-            showToast("Gagal menghubungi AI. Coba lagi.");
-            return null;
-        } finally {
-            buttonElement.disabled = false;
-            buttonElement.innerHTML = originalButtonText;
-        }
-    }
-
-    async function generateDescription() {
-        const namaAlat = document.getElementById('input-nama-alat').value;
-        const kelengkapan = document.getElementById('input-kelengkapan-alat').value;
-        const btn = document.getElementById('generate-desc-btn');
-        
-        if (!namaAlat || !kelengkapan) {
-            showToast("Isi Nama Alat dan Kelengkapan terlebih dahulu.");
-            return;
-        }
-
-        const prompt = `Buatkan deskripsi singkat dan jelas untuk alat inventaris jurusan. Nama alat: "${namaAlat}". Kelengkapan yang didapat: "${kelengkapan}". Deskripsi harus dalam 1-2 kalimat saja.`;
-        
-        const generatedText = await callGeminiAPI(prompt, btn);
-        if (generatedText) {
-            document.getElementById('input-deskripsi-alat').value = generatedText;
-            showToast("Deskripsi berhasil dibuat!");
-        }
-    }
-
-    async function findToolWithAI() {
-        const userNeed = document.getElementById('ai-helper-prompt').value;
-        const btn = document.getElementById('ai-find-tool-btn');
-        if (!userNeed) {
-            showToast("Jelaskan dulu kebutuhan Anda.");
-            return;
-        }
-
-        const availableTools = alat.filter(a => a.tersedia > 0).map(a => a.nama).join(', ');
-        if (!availableTools) {
-            showToast("Saat ini tidak ada alat yang tersedia.");
-            return;
-        }
-        
-        const prompt = `Dari daftar alat berikut: [${availableTools}], alat manakah yang paling cocok untuk keperluan ini: "${userNeed}"? Jawab HANYA dengan nama alat yang paling cocok dari daftar. Jika tidak ada yang cocok, jawab "Tidak ditemukan".`;
-
-        const recommendedToolName = await callGeminiAPI(prompt, btn);
-
-        if (recommendedToolName && recommendedToolName.toLowerCase() !== 'tidak ditemukan') {
-            const recommendedTool = alat.find(a => a.nama.toLowerCase() === recommendedToolName.toLowerCase());
-            if (recommendedTool) {
-                document.getElementById('pinjam-jenis-alat').value = recommendedTool.id;
-                showToast(`AI merekomendasikan: ${recommendedTool.nama}`);
-            } else {
-                showToast(`Rekomendasi "${recommendedToolName}" tidak valid.`);
-            }
-        } else {
-            showToast("Maaf, AI tidak dapat menemukan alat yang cocok.");
-        }
-    }
+            const returnModal = document.getElementById('returnModal');
+            const closeReturnModalBtn = document.getElementById('closeReturnModalBtn');
+            const returnForm = document.getElementById('returnForm');
 
 
-    // ===================================================================
-    //                           LOGIC UTAMA APLIKASI
-    // ===================================================================
+            // ===== STATE APLIKASI =====
+            let currentUser = null;
+            let users = [];
+            let items = [];
+            let borrowings = [];
 
-    // Inisialisasi Data Awal
-    function initData() {
-        // Data Admin
-        users.push({ type: 'admin', id: 'admin', password: 'admin' });
-        // Data Mahasiswa
-        users.push({ type: 'mahasiswa', nama: 'Budi Hartono', identifier: '12345', password: '123', angkatan: '2021', prodi: 'Sistem Informasi' });
-        // Data Dosen
-        users.push({ type: 'dosen', nama: 'Dr. Jane Smith', identifier: '54321', password: '123', jabatan: 'Dosen' });
-        // Data Pegawai
-        users.push({ type: 'pegawai', nama: 'Siti Aminah', identifier: '98765', password: '123', jabatan: 'Staf Akademik' });
-        
-        // Data Alat
-        alat = [
-            { id: 1, nama: 'Proyektor LCD Epson', jumlah: 3, tersedia: 2, kelengkapan: 'Kabel Power, Tas', deskripsi: 'Proyektor untuk ruang kelas besar.' },
-            { id: 2, nama: 'Konektor HDMI', jumlah: 8, tersedia: 8, kelengkapan: 'Unit only', deskripsi: '' },
-            { id: 3, nama: 'Stop Kontak 5 Lubang', jumlah: 12, tersedia: 10, kelengkapan: 'Kabel 3 meter', deskripsi: '' },
-            { id: 4, nama: 'Kabel VGA', jumlah: 5, tersedia: 5, kelengkapan: 'Unit only', deskripsi: '' }
-        ];
-
-        // Data Peminjaman
-        peminjaman = [
-            { id: nextPeminjamanId++, userId: '12345', alatId: 1, waktuPinjam: '2025-10-06T10:00', waktuKembali: '2025-10-06T12:00', status: 'Selesai', detail: { keperluan: 'Lainnya' } },
-            { id: nextPeminjamanId++, userId: '54321', alatId: 3, waktuPinjam: '2025-10-07T08:00', batasKembali: '2025-10-07T17:00', status: 'Dipinjam', detail: { keperluan: 'Mengajar', matkul: 'Struktur Data', kelas: 'A' } },
-            { id: nextPeminjamanId++, userId: '98765', alatId: 3, waktuPinjam: '2025-10-05T13:00', waktuKembali: '2025-10-05T15:00', status: 'Selesai', detail: { keperluan: 'Kegiatan Kampus', kegiatan: 'Rapat Jurusan', lokasi: 'Ruang Rapat' } }
-        ];
-    }
-
-    // Fungsi Registrasi
-    function registerUser() {
-        const userTypeRadio = document.querySelector('input[name="user_type"]:checked').value;
-
-        if (userTypeRadio === 'mahasiswa') {
-            const nama = document.getElementById('reg-mhs-nama').value.trim();
-            const nim = document.getElementById('reg-mhs-nim').value.trim();
-            const angkatan = document.getElementById('reg-mhs-angkatan').value;
-            const prodi = document.getElementById('reg-mhs-prodi').value.trim();
-            const password = document.getElementById('reg-mhs-password').value;
-            const confirmPassword = document.getElementById('reg-mhs-confirm-password').value;
-
-            if (!nama || !nim || !angkatan || !prodi || !password) {
-                showToast("Semua kolom wajib diisi.");
-                return;
-            }
-            if (password !== confirmPassword) {
-                showToast("Konfirmasi password tidak cocok.");
-                return;
-            }
-            if (users.some(u => u.identifier === nim)) {
-                showToast("NIM sudah terdaftar.");
-                return;
-            }
-
-            const newUser = {
-                type: 'mahasiswa',
-                nama: nama,
-                identifier: nim,
-                password: password,
-                angkatan: angkatan,
-                prodi: prodi
+            // ===== FUNGSI UTILITAS & FUNGSI INTI (LOGIN, REGISTER, DLL) =====
+            const showPage = (pageName) => {
+                Object.values(pages).forEach(page => page.classList.add('hidden'));
+                if (pages[pageName]) {
+                    pages[pageName].classList.remove('hidden');
+                }
             };
-            users.push(newUser);
-
-        } else { // Dosen / Pegawai
-            const nama = document.getElementById('reg-dp-nama').value.trim();
-            const nip = document.getElementById('reg-dp-nip').value.trim();
-            const jabatan = document.getElementById('reg-dp-jabatan').value.trim();
-            const password = document.getElementById('reg-dp-password').value;
-            const confirmPassword = document.getElementById('reg-dp-confirm-password').value;
-
-            if (!nama || !nip || !jabatan || !password) {
-                showToast("Semua kolom wajib diisi.");
-                return;
-            }
-            if (password !== confirmPassword) {
-                showToast("Konfirmasi password tidak cocok.");
-                return;
-            }
-            if (users.some(u => u.identifier === nip)) {
-                showToast("NIP sudah terdaftar.");
-                return;
-            }
             
-            const determinedType = jabatan.toLowerCase().includes('dosen') ? 'dosen' : 'pegawai';
-
-            const newUser = {
-                type: determinedType,
-                nama: nama,
-                identifier: nip,
-                password: password,
-                jabatan: jabatan
+            const showNotification = (title, message, isSuccess = true) => {
+                const notificationModal = document.getElementById('notificationModal');
+                document.getElementById('notificationTitle').textContent = title;
+                document.getElementById('notificationMessage').textContent = message;
+                document.getElementById('notificationIcon').innerHTML = isSuccess
+                    ? `<div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100"><i data-lucide="check" class="h-6 w-6 text-green-600"></i></div>`
+                    : `<div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100"><i data-lucide="x" class="h-6 w-6 text-red-600"></i></div>`;
+                lucide.createIcons();
+                notificationModal.classList.remove('hidden');
             };
-            users.push(newUser);
-        }
-        
-        showToast("Registrasi berhasil! Silakan login.");
-        document.getElementById('register-mahasiswa-form').reset();
-        document.getElementById('register-dosen-pegawai-form').reset();
-        showScreen('login-screen');
-    }
 
-    // Fungsi Login
-    function login(type) {
-        if (type === 'user') {
-            const userType = document.querySelector('input[name="login_user_type"]:checked').value;
-            const identifier = document.getElementById('login-identifier').value;
-            const password = document.getElementById('login-password-user').value;
+            const showConfirm = (title, message, onConfirm) => {
+                const confirmModal = document.getElementById('confirmModal');
+                const confirmBtn = document.getElementById('confirmBtn');
+                document.getElementById('confirmTitle').textContent = title;
+                document.getElementById('confirmMessage').textContent = message;
+                confirmModal.classList.remove('hidden');
+                lucide.createIcons(); 
+
+                const newConfirmBtn = confirmBtn.cloneNode(true);
+                confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+                
+                newConfirmBtn.addEventListener('click', () => {
+                    onConfirm();
+                    confirmModal.classList.add('hidden');
+                }, { once: true });
+                 document.getElementById('cancelConfirmBtn').addEventListener('click', () => {
+                    confirmModal.classList.add('hidden');
+                }, { once: true });
+            };
             
-            const foundUser = users.find(u => u.type === userType && u.identifier === identifier && u.password === password);
-            if (foundUser) {
-                currentUser = foundUser;
-                updateUserDashboard();
-                showScreen('user-dashboard-screen');
-            } else {
-                showToast("NIM/NIP atau Password salah.");
-            }
-        } else { // Admin
-            const id = document.getElementById('login-admin-id').value;
-            const pass = document.getElementById('login-password-admin').value;
-            const foundAdmin = users.find(u => u.type === 'admin' && u.id === id && u.password === pass);
-            if(foundAdmin) {
-                currentUser = foundAdmin;
-                updateAdminDashboard();
-                showScreen('admin-dashboard-screen');
-            } else {
-                showToast("ID Admin atau Password salah.");
-            }
-        }
-    }
-    
-    // Fungsi Logout
-    function logout() {
-        currentUser = null;
-        document.getElementById('login-user-form').reset();
-        document.getElementById('login-admin-form').reset();
-        showScreen('login-screen');
-    }
+            const saveData = () => {
+                localStorage.setItem('inventajur_users', JSON.stringify(users));
+                localStorage.setItem('inventajur_items', JSON.stringify(items));
+                localStorage.setItem('inventajur_borrowings', JSON.stringify(borrowings));
+            };
 
-    // Fungsi Update Tampilan (Rendering)
-    function updateUserDashboard() {
-        document.getElementById('user-info-name').textContent = `Selamat Datang, ${currentUser.nama}!`;
-        let detail = '';
-        if (currentUser.type === 'mahasiswa') detail = `Mahasiswa - ${currentUser.prodi} ${currentUser.angkatan}`;
-        else if (currentUser.type === 'dosen') detail = `${currentUser.jabatan} - NIP: ${currentUser.identifier}`;
-        else detail = `${currentUser.jabatan} - NIP: ${currentUser.identifier}`;
-        document.getElementById('user-info-detail').textContent = detail;
-        renderPeminjamanTerkini();
-        renderRiwayatPeminjaman();
-    }
-    
-    function updateAdminDashboard() {
-        renderAdminPeminjamanAktif();
-    }
+            const loadData = () => {
+                users = JSON.parse(localStorage.getItem('inventajur_users')) || [];
+                items = JSON.parse(localStorage.getItem('inventajur_items')) || [];
+                borrowings = JSON.parse(localStorage.getItem('inventajur_borrowings')) || [];
 
-    function renderPeminjamanTerkini() {
-        const listContainer = document.getElementById('peminjaman-terkini-list');
-        listContainer.innerHTML = '';
-        const pinjamanAktif = peminjaman.filter(p => p.userId === currentUser.identifier && p.status === 'Dipinjam');
-        
-        if (pinjamanAktif.length === 0) {
-            listContainer.innerHTML = '<p class="text-gray-500 text-center">Tidak ada peminjaman aktif.</p>';
-            return;
-        }
+                if (!users.some(u => u.type === 'admin')) {
+                    users.push({ id: 'admin01', type: 'admin', name: 'Admin Utama', username: 'admin', password: 'admin' });
+                    if(items.length === 0){
+                         items.push(
+                            { id: 1, name: 'Proyektor LCD', total: 5, available: 5, completeness: 'Kabel Power, Kabel HDMI, Tas', description: 'Proyektor Epson EB-X450' },
+                            { id: 2, name: 'Stop Kontak', total: 10, available: 10, completeness: 'Panjang kabel 5 meter', description: 'Uticon 4 lubang' },
+                            { id: 3, name: 'Konektor HDMI to VGA', total: 8, available: 8, completeness: 'Adapter only', description: 'Konverter aktif' }
+                        );
+                    }
+                    saveData();
+                }
+            };
 
-        pinjamanAktif.forEach(p => {
-            const alatInfo = alat.find(a => a.id === p.alatId);
-            listContainer.innerHTML += `
-                <div class="bg-white p-4 rounded-lg border border-gray-200">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="font-bold text-primary">${alatInfo.nama}</h3>
-                            <p class="text-sm text-gray-500">Batas Kembali: ${new Date(p.batasKembali).toLocaleString('id-ID')}</p>
-                        </div>
-                        <span class="text-xs font-semibold bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Dipinjam</span>
-                    </div>
-                    <button class="w-full mt-4 btn-secondary font-bold py-2 px-4 rounded-md text-sm" onclick="openKembalikanModal(${p.id})">
-                        Kembalikan Alat
-                    </button>
-                </div>
-            `;
-        });
-    }
-    
-    function renderRiwayatPeminjaman() {
-        const listContainer = document.getElementById('riwayat-peminjaman-list');
-        listContainer.innerHTML = '';
-        const pinjamanSelesai = peminjaman.filter(p => p.userId === currentUser.identifier && p.status === 'Selesai');
+            const handleLogin = (e) => {
+                e.preventDefault();
+                const identifier = e.target.elements.loginIdentifier.value;
+                const password = e.target.elements.loginPassword.value;
+                const userType = document.getElementById('loginUserType').value;
+                
+                const foundUser = users.find(user => {
+                    let typeMatch = false;
+                    if (userType === 'dosen') {
+                        typeMatch = user.type === 'dosen' || user.type === 'pegawai';
+                    } else {
+                        typeMatch = user.type === userType;
+                    }
 
-        if (pinjamanSelesai.length === 0) {
-            listContainer.innerHTML = '<p class="text-gray-500 text-center">Belum ada riwayat peminjaman.</p>';
-            return;
-        }
+                    const idMatch = (user.nim === identifier || user.nip === identifier || user.username === identifier);
+                    return typeMatch && idMatch && user.password === password;
+                });
 
-        pinjamanSelesai.forEach(p => {
-            const alatInfo = alat.find(a => a.id === p.alatId);
-            listContainer.innerHTML += `
-                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 opacity-70">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h3 class="font-semibold text-gray-700">${alatInfo.nama}</h3>
-                            <p class="text-xs text-gray-500">Dikembalikan pada ${new Date(p.waktuKembali).toLocaleDateString('id-ID')}</p>
-                        </div>
-                        <span class="text-xs font-semibold bg-green-100 text-green-800 px-2 py-1 rounded-full">Selesai</span>
-                    </div>
-                </div>
-            `;
-        });
-    }
+                if (foundUser) {
+                    currentUser = foundUser;
+                    sessionStorage.setItem('inventajur_currentUser', JSON.stringify(currentUser));
+                    if (currentUser.type === 'admin') {
+                        showPage('adminDashboard');
+                        renderAdminDashboard();
+                    } else {
+                        showPage('userHome');
+                        renderUserPage('home');
+                    }
+                } else {
+                    showNotification('Login Gagal', 'Tipe akun, identifier, atau password salah.', false);
+                }
+                e.target.reset();
+            };
 
-    function renderDaftarAlatUser() {
-        const listContainer = document.getElementById('user-daftar-alat-list');
-        listContainer.innerHTML = '';
-        alat.forEach(a => {
-            const statusClass = a.tersedia > 0 ? 'text-green-600' : 'text-red-600';
-            listContainer.innerHTML += `
-                <li class="p-3 bg-gray-50 rounded-md flex justify-between items-center">
-                    <span>${a.nama}</span> 
-                    <span class="font-semibold ${statusClass}">Tersedia: ${a.tersedia}</span>
-                </li>`;
-        });
-    }
+            const handleRegister = (e) => {
+                e.preventDefault();
+                const type = document.getElementById('registerUserType').value;
+                const password = document.getElementById('regPassword').value;
+                const confirmPassword = document.getElementById('regConfirmPassword').value;
 
-    function renderAdminPeminjamanAktif() {
-        const listContainer = document.getElementById('admin-peminjaman-aktif-list');
-        listContainer.innerHTML = '';
-        const pinjamanAktif = peminjaman.filter(p => p.status === 'Dipinjam');
-
-        if (pinjamanAktif.length === 0) {
-            listContainer.innerHTML = '<p class="text-gray-500 text-center">Tidak ada peminjaman aktif saat ini.</p>';
-            return;
-        }
-
-        pinjamanAktif.forEach(p => {
-            const userInfo = users.find(u => u.identifier === p.userId);
-            const alatInfo = alat.find(a => a.id === p.alatId);
-            listContainer.innerHTML += `
-                <div class="bg-white p-4 rounded-lg border border-yellow-400 border-2">
-                     <div class="flex justify-between items-start">
-                        <div>
-                            <h3 class="font-bold text-primary">${userInfo.nama} (${userInfo.type})</h3>
-                            <p class="text-sm text-gray-600">Alat: ${alatInfo.nama}</p>
-                            <p class="text-xs text-gray-500">Batas Kembali: ${new Date(p.batasKembali).toLocaleString('id-ID')}</p>
-                        </div>
-                        <span class="text-xs font-semibold bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Dipinjam</span>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-    function renderKelolaAlatAdmin() {
-        const listContainer = document.getElementById('admin-kelola-alat-list');
-        listContainer.innerHTML = '';
-        alat.forEach(a => {
-            listContainer.innerHTML += `
-                <div class="p-3 bg-gray-50 rounded-md flex justify-between items-center">
-                    <div>
-                        <p class="font-semibold">${a.nama}</p>
-                        <p class="text-xs text-gray-500">Jumlah: ${a.jumlah} | Tersedia: ${a.tersedia}</p>
-                    </div>
-                    <div class="flex space-x-2">
-                        <button class="text-blue-600 hover:text-blue-800" onclick="openEditAlatModal(${a.id})">Edit</button>
-                        <button class="text-red-600 hover:text-red-800" onclick="hapusAlat(${a.id})">Hapus</button>
-                    </div>
-                </div>
-            `;
-        });
-    }
-    
-    function renderAdminRiwayat() {
-        const listContainer = document.getElementById('admin-riwayat-list');
-        listContainer.innerHTML = '';
-        [...peminjaman].reverse().forEach(p => {
-            const userInfo = users.find(u => u.identifier === p.userId);
-            const alatInfo = alat.find(a => a.id === p.alatId);
-            const statusClass = p.status === 'Selesai' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800';
-            const waktu = p.status === 'Selesai' 
-                ? `${new Date(p.waktuPinjam).toLocaleString('id-ID')} - ${new Date(p.waktuKembali).toLocaleString('id-ID')}`
-                : `${new Date(p.waktuPinjam).toLocaleString('id-ID')} - Belum Kembali`;
-            
-            let detailHTML = '';
-            if (p.detail && p.detail.keperluan === 'Mata Kuliah') {
-                detailHTML = `
-                    <div class="text-xs bg-gray-100 p-2 mt-2 rounded border">
-                        <p><span class="font-semibold">Keperluan:</span> ${p.detail.keperluan}</p>
-                        <p><span class="font-semibold">Matkul:</span> ${p.detail.matkul} (${p.detail.kelas})</p>
-                        <p><span class="font-semibold">Dosen:</span> ${p.detail.dosen}</p>
-                    </div>
-                `;
-            } else if (p.detail && p.detail.keperluan === 'Mengajar') {
-                detailHTML = `
-                    <div class="text-xs bg-gray-100 p-2 mt-2 rounded border">
-                        <p><span class="font-semibold">Keperluan:</span> ${p.detail.keperluan}</p>
-                        <p><span class="font-semibold">Matkul:</span> ${p.detail.matkul}</p>
-                        <p><span class="font-semibold">Kelas:</span> ${p.detail.kelas}</p>
-                    </div>
-                `;
-            } else if (p.detail && p.detail.keperluan === 'Kegiatan Kampus') {
-                detailHTML = `
-                    <div class="text-xs bg-gray-100 p-2 mt-2 rounded border">
-                        <p><span class="font-semibold">Keperluan:</span> ${p.detail.keperluan}</p>
-                        <p><span class="font-semibold">Kegiatan:</span> ${p.detail.kegiatan}</p>
-                        <p><span class="font-semibold">Lokasi:</span> ${p.detail.lokasi}</p>
-                    </div>
-                `;
-            } else if (p.detail) {
-                detailHTML = `<p class="text-xs mt-2"><span class="font-semibold">Keperluan:</span> ${p.detail.keperluan}</p>`;
-            }
-
-
-            listContainer.innerHTML += `
-                <div class="bg-gray-50 p-4 rounded-lg border">
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <p class="font-bold text-primary">${userInfo.nama} (${userInfo.type})</p>
-                            <p class="text-sm text-gray-600">${userInfo.type === 'mahasiswa' ? 'NIM' : 'NIP'}: ${userInfo.identifier}</p>
-                        </div>
-                        <span class="text-xs font-semibold ${statusClass} px-2 py-1 rounded-full">${p.status}</span>
-                    </div>
-                    <div class="text-sm space-y-1 text-gray-700">
-                        <p><span class="font-semibold">Alat:</span> ${alatInfo.nama}</p>
-                        ${detailHTML}
-                        <p class="text-xs text-gray-500 mt-2">
-                            <span class="font-semibold">Waktu:</span> ${waktu}
-                        </p>
-                    </div>
-                </div>
-            `;
-        });
-    }
-
-
-    // Fungsi Aksi (CRUD)
-    function ajukanPeminjaman() {
-        const alatId = parseInt(document.getElementById('pinjam-jenis-alat').value);
-        const waktuPinjam = document.getElementById('pinjam-waktu-pinjam').value;
-        const batasKembali = document.getElementById('pinjam-waktu-kembali').value;
-
-        if (!alatId || !waktuPinjam || !batasKembali) {
-            showToast("Harap lengkapi semua data peminjaman.");
-            return;
-        }
-
-        const targetAlat = alat.find(a => a.id === alatId);
-        if (targetAlat.tersedia <= 0) {
-            showToast("Maaf, alat ini tidak tersedia saat ini.");
-            return;
-        }
-
-        let keperluanDetail = {};
-        if (currentUser.type === 'mahasiswa') {
-            const keperluan = document.getElementById('pinjam-keperluan-mhs').value;
-            if (keperluan === 'matakuliah') {
-                const matkul = document.getElementById('pinjam-matkul').value;
-                const dosen = document.getElementById('pinjam-dosen').value;
-                const kelas = document.getElementById('pinjam-kelas').value;
-                if (!matkul || !dosen || !kelas) {
-                    showToast("Harap lengkapi detail mata kuliah.");
+                if (password !== confirmPassword) {
+                    showNotification('Registrasi Gagal', 'Password dan konfirmasi password tidak cocok.', false);
                     return;
                 }
-                keperluanDetail = { keperluan: 'Mata Kuliah', matkul, dosen, kelas };
-            } else if (keperluan === 'lainnya') {
-                keperluanDetail = { keperluan: 'Lainnya' };
-            } else {
-                 showToast("Harap pilih keperluan peminjaman.");
-                return;
-            }
-        } else if (currentUser.type === 'dosen') {
-            const keperluan = document.getElementById('pinjam-keperluan-dosen').value;
-            if (keperluan === 'mengajar') {
-                const matkul = document.getElementById('pinjam-matkul-dosen').value;
-                const kelas = document.getElementById('pinjam-kelas-dosen').value;
-                if (!matkul || !kelas) {
-                    showToast("Harap lengkapi detail mengajar.");
+                
+                let newUser = { id: Date.now().toString(), type, password };
+                let identifier;
+                const formElements = e.target.elements;
+
+                if (type === 'mahasiswa') {
+                    Object.assign(newUser, { name: formElements.regNama.value, nim: formElements.regNim.value, angkatan: formElements.regAngkatan.value, prodi: formElements.regProdi.value });
+                    identifier = newUser.nim;
+                } else if (type === 'dosen' || type === 'pegawai') {
+                    Object.assign(newUser, { name: formElements.regNama.value, nip: formElements.regNip.value, jabatan: formElements.regJabatan.value });
+                    identifier = newUser.nip;
+                } else { // admin
+                    Object.assign(newUser, { name: formElements.regNama.value, username: formElements.regUsername.value });
+                    identifier = newUser.username;
+                }
+                
+                const isExist = users.some(u => u.nim === identifier || u.nip === identifier || u.username === identifier);
+                if (isExist) {
+                    showNotification('Registrasi Gagal', `${type === 'mahasiswa' ? 'NIM' : (type === 'admin' ? 'Username' : 'NIP')} sudah terdaftar.`, false);
                     return;
                 }
-                keperluanDetail = { keperluan: 'Mengajar', matkul, kelas };
-            } else if (keperluan === 'lainnya') {
-                keperluanDetail = { keperluan: 'Lainnya' };
-            } else {
-                showToast("Harap pilih keperluan peminjaman.");
-                return;
-            }
-        } else if (currentUser.type === 'pegawai') {
-            const keperluan = document.getElementById('pinjam-keperluan-pegawai').value;
-            if (keperluan === 'kegiatan') {
-                const kegiatan = document.getElementById('pinjam-kegiatan').value;
-                const lokasi = document.getElementById('pinjam-lokasi').value;
-                if (!kegiatan || !lokasi) {
-                    showToast("Harap lengkapi detail kegiatan.");
+                
+                users.push(newUser);
+                saveData();
+                showNotification('Registrasi Berhasil', 'Akun Anda telah dibuat. Silakan login.');
+                showPage('login');
+                 e.target.closest('form').reset();
+                 document.getElementById('registerFormContainer').innerHTML = '';
+                 document.getElementById('registerForm').classList.add('hidden');
+            };
+            
+            const logout = () => {
+                currentUser = null;
+                sessionStorage.removeItem('inventajur_currentUser');
+                showPage('splash');
+            };
+
+            const checkSession = () => {
+                const userInSession = sessionStorage.getItem('inventajur_currentUser');
+                if (userInSession) {
+                    currentUser = JSON.parse(userInSession);
+                    if (currentUser.type === 'admin') {
+                        showPage('adminDashboard');
+                        renderAdminDashboard();
+                    } else {
+                        showPage('userHome');
+                        renderUserPage('home');
+                    }
+                } else {
+                    showPage('splash');
+                }
+            };
+            
+            const renderBorrowDetailsFields = (purpose, userType) => {
+                const detailsContainer = document.getElementById('borrowDetailsContainer');
+                if (!detailsContainer) return;
+
+                let detailsHtml = '';
+                if (userType === 'mahasiswa') {
+                    if (purpose === 'kuliah') {
+                        detailsHtml = `
+                            <div class="animate-fade-in"><label class="block text-sm font-medium text-gray-700">Mata Kuliah</label><input type="text" id="borrowCourse" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md"></div>
+                            <div class="animate-fade-in"><label class="block text-sm font-medium text-gray-700">Dosen Pengampu</label><input type="text" id="borrowLecturer" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md"></div>
+                            <div class="animate-fade-in"><label class="block text-sm font-medium text-gray-700">Kelas</label><input type="text" id="borrowClass" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md"></div>
+                        `;
+                    } else { // 'lainnya'
+                        detailsHtml = `
+                            <div class="animate-fade-in"><label class="block text-sm font-medium text-gray-700">Deskripsi Keperluan</label><input type="text" id="borrowDescription" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md"></div>
+                            <div class="animate-fade-in"><label class="block text-sm font-medium text-gray-700">Lokasi Penggunaan</label><input type="text" id="borrowLocation" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md"></div>
+                        `;
+                    }
+                } else if (userType === 'dosen') {
+                    if (purpose === 'mengajar') {
+                        detailsHtml = `
+                            <div class="animate-fade-in"><label class="block text-sm font-medium text-gray-700">Mata Kuliah</label><input type="text" id="borrowCourse" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md"></div>
+                            <div class="animate-fade-in"><label class="block text-sm font-medium text-gray-700">Kelas yang Diajar</label><input type="text" id="borrowClass" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md"></div>
+                        `;
+                    } else { // 'lainnya'
+                        detailsHtml = `
+                            <div class="animate-fade-in"><label class="block text-sm font-medium text-gray-700">Deskripsi Keperluan</label><input type="text" id="borrowDescription" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md"></div>
+                            <div class="animate-fade-in"><label class="block text-sm font-medium text-gray-700">Lokasi Penggunaan</label><input type="text" id="borrowLocation" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md"></div>
+                        `;
+                    }
+                }
+                detailsContainer.innerHTML = detailsHtml;
+            };
+
+            const renderLoginForm = (type) => {
+                const container = document.getElementById('loginFormContainer');
+                let formHTML = '';
+                if (type === 'mahasiswa') {
+                    formHTML = `<label class="block text-sm font-medium text-gray-700 mb-1">NIM</label><input type="text" name="loginIdentifier" required class="w-full p-3 border border-gray-300 rounded-lg">`;
+                } else if (type === 'dosen') {
+                    formHTML = `<label class="block text-sm font-medium text-gray-700 mb-1">NIP</label><input type="text" name="loginIdentifier" required class="w-full p-3 border border-gray-300 rounded-lg">`;
+                } else if (type === 'admin') {
+                    formHTML = `<label class="block text-sm font-medium text-gray-700 mb-1">Username</label><input type="text" name="loginIdentifier" required class="w-full p-3 border border-gray-300 rounded-lg">`;
+                }
+                
+                if (formHTML) {
+                    container.innerHTML = `
+                    <form id="loginDynamicForm" class="animate-fade-in">
+                        <div class="mb-4">${formHTML}</div>
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                            <input type="password" name="loginPassword" required class="w-full p-3 border border-gray-300 rounded-lg">
+                        </div>
+                        <button type="submit" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-lg hover:bg-primary-dark">Login</button>
+                    </form>`;
+                    document.getElementById('loginDynamicForm').addEventListener('submit', handleLogin);
+                } else {
+                    container.innerHTML = '';
+                }
+            };
+            
+            const renderRegisterForm = (type) => {
+                const container = document.getElementById('registerFormContainer');
+                const form = document.getElementById('registerForm');
+                let formHTML = '';
+                 if (type === 'mahasiswa') {
+                    formHTML = `
+                        <div><label class="block text-sm font-medium">Nama Lengkap</label><input type="text" name="regNama" class="mt-1 w-full p-3 border border-gray-300 rounded-lg" required></div>
+                        <div><label class="block text-sm font-medium">NIM</label><input type="text" name="regNim" class="mt-1 w-full p-3 border border-gray-300 rounded-lg" required></div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="block text-sm font-medium">Angkatan</label><input type="number" name="regAngkatan" class="mt-1 w-full p-3 border border-gray-300 rounded-lg" required></div>
+                            <div><label class="block text-sm font-medium">Program Studi</label><input type="text" name="regProdi" class="mt-1 w-full p-3 border border-gray-300 rounded-lg" required></div>
+                        </div>`;
+                } else if (type === 'dosen' || type === 'pegawai') {
+                    formHTML = `
+                        <div><label class="block text-sm font-medium">Nama Lengkap</label><input type="text" name="regNama" class="mt-1 w-full p-3 border border-gray-300 rounded-lg" required></div>
+                        <div><label class="block text-sm font-medium">NIP</label><input type="text" name="regNip" class="mt-1 w-full p-3 border border-gray-300 rounded-lg" required></div>
+                        <div><label class="block text-sm font-medium">${type === 'dosen' ? 'Jabatan' : 'Jabatan / Bidang Kerja'}</label><input type="text" name="regJabatan" class="mt-1 w-full p-3 border border-gray-300 rounded-lg" required></div>`;
+                } else if (type === 'admin') {
+                     formHTML = `
+                        <div><label class="block text-sm font-medium">Nama Lengkap</label><input type="text" name="regNama" class="mt-1 w-full p-3 border border-gray-300 rounded-lg" required></div>
+                        <div><label class="block text-sm font-medium">Username</label><input type="text" name="regUsername" class="mt-1 w-full p-3 border border-gray-300 rounded-lg" required></div>`;
+                }
+
+                if(formHTML){
+                    container.innerHTML = formHTML;
+                    form.classList.remove('hidden');
+                    form.classList.add('animate-fade-in');
+                } else {
+                    form.classList.add('hidden');
+                    container.innerHTML = '';
+                }
+            };
+            
+            // ===== FUNGSI RENDER TAMPILAN PENGGUNA =====
+            const renderUserPage = (page) => {
+                const userPageContent = document.getElementById('userPageContent');
+                document.querySelectorAll('.user-nav-link').forEach(link => {
+                    link.classList.toggle('text-primary', link.dataset.page === page);
+                    link.classList.toggle('text-gray-500', link.dataset.page !== page);
+                });
+                
+                let content = '';
+                if (page === 'home') content = renderUserHomePage();
+                else if (page === 'borrow') content = renderUserBorrowPage();
+                else if (page === 'return') content = renderUserReturnPage();
+                else if (page === 'history') content = renderUserHistoryPage();
+                else if (page === 'profile') content = renderUserProfilePage();
+                
+                userPageContent.innerHTML = content;
+                lucide.createIcons();
+                attachUserPageEventListeners();
+            };
+
+            const renderUserHomePage = () => {
+                const userBorrowings = borrowings.filter(b => b.userId === currentUser.id && b.status === 'dipinjam').sort((a, b) => new Date(b.borrowDate) - new Date(a.borrowDate));
+                
+                let recentBorrowingsHTML = '<p class="text-center text-gray-500 mt-4">Tidak ada peminjaman aktif.</p>';
+                if (userBorrowings.length > 0) {
+                    recentBorrowingsHTML = userBorrowings.slice(0, 3).map(b => {
+                        const item = items.find(i => i.id === b.itemId);
+                        return `
+                        <div class="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+                            <div>
+                                <p class="font-semibold text-gray-800">${item.name}</p>
+                                <p class="text-sm text-gray-500">Batas kembali: ${new Date(b.returnDate).toLocaleString('id-ID')}</p>
+                            </div>
+                             <button data-page="return" class="nav-button-action bg-red-500 text-white text-sm font-bold py-2 px-3 rounded-lg">Kembalikan</button>
+                        </div>`;
+                    }).join('');
+                }
+
+                return `
+                    <header class="bg-primary text-white p-5 sticky top-0 z-10 shadow-md rounded-b-3xl">
+                        <div><p class="text-md text-yellow-200">Selamat Datang,</p><h1 class="text-2xl font-bold">${currentUser.name}</h1></div>
+                    </header>
+                    <div class="p-4 space-y-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <button data-page="borrow" class="nav-button-action bg-secondary p-6 rounded-2xl text-center text-primary font-bold shadow-lg hover:bg-secondary-dark transition">
+                                <i data-lucide="shopping-basket" class="w-12 h-12 mx-auto mb-2"></i><span>Pinjam Alat</span>
+                            </button>
+                            <button data-page="return" class="nav-button-action bg-white p-6 rounded-2xl text-center text-primary font-bold shadow-lg hover:bg-gray-50 transition">
+                                <i data-lucide="undo-2" class="w-12 h-12 mx-auto mb-2"></i><span>Kembalikan</span>
+                            </button>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Peminjaman Aktif</h3>
+                            <div class="space-y-3">${recentBorrowingsHTML}</div>
+                        </div>
+                    </div>`;
+            };
+            
+            const renderUserBorrowPage = () => {
+                 const itemsHTML = items.map(item => `
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <div class="flex justify-between items-start">
+                             <div>
+                                <h4 class="font-bold text-lg text-primary">${item.name}</h4>
+                                <p class="text-sm text-gray-600">Tersedia: <span class="font-semibold">${item.available} dari ${item.total}</span></p>
+                                <p class="text-xs text-gray-500 mt-1">Kelengkapan: ${item.completeness}</p>
+                             </div>
+                             ${item.available > 0 
+                                ? `<button data-item-id="${item.id}" class="borrow-btn bg-primary text-white font-bold py-2 px-4 rounded-lg self-center">Pinjam</button>` 
+                                : `<span class="bg-gray-200 text-gray-600 text-xs font-semibold px-3 py-1 rounded-full self-center">Habis</span>`}
+                        </div>
+                    </div>`).join('');
+                return `
+                    <header class="bg-white text-primary p-4 sticky top-0 z-10 shadow-md"><h1 class="text-xl font-bold text-center">Pinjam Peralatan</h1></header>
+                    <div class="p-4 space-y-4">${itemsHTML || '<p class="text-center text-gray-500">Belum ada alat yang ditambahkan.</p>'}</div>`;
+            };
+
+            const renderUserReturnPage = () => {
+                const userBorrowings = borrowings.filter(b => b.userId === currentUser.id && b.status === 'dipinjam');
+                const itemsToReturnHTML = userBorrowings.length > 0
+                    ? userBorrowings.map(b => {
+                        const item = items.find(i => i.id === b.itemId);
+                        return `
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-semibold text-gray-800">${item.name}</p>
+                                    <p class="text-sm text-gray-500">Dipinjam: ${new Date(b.borrowDate).toLocaleDateString('id-ID')}</p>
+                                </div>
+                                <button data-borrow-id="${b.id}" class="return-item-btn bg-primary text-white font-bold py-2 px-4 rounded-lg">Kembalikan</button>
+                            </div>
+                        </div>`;
+                    }).join('')
+                    : '<p class="text-center text-gray-500 mt-4">Tidak ada alat yang sedang Anda pinjam.</p>';
+                
+                return `
+                    <header class="bg-white text-primary p-4 sticky top-0 z-10 shadow-md"><h1 class="text-xl font-bold text-center">Pengembalian Alat</h1></header>
+                    <div class="p-4 space-y-4">${itemsToReturnHTML}</div>`;
+            };
+            
+            const renderUserHistoryPage = () => {
+                 const userBorrowings = borrowings.filter(b => b.userId === currentUser.id).sort((a, b) => new Date(b.borrowDate) - new Date(a.borrowDate));
+                let historyHTML = userBorrowings.length > 0
+                    ? userBorrowings.map(b => {
+                        const item = items.find(i => i.id === b.itemId);
+                        let statusText, statusClass;
+                        switch(b.status) {
+                            case 'dipinjam':
+                                statusText = 'Dipinjam';
+                                statusClass = 'bg-yellow-100 text-yellow-800';
+                                break;
+                            case 'menunggu_validasi':
+                                statusText = 'Menunggu Validasi';
+                                statusClass = 'bg-blue-100 text-blue-800';
+                                break;
+                            case 'selesai':
+                                statusText = `Selesai (${new Date(b.adminValidationDate).toLocaleDateString('id-ID')})`;
+                                statusClass = 'bg-green-100 text-green-800';
+                                break;
+                            default:
+                                statusText = 'N/A';
+                                statusClass = 'bg-gray-100 text-gray-800';
+                        }
+                        
+                        return `
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-semibold text-gray-800">${item.name}</p>
+                                    <p class="text-sm text-gray-500">Tgl Pinjam: ${new Date(b.borrowDate).toLocaleString('id-ID')}</p>
+                                    <p class="text-sm text-gray-500">Keperluan: ${b.activity || b.description || `MK. ${b.course}` || 'Tidak ada keterangan'}</p>
+                                </div>
+                                <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${statusText}</span>
+                            </div>
+                        </div>`;
+                    }).join('')
+                    : '<p class="text-center text-gray-500 mt-4">Anda belum pernah meminjam alat.</p>';
+
+                return `
+                    <header class="bg-white text-primary p-4 sticky top-0 z-10 shadow-md"><h1 class="text-xl font-bold text-center">Riwayat Peminjaman</h1></header>
+                    <div class="p-4 space-y-4">${historyHTML}</div>`;
+            };
+            
+            const renderUserProfilePage = () => {
+                let userDetails = '';
+                if(currentUser.type === 'mahasiswa'){
+                    userDetails = `
+                        <p><span class="font-semibold">NIM:</span> ${currentUser.nim}</p>
+                        <p><span class="font-semibold">Prodi:</span> ${currentUser.prodi}</p>
+                        <p><span class="font-semibold">Angkatan:</span> ${currentUser.angkatan}</p>`;
+                } else if (currentUser.type === 'dosen' || currentUser.type === 'pegawai') {
+                    userDetails = `
+                        <p><span class="font-semibold">NIP:</span> ${currentUser.nip}</p>
+                        <p><span class="font-semibold">Jabatan:</span> ${currentUser.jabatan}</p>`;
+                }
+
+                return `
+                    <header class="bg-white text-primary p-4 sticky top-0 z-10 shadow-md"><h1 class="text-xl font-bold text-center">Profil Saya</h1></header>
+                    <div class="p-6">
+                        <div class="bg-primary text-white p-6 rounded-xl text-center shadow-lg">
+                            <i data-lucide="user-circle-2" class="w-20 h-20 mx-auto text-secondary"></i>
+                            <h2 class="text-2xl font-bold mt-2">${currentUser.name}</h2>
+                            <p class="text-yellow-200 capitalize">${currentUser.type}</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow mt-6 space-y-2 text-gray-700">
+                           ${userDetails}
+                        </div>
+                        <button id="userLogoutBtn" class="w-full mt-6 bg-red-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-red-700 transition flex items-center justify-center">
+                             <i data-lucide="log-out" class="w-5 h-5 mr-2"></i>
+                            Logout
+                        </button>
+                    </div>`;
+            };
+            
+            const handleBorrow = (itemId) => {
+                const item = items.find(i => i.id == itemId);
+                if (!item) return;
+
+                document.getElementById('borrowItemId').value = item.id;
+                document.getElementById('borrowItemName').textContent = item.name;
+                
+                const dynamicFieldsContainer = document.getElementById('borrowDynamicFields');
+                const userType = currentUser.type;
+                let purposeHtml = '';
+
+                if (userType === 'mahasiswa') {
+                    purposeHtml = `
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Keperluan</label>
+                            <select id="borrowPurposeSelector" class="mt-1 block w-full p-3 border border-gray-300 rounded-md">
+                                <option value="kuliah">Untuk Mata Kuliah</option>
+                                <option value="lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div id="borrowDetailsContainer" class="space-y-4 mt-4"></div>`;
+                } else if (userType === 'dosen') {
+                    purposeHtml = `
+                         <div>
+                            <label class="block text-sm font-medium text-gray-700">Keperluan</label>
+                            <select id="borrowPurposeSelector" class="mt-1 block w-full p-3 border border-gray-300 rounded-md">
+                                <option value="mengajar">Untuk Mengajar</option>
+                                <option value="lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div id="borrowDetailsContainer" class="space-y-4 mt-4"></div>`;
+                } else if (userType === 'pegawai') {
+                    purposeHtml = `
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Keperluan</label>
+                            <input type="text" id="borrowActivity" placeholder="cth: Rapat Jurusan, Acara Kampus" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Lokasi Kegiatan</label>
+                            <input type="text" id="borrowLocation" required class="mt-1 block w-full p-3 border border-gray-300 rounded-md">
+                        </div>`;
+                }
+                
+                dynamicFieldsContainer.innerHTML = purposeHtml;
+                
+                const purposeSelector = document.getElementById('borrowPurposeSelector');
+                if (purposeSelector) {
+                    purposeSelector.addEventListener('change', (e) => {
+                        renderBorrowDetailsFields(e.target.value, userType);
+                    });
+                    renderBorrowDetailsFields(purposeSelector.value, userType);
+                }
+
+                borrowModal.classList.remove('hidden');
+            };
+
+            const handleBorrowSubmit = (e) => {
+                e.preventDefault();
+                const itemId = parseInt(document.getElementById('borrowItemId').value);
+                const item = items.find(i => i.id === itemId);
+                
+                if (item.available < 1) {
+                    showNotification('Gagal', 'Maaf, alat ini sedang tidak tersedia.', false);
                     return;
                 }
-                keperluanDetail = { keperluan: 'Kegiatan Kampus', kegiatan, lokasi };
-            } else if (keperluan === 'lainnya') {
-                keperluanDetail = { keperluan: 'Lainnya' };
-            } else {
-                showToast("Harap pilih keperluan peminjaman.");
-                return;
-            }
-        }
 
-        peminjaman.push({
-            id: nextPeminjamanId++,
-            userId: currentUser.identifier,
-            alatId: alatId,
-            waktuPinjam: waktuPinjam,
-            batasKembali: batasKembali,
-            detail: keperluanDetail,
-            status: 'Dipinjam',
-        });
+                const newBorrowing = { 
+                    id: Date.now(), 
+                    itemId, 
+                    userId: currentUser.id, 
+                    borrowDate: document.getElementById('borrowDate').value, 
+                    returnDate: document.getElementById('returnDate').value, 
+                    status: 'dipinjam' // Status awal
+                };
+                
+                const userType = currentUser.type;
 
-        targetAlat.tersedia--;
+                if (userType === 'mahasiswa' || userType === 'dosen') {
+                    const purpose = document.getElementById('borrowPurposeSelector').value;
+                    newBorrowing.purposeType = purpose;
+                    if (purpose === 'kuliah' || purpose === 'mengajar') {
+                        Object.assign(newBorrowing, {
+                            course: document.getElementById('borrowCourse').value,
+                            class: document.getElementById('borrowClass').value,
+                        });
+                        if (userType === 'mahasiswa') {
+                            newBorrowing.lecturer = document.getElementById('borrowLecturer').value;
+                        }
+                    } else {
+                         Object.assign(newBorrowing, {
+                            description: document.getElementById('borrowDescription').value,
+                            location: document.getElementById('borrowLocation').value,
+                        });
+                    }
+                } else { // pegawai
+                    Object.assign(newBorrowing, {
+                        activity: document.getElementById('borrowActivity').value,
+                        location: document.getElementById('borrowLocation').value,
+                    });
+                }
 
-        closeModal('peminjaman-modal');
-        showToast("Peminjaman berhasil diajukan!");
-        updateUserDashboard();
-        updateAdminDashboard(); // Agar admin juga melihat peminjaman baru
-    }
-    
-    function openKembalikanModal(peminjamanId) {
-        document.getElementById('form-kembalikan').dataset.peminjamanId = peminjamanId;
-        showModal('kembalikan-modal');
-    }
+                borrowings.push(newBorrowing);
+                item.available--;
+                saveData();
 
-    function kembalikanAlat() {
-        const peminjamanId = parseInt(document.getElementById('form-kembalikan').dataset.peminjamanId);
-        const pinjaman = peminjaman.find(p => p.id === peminjamanId);
-        
-        if (pinjaman) {
-            pinjaman.status = 'Selesai';
-            pinjaman.waktuKembali = new Date().toISOString().slice(0, 16);
-            const targetAlat = alat.find(a => a.id === pinjaman.alatId);
-            targetAlat.tersedia++;
-        }
+                borrowModal.classList.add('hidden');
+                borrowForm.reset();
+                showNotification('Berhasil', 'Peminjaman Anda telah dicatat.');
+                renderUserPage('history');
+            };
+            
+            const showReturnForm = (borrowId) => {
+                const borrowing = borrowings.find(b => b.id == borrowId);
+                const item = items.find(i => i.id === borrowing.itemId);
+                if (!borrowing || !item) return;
 
-        closeModal('kembalikan-modal');
-        showToast("Alat berhasil dikembalikan.");
-        upda
+                document.getElementById('returnBorrowId').value = borrowId;
+                document.getElementById('returnItemName').textContent = item.name;
+                returnModal.classList.remove('hidden');
+            };
+
+            const handleReturnSubmit = (e) => {
+                e.preventDefault();
+                const borrowId = document.getElementById('returnBorrowId').value;
+                const borrowing = borrowings.find(b => b.id == borrowId);
+
+                if (borrowing) {
+                    borrowing.status = 'menunggu_validasi';
+                    borrowing.userReturnDate = new Date().toISOString();
+                    borrowing.returnCondition = document.getElementById('returnCondition').value;
+                    borrowing.returnNotes = document.getElementById('returnNotes').value;
+                    borrowing.returnProof = document.getElementById('returnProof').value;
+                    
+                    saveData();
+                    returnModal.classList.add('hidden');
+                    returnForm.reset();
+                    showNotification('Berhasil', 'Pengajuan pengembalian telah dikirim untuk divalidasi oleh Admin.');
+                    renderUserPage('history');
+                }
+            };
+            
+            // ===== FUNGSI RENDER TAMPILAN ADMIN =====
+            const renderAdminDashboard = () => {
+                document.getElementById('adminName').textContent = currentUser.name;
+                renderAdminPage('input');
+            };
+            
+            const renderAdminPage = (page) => {
+                document.querySelectorAll('.admin-tab-link').forEach(link => {
+                    link.classList.remove('text-primary', 'border-primary');
+                    link.classList.add('text-gray-500', 'border-transparent');
+                });
+                document.querySelector(`.admin-tab-link[data-tab="${page}"]`).classList.add('text-primary', 'border-primary');
+                
+                document.querySelectorAll('.admin-content-panel').forEach(content => content.classList.add('hidden'));
+                document.getElementById(`adminContent${page.charAt(0).toUpperCase() + page.slice(1)}`).classList.remove('hidden');
+                
+                const pendingValidations = borrowings.filter(b => b.status === 'menunggu_validasi').length;
+                const badge = document.getElementById('validation-badge');
+                if (pendingValidations > 0) {
+                    badge.textContent = pendingValidations;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+
+                if (page === 'manage') renderAdminItemList();
+                else if (page === 'history') renderAdminBorrowingHistory();
+                else if (page === 'validation') renderAdminValidationList();
+            };
+            
+            const renderAdminItemList = () => {
+                const itemListDiv = document.getElementById('adminItemList');
+                itemListDiv.innerHTML = items.length > 0 ? items.map(item => `
+                    <div class="bg-white p-3 rounded-lg shadow-sm border">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="font-semibold text-gray-800">${item.name}</p>
+                                <p class="text-sm text-gray-500">Status: ${item.available} / ${item.total} tersedia</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="delete-item-btn p-2 text-red-600 hover:bg-red-100 rounded-full" data-item-id="${item.id}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                            </div>
+                        </div>
+                    </div>`).join('') : '<p class="text-center text-gray-500">Belum ada alat.</p>';
+                lucide.createIcons();
+            };
+
+            const renderAdminValidationList = () => {
+                const validationDiv = document.getElementById('adminValidationList');
+                const pendingReturns = borrowings.filter(b => b.status === 'menunggu_validasi');
+                
+                if (pendingReturns.length === 0) {
+                    validationDiv.innerHTML = '<p class="text-center text-gray-500">Tidak ada pengembalian yang perlu divalidasi.</p>';
+                    return;
+                }
+
+                validationDiv.innerHTML = pendingReturns.map(b => {
+                    const item = items.find(i => i.id === b.itemId);
+                    const user = users.find(u => u.id === b.userId);
+                    return `
+                        <div class="bg-white p-3 rounded-lg shadow-sm border space-y-2">
+                            <p class="font-semibold">${item.name} <span class="font-normal text-sm">- oleh ${user.name}</span></p>
+                            <div class="text-xs space-y-1 text-gray-600 border-t pt-2">
+                                <p><b>Tgl Pengembalian:</b> ${new Date(b.userReturnDate).toLocaleString('id-ID')}</p>
+                                <p><b>Kondisi:</b> <span class="font-semibold">${b.returnCondition}</span></p>
+                                <p><b>Catatan:</b> ${b.returnNotes || '-'}</p>
+                                <p><b>Bukti:</b> ${b.returnProof || '-'}</p>
+                            </div>
+                            <button data-borrow-id="${b.id}" class="validate-return-btn w-full mt-2 bg-green-600 text-white font-bold py-2 px-3 rounded-lg">Validasi & Selesaikan</button>
+                        </div>
+                    `;
+                }).join('');
+                lucide.createIcons();
+            };
+            
+            const renderAdminBorrowingHistory = (filterDate = null) => {
+                const historyDiv = document.getElementById('adminBorrowingHistory');
+                let filteredBorrowings = [...borrowings].sort((a,b) => new Date(b.borrowDate) - new Date(a.borrowDate));
+                
+                if (filterDate) {
+                    filteredBorrowings = filteredBorrowings.filter(b => new Date(b.borrowDate).toISOString().slice(0,10) === filterDate);
+                }
+                
+                if (filteredBorrowings.length === 0) {
+                    historyDiv.innerHTML = '<p class="text-center text-gray-500">Tidak ada riwayat peminjaman.</p>';
+                    return;
+                }
+
+                historyDiv.innerHTML = filteredBorrowings.map(b => {
+                    const item = items.find(i => i.id === b.itemId);
+                    const user = users.find(u => u.id === b.userId);
+                    
+                    let statusText, statusClass;
+                    switch(b.status) {
+                        case 'dipinjam': statusText = 'Dipinjam'; statusClass = 'bg-yellow-100 text-yellow-800'; break;
+                        case 'menunggu_validasi': statusText = 'Validasi'; statusClass = 'bg-blue-100 text-blue-800'; break;
+                        case 'selesai': statusText = 'Selesai'; statusClass = 'bg-green-100 text-green-800'; break;
+                        default: statusText = 'N/A'; statusClass = 'bg-gray-100 text-gray-800';
+                    }
+
+                    let userDetail = '';
+                    if (user) {
+                        if(user.type === 'mahasiswa') {
+                             userDetail = `<p class="text-xs"><b>Peminjam:</b> ${user.name} (${user.nim})</p><p class="text-xs"><b>Detail:</b> ${b.purposeType === 'kuliah' ? `MK ${b.course}` : b.description}</p>`;
+                        } else if (user.type === 'dosen') {
+                            userDetail = `<p class="text-xs"><b>Peminjam:</b> ${user.name} (${user.nip})</p><p class="text-xs"><b>Detail:</b> ${b.purposeType === 'mengajar' ? `MK ${b.course}` : b.description}</p>`;
+                        } else if (user.type === 'pegawai') {
+                            userDetail = `<p class="text-xs"><b>Peminjam:</b> ${user.name} (${user.nip})</p><p class="text-xs"><b>Detail:</b> ${b.activity || '-'}</p>`;
+                        }
+                    }
+                    
+                    return `
+                        <div class="bg-white p-3 rounded-lg shadow-sm border space-y-1">
+                            <div class="flex justify-between items-start">
+                                <p class="font-semibold">${item.name}</p>
+                                <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${statusText}</span>
+                            </div>
+                            ${userDetail}
+                            <p class="text-xs text-gray-50
