@@ -355,10 +355,10 @@
     </div>
 
     <script>
-        // Inisialisasi Lucide Icons
-        lucide.createIcons();
-
         document.addEventListener('DOMContentLoaded', () => {
+            // Inisialisasi Lucide Icons
+            lucide.createIcons();
+
             // ===== ELEMEN DOM =====
             const pages = {
                 splash: document.getElementById('splashPage'),
@@ -367,7 +367,20 @@
                 userHome: document.getElementById('userHomePage'),
                 adminDashboard: document.getElementById('adminDashboardPage')
             };
-            // ... (sisa elemen DOM akan didefinisikan di sini)
+            const goToLoginBtn = document.getElementById('goToLoginBtn');
+            const goToRegisterBtn = document.getElementById('goToRegisterBtn');
+            const backToSplashBtns = document.querySelectorAll('.back-to-splash-btn');
+            
+            const loginUserType = document.getElementById('loginUserType');
+            const registerUserType = document.getElementById('registerUserType');
+            const loginFormContainer = document.getElementById('loginFormContainer');
+            const registerFormContainer = document.getElementById('registerFormContainer');
+            const registerForm = document.getElementById('registerForm');
+
+            const notificationModal = document.getElementById('notificationModal');
+            const notificationCloseBtn = document.getElementById('notificationCloseBtn');
+            const confirmModal = document.getElementById('confirmModal');
+
             const borrowModal = document.getElementById('borrowModal');
             const closeBorrowModalBtn = document.getElementById('closeBorrowModalBtn');
             const borrowForm = document.getElementById('borrowForm');
@@ -375,7 +388,10 @@
             const returnModal = document.getElementById('returnModal');
             const closeReturnModalBtn = document.getElementById('closeReturnModalBtn');
             const returnForm = document.getElementById('returnForm');
-
+            
+            const addItemForm = document.getElementById('addItemForm');
+            const adminDashboard = document.getElementById('adminDashboardPage');
+            const historyDateFilter = document.getElementById('historyDateFilter');
 
             // ===== STATE APLIKASI =====
             let currentUser = null;
@@ -388,11 +404,11 @@
                 Object.values(pages).forEach(page => page.classList.add('hidden'));
                 if (pages[pageName]) {
                     pages[pageName].classList.remove('hidden');
+                    pages[pageName].classList.add('animate-fade-in');
                 }
             };
             
             const showNotification = (title, message, isSuccess = true) => {
-                const notificationModal = document.getElementById('notificationModal');
                 document.getElementById('notificationTitle').textContent = title;
                 document.getElementById('notificationMessage').textContent = message;
                 document.getElementById('notificationIcon').innerHTML = isSuccess
@@ -403,7 +419,6 @@
             };
 
             const showConfirm = (title, message, onConfirm) => {
-                const confirmModal = document.getElementById('confirmModal');
                 const confirmBtn = document.getElementById('confirmBtn');
                 document.getElementById('confirmTitle').textContent = title;
                 document.getElementById('confirmMessage').textContent = message;
@@ -516,9 +531,9 @@
                 saveData();
                 showNotification('Registrasi Berhasil', 'Akun Anda telah dibuat. Silakan login.');
                 showPage('login');
-                 e.target.closest('form').reset();
-                 document.getElementById('registerFormContainer').innerHTML = '';
-                 document.getElementById('registerForm').classList.add('hidden');
+                e.target.closest('form').reset();
+                registerFormContainer.innerHTML = '';
+                registerForm.classList.add('hidden');
             };
             
             const logout = () => {
@@ -578,7 +593,6 @@
             };
 
             const renderLoginForm = (type) => {
-                const container = document.getElementById('loginFormContainer');
                 let formHTML = '';
                 if (type === 'mahasiswa') {
                     formHTML = `<label class="block text-sm font-medium text-gray-700 mb-1">NIM</label><input type="text" name="loginIdentifier" required class="w-full p-3 border border-gray-300 rounded-lg">`;
@@ -589,7 +603,7 @@
                 }
                 
                 if (formHTML) {
-                    container.innerHTML = `
+                    loginFormContainer.innerHTML = `
                     <form id="loginDynamicForm" class="animate-fade-in">
                         <div class="mb-4">${formHTML}</div>
                         <div class="mb-6">
@@ -600,13 +614,11 @@
                     </form>`;
                     document.getElementById('loginDynamicForm').addEventListener('submit', handleLogin);
                 } else {
-                    container.innerHTML = '';
+                    loginFormContainer.innerHTML = '';
                 }
             };
             
             const renderRegisterForm = (type) => {
-                const container = document.getElementById('registerFormContainer');
-                const form = document.getElementById('registerForm');
                 let formHTML = '';
                  if (type === 'mahasiswa') {
                     formHTML = `
@@ -628,12 +640,12 @@
                 }
 
                 if(formHTML){
-                    container.innerHTML = formHTML;
+                    registerFormContainer.innerHTML = formHTML;
                     form.classList.remove('hidden');
                     form.classList.add('animate-fade-in');
                 } else {
                     form.classList.add('hidden');
-                    container.innerHTML = '';
+                    registerFormContainer.innerHTML = '';
                 }
             };
             
@@ -654,7 +666,7 @@
                 
                 userPageContent.innerHTML = content;
                 lucide.createIcons();
-                attachUserPageEventListeners();
+                // Event listener sudah di-handle oleh event delegation di attachEventListeners
             };
 
             const renderUserHomePage = () => {
@@ -1070,4 +1082,128 @@
                                 <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${statusText}</span>
                             </div>
                             ${userDetail}
-                            <p class="text-xs text-gray-50
+                            <p class="text-xs text-gray-500">Dipinjam: ${new Date(b.borrowDate).toLocaleString('id-ID')}</p>
+                        </div>`;
+                }).join('');
+            };
+            
+            // ===== EVENT LISTENERS =====
+            const attachEventListeners = () => {
+                // Navigasi awal
+                goToLoginBtn.addEventListener('click', () => showPage('login'));
+                goToRegisterBtn.addEventListener('click', () => showPage('register'));
+                backToSplashBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                         // Reset form saat kembali
+                        loginFormContainer.innerHTML = '';
+                        loginUserType.value = '';
+                        registerFormContainer.innerHTML = '';
+                        registerUserType.value = '';
+                        registerForm.classList.add('hidden');
+                        showPage('splash');
+                    });
+                });
+
+                // Render form dinamis
+                loginUserType.addEventListener('change', (e) => renderLoginForm(e.target.value));
+                registerUserType.addEventListener('change', (e) => renderRegisterForm(e.target.value));
+
+                // Submit Form
+                registerForm.addEventListener('submit', handleRegister);
+                borrowForm.addEventListener('submit', handleBorrowSubmit);
+                returnForm.addEventListener('submit', handleReturnSubmit);
+                addItemForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const newItem = {
+                        id: Date.now(),
+                        name: document.getElementById('itemName').value,
+                        total: parseInt(document.getElementById('itemTotal').value),
+                        available: parseInt(document.getElementById('itemTotal').value),
+                        completeness: document.getElementById('itemCompleteness').value,
+                        description: document.getElementById('itemDescription').value
+                    };
+                    items.push(newItem);
+                    saveData();
+                    showNotification('Berhasil', 'Alat baru telah ditambahkan.');
+                    addItemForm.reset();
+                });
+                
+                // Modal
+                notificationCloseBtn.addEventListener('click', () => notificationModal.classList.add('hidden'));
+                closeBorrowModalBtn.addEventListener('click', () => borrowModal.classList.add('hidden'));
+                closeReturnModalBtn.addEventListener('click', () => returnModal.classList.add('hidden'));
+
+                // Event Delegation untuk konten dinamis Halaman Pengguna
+                pages.userHome.addEventListener('click', (e) => {
+                    const target = e.target;
+                    const navLink = target.closest('.user-nav-link');
+                    const actionButton = target.closest('button');
+
+                    if (navLink) {
+                        e.preventDefault();
+                        renderUserPage(navLink.dataset.page);
+                    } else if (actionButton) {
+                        if (actionButton.matches('.nav-button-action')) {
+                            renderUserPage(actionButton.dataset.page);
+                        } else if (actionButton.matches('.borrow-btn')) {
+                            handleBorrow(actionButton.dataset.itemId);
+                        } else if (actionButton.matches('.return-item-btn')) {
+                            showReturnForm(actionButton.dataset.borrowId);
+                        } else if (actionButton.id === 'userLogoutBtn') {
+                            logout();
+                        }
+                    }
+                });
+                
+                // Event Delegation untuk konten dinamis Halaman Admin
+                adminDashboard.addEventListener('click', (e) => {
+                    const target = e.target;
+                    const tabLink = target.closest('.admin-tab-link');
+                    const actionButton = target.closest('button');
+
+                    if (tabLink) {
+                        e.preventDefault();
+                        renderAdminPage(tabLink.dataset.tab);
+                    } else if (actionButton) {
+                        if (actionButton.id === 'adminLogoutBtn') {
+                            logout();
+                        } else if (actionButton.matches('.delete-item-btn')) {
+                            const itemId = parseInt(actionButton.dataset.itemId);
+                            showConfirm('Hapus Alat?', 'Apakah Anda yakin ingin menghapus data alat ini? Tindakan ini tidak bisa dibatalkan.', () => {
+                                items = items.filter(i => i.id !== itemId);
+                                saveData();
+                                renderAdminItemList();
+                            });
+                        } else if (actionButton.matches('.validate-return-btn')) {
+                            const borrowId = parseInt(actionButton.dataset.borrowId);
+                            const borrowing = borrowings.find(b => b.id === borrowId);
+                            const item = items.find(i => i.id === borrowing.itemId);
+                            if (borrowing) {
+                                borrowing.status = 'selesai';
+                                borrowing.adminValidationDate = new Date().toISOString();
+                                if (borrowing.returnCondition !== 'Hilang') {
+                                    item.available++;
+                                }
+                                saveData();
+                                renderAdminValidationList();
+                                renderAdminPage('validation');
+                            }
+                        }
+                    }
+                });
+
+                historyDateFilter.addEventListener('change', (e) => renderAdminBorrowingHistory(e.target.value));
+            };
+
+            // ===== INISIALISASI APLIKASI =====
+            const initializeApp = () => {
+                loadData();
+                attachEventListeners();
+                checkSession();
+            };
+
+            initializeApp();
+        });
+    </script>
+</body>
+</html>
