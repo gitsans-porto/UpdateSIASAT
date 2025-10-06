@@ -65,6 +65,14 @@
             opacity: 1;
             transition: opacity 0.5s;
         }
+        .btn-ai {
+            background: linear-gradient(to right, #800000, #c04848);
+            color: white;
+        }
+        .btn-ai:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -343,6 +351,17 @@
             <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-800" onclick="closeModal('peminjaman-modal')">&times;</button>
             <h2 class="text-2xl font-bold text-primary mb-4">Form Peminjaman</h2>
             <form id="form-peminjaman" onsubmit="event.preventDefault(); ajukanPeminjaman();" class="space-y-4">
+                <!-- Fitur Asisten AI -->
+                <div class="bg-gray-50 p-3 rounded-lg border">
+                    <label for="ai-helper-prompt" class="block text-sm font-medium text-gray-700">Bingung cari alat? Jelaskan kebutuhanmu:</label>
+                    <div class="flex mt-1 gap-2">
+                        <input type="text" id="ai-helper-prompt" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm" placeholder="cth: untuk menyambungkan laptop ke proyektor">
+                        <button type="button" id="ai-find-tool-btn" class="px-4 py-2 text-sm font-semibold rounded-md btn-ai" onclick="findToolWithAI()">
+                            ✨ Cari
+                        </button>
+                    </div>
+                </div>
+
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Jenis Alat</label>
                     <select id="pinjam-jenis-alat" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
@@ -483,7 +502,12 @@
                     </div>
                 </div>
                  <div>
-                    <label class="block text-sm font-medium text-gray-700">Deskripsi (Opsional)</label>
+                    <div class="flex justify-between items-center">
+                        <label class="block text-sm font-medium text-gray-700">Deskripsi (Opsional)</label>
+                        <button type="button" id="generate-desc-btn" class="text-xs btn-ai px-2 py-1 rounded-md" onclick="generateDescription()">
+                            ✨ Buat Otomatis
+                        </button>
+                    </div>
                     <textarea id="input-deskripsi-alat" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="Proyektor untuk ruang kelas besar..."></textarea>
                 </div>
                 <button type="submit" class="w-full btn-primary font-bold py-2 px-4 rounded-md">Simpan Alat</button>
@@ -590,6 +614,100 @@
             toast.classList.remove('show');
         }, 3000);
     }
+
+    // ===================================================================
+    //                           GEMINI API INTEGRATION
+    // ===================================================================
+    async function callGeminiAPI(prompt, buttonElement) {
+        const apiKey = ""; // API Key is handled by the environment
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+        
+        const originalButtonText = buttonElement.innerHTML;
+        buttonElement.disabled = true;
+        buttonElement.innerHTML = `<svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+
+        try {
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+            };
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`API call failed with status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const candidate = result.candidates?.[0];
+
+            if (candidate && candidate.content?.parts?.[0]?.text) {
+                return candidate.content.parts[0].text.trim();
+            } else {
+                throw new Error("Invalid response structure from API.");
+            }
+        } catch (error) {
+            console.error("Gemini API Error:", error);
+            showToast("Gagal menghubungi AI. Coba lagi.");
+            return null;
+        } finally {
+            buttonElement.disabled = false;
+            buttonElement.innerHTML = originalButtonText;
+        }
+    }
+
+    async function generateDescription() {
+        const namaAlat = document.getElementById('input-nama-alat').value;
+        const kelengkapan = document.getElementById('input-kelengkapan-alat').value;
+        const btn = document.getElementById('generate-desc-btn');
+        
+        if (!namaAlat || !kelengkapan) {
+            showToast("Isi Nama Alat dan Kelengkapan terlebih dahulu.");
+            return;
+        }
+
+        const prompt = `Buatkan deskripsi singkat dan jelas untuk alat inventaris jurusan. Nama alat: "${namaAlat}". Kelengkapan yang didapat: "${kelengkapan}". Deskripsi harus dalam 1-2 kalimat saja.`;
+        
+        const generatedText = await callGeminiAPI(prompt, btn);
+        if (generatedText) {
+            document.getElementById('input-deskripsi-alat').value = generatedText;
+            showToast("Deskripsi berhasil dibuat!");
+        }
+    }
+
+    async function findToolWithAI() {
+        const userNeed = document.getElementById('ai-helper-prompt').value;
+        const btn = document.getElementById('ai-find-tool-btn');
+        if (!userNeed) {
+            showToast("Jelaskan dulu kebutuhan Anda.");
+            return;
+        }
+
+        const availableTools = alat.filter(a => a.tersedia > 0).map(a => a.nama).join(', ');
+        if (!availableTools) {
+            showToast("Saat ini tidak ada alat yang tersedia.");
+            return;
+        }
+        
+        const prompt = `Dari daftar alat berikut: [${availableTools}], alat manakah yang paling cocok untuk keperluan ini: "${userNeed}"? Jawab HANYA dengan nama alat yang paling cocok dari daftar. Jika tidak ada yang cocok, jawab "Tidak ditemukan".`;
+
+        const recommendedToolName = await callGeminiAPI(prompt, btn);
+
+        if (recommendedToolName && recommendedToolName.toLowerCase() !== 'tidak ditemukan') {
+            const recommendedTool = alat.find(a => a.nama.toLowerCase() === recommendedToolName.toLowerCase());
+            if (recommendedTool) {
+                document.getElementById('pinjam-jenis-alat').value = recommendedTool.id;
+                showToast(`AI merekomendasikan: ${recommendedTool.nama}`);
+            } else {
+                showToast(`Rekomendasi "${recommendedToolName}" tidak valid.`);
+            }
+        } else {
+            showToast("Maaf, AI tidak dapat menemukan alat yang cocok.");
+        }
+    }
+
 
     // ===================================================================
     //                           LOGIC UTAMA APLIKASI
@@ -1031,130 +1149,4 @@
 
         closeModal('kembalikan-modal');
         showToast("Alat berhasil dikembalikan.");
-        updateUserDashboard();
-        updateAdminDashboard();
-    }
-    
-    function simpanAlatBaru() {
-        const nama = document.getElementById('input-nama-alat').value;
-        const jumlah = parseInt(document.getElementById('input-jumlah-alat').value);
-        const kelengkapan = document.getElementById('input-kelengkapan-alat').value;
-        const deskripsi = document.getElementById('input-deskripsi-alat').value;
-
-        const newAlat = {
-            id: alat.length > 0 ? Math.max(...alat.map(a => a.id)) + 1 : 1,
-            nama: nama,
-            jumlah: jumlah,
-            tersedia: jumlah,
-            kelengkapan: kelengkapan,
-            deskripsi: deskripsi
-        };
-        alat.push(newAlat);
-        
-        closeModal('input-alat-modal');
-        showToast("Alat baru berhasil disimpan.");
-        document.getElementById('form-input-alat').reset();
-    }
-    
-    function hapusAlat(alatId) {
-        if (confirm("Apakah Anda yakin ingin menghapus alat ini? Aksi ini tidak dapat dibatalkan.")) {
-            alat = alat.filter(a => a.id !== alatId);
-            showToast("Alat berhasil dihapus.");
-            renderKelolaAlatAdmin();
-        }
-    }
-    
-    function openEditAlatModal(alatId) {
-        const targetAlat = alat.find(a => a.id === alatId);
-        if (targetAlat) {
-            document.getElementById('edit-alat-id').value = targetAlat.id;
-            document.getElementById('edit-nama-alat').value = targetAlat.nama;
-            document.getElementById('edit-jumlah-alat').value = targetAlat.jumlah;
-            document.getElementById('edit-kelengkapan-alat').value = targetAlat.kelengkapan;
-            document.getElementById('edit-deskripsi-alat').value = targetAlat.deskripsi;
-            
-            closeModal('daftar-alat-admin-modal');
-            showModal('edit-alat-modal');
-        }
-    }
-
-    function simpanPerubahanAlat() {
-        const alatId = parseInt(document.getElementById('edit-alat-id').value);
-        const targetAlat = alat.find(a => a.id === alatId);
-
-        if (targetAlat) {
-            const jumlahLama = targetAlat.jumlah;
-            const jumlahBaru = parseInt(document.getElementById('edit-jumlah-alat').value);
-            const selisih = jumlahBaru - jumlahLama;
-
-            targetAlat.nama = document.getElementById('edit-nama-alat').value;
-            targetAlat.jumlah = jumlahBaru;
-            targetAlat.kelengkapan = document.getElementById('edit-kelengkapan-alat').value;
-            targetAlat.deskripsi = document.getElementById('edit-deskripsi-alat').value;
-            targetAlat.tersedia += selisih;
-        }
-        
-        closeModal('edit-alat-modal');
-        showToast("Data alat berhasil diperbarui.");
-    }
-
-
-    // ===================================================================
-    //                           HELPER FUNCTIONS
-    // ===================================================================
-    function switchLoginTab(tab) {
-        if (tab === 'user') {
-            document.getElementById('login-user-tab').classList.replace('tab-inactive', 'tab-active');
-            document.getElementById('login-admin-tab').classList.replace('tab-active', 'tab-inactive');
-            document.getElementById('login-user-form').classList.remove('hidden');
-            document.getElementById('login-admin-form').classList.add('hidden');
-        } else {
-            document.getElementById('login-user-tab').classList.replace('tab-active', 'tab-inactive');
-            document.getElementById('login-admin-tab').classList.replace('tab-inactive', 'tab-active');
-            document.getElementById('login-user-form').classList.add('hidden');
-            document.getElementById('login-admin-form').classList.remove('hidden');
-        }
-    }
-
-    function switchLoginFormIdentifier(type) {
-        const label = document.querySelector('#login-nim-input label');
-        const input = document.getElementById('login-identifier');
-        if (type === 'mahasiswa') {
-            label.textContent = 'NIM';
-            input.placeholder = 'Masukkan NIM';
-        } else {
-            label.textContent = 'NIP';
-            input.placeholder = 'Masukkan NIP';
-        }
-    }
-
-    function switchRegisterForm(type) {
-        if (type === 'mahasiswa') {
-            document.getElementById('register-mahasiswa-form').classList.remove('hidden');
-            document.getElementById('register-dosen-pegawai-form').classList.add('hidden');
-        } else {
-            document.getElementById('register-mahasiswa-form').classList.add('hidden');
-            document.getElementById('register-dosen-pegawai-form').classList.remove('hidden');
-        }
-    }
-    
-    function preparePeminjamanForm() {
-        document.getElementById('form-peminjaman').reset();
-        document.getElementById('peminjaman-form-mahasiswa').classList.add('hidden');
-        document.getElementById('peminjaman-form-dosen').classList.add('hidden');
-        document.getElementById('peminjaman-form-pegawai').classList.add('hidden');
-        document.getElementById('detail-matkul-form').classList.add('hidden');
-        document.getElementById('detail-mengajar-form').classList.add('hidden');
-        document.getElementById('detail-kegiatan-form').classList.add('hidden');
-
-
-        const selectAlat = document.getElementById('pinjam-jenis-alat');
-        selectAlat.innerHTML = '<option value="" disabled selected>Pilih alat...</option>';
-        alat.filter(a => a.tersedia > 0).forEach(a => {
-            selectAlat.innerHTML += `<option value="${a.id}">${a.nama}</option>`;
-        });
-
-        if (currentUser.type === 'mahasiswa') {
-            document.getElementById('peminjaman-form-mahasiswa').classList.remove('hidden');
-        } else if (currentUser.type === 'dosen') {
-             documen
+        upda
