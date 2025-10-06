@@ -375,10 +375,10 @@
     </div>
 
     <script>
-        // Inisialisasi Lucide Icons
-        lucide.createIcons();
-
         document.addEventListener('DOMContentLoaded', () => {
+             // Inisialisasi Lucide Icons
+            lucide.createIcons();
+
             // ===== ELEMEN DOM =====
             const pages = {
                 splash: document.getElementById('splashPage'),
@@ -387,6 +387,20 @@
                 userHome: document.getElementById('userHomePage'),
                 adminDashboard: document.getElementById('adminDashboardPage')
             };
+            const goToLoginBtn = document.getElementById('goToLoginBtn');
+            const goToRegisterBtn = document.getElementById('goToRegisterBtn');
+            const backToSplashBtns = document.querySelectorAll('.back-to-splash-btn');
+            
+            const loginUserType = document.getElementById('loginUserType');
+            const registerUserType = document.getElementById('registerUserType');
+            const loginFormContainer = document.getElementById('loginFormContainer');
+            const registerFormContainer = document.getElementById('registerFormContainer');
+            const registerForm = document.getElementById('registerForm');
+
+            const notificationModal = document.getElementById('notificationModal');
+            const notificationCloseBtn = document.getElementById('notificationCloseBtn');
+            const confirmModal = document.getElementById('confirmModal');
+            
             const borrowModal = document.getElementById('borrowModal');
             const closeBorrowModalBtn = document.getElementById('closeBorrowModalBtn');
             const borrowForm = document.getElementById('borrowForm');
@@ -395,6 +409,8 @@
             const closeReturnModalBtn = document.getElementById('closeReturnModalBtn');
             const returnForm = document.getElementById('returnForm');
             
+            const addItemForm = document.getElementById('addItemForm');
+            const adminDashboard = document.getElementById('adminDashboardPage');
             const historyDateFilter = document.getElementById('historyDateFilter');
             const historyUserTypeFilter = document.getElementById('historyUserTypeFilter');
             const historyStatusFilter = document.getElementById('historyStatusFilter');
@@ -412,11 +428,11 @@
                 Object.values(pages).forEach(page => page.classList.add('hidden'));
                 if (pages[pageName]) {
                     pages[pageName].classList.remove('hidden');
+                    pages[pageName].classList.add('animate-fade-in');
                 }
             };
             
             const showNotification = (title, message, isSuccess = true) => {
-                const notificationModal = document.getElementById('notificationModal');
                 document.getElementById('notificationTitle').textContent = title;
                 document.getElementById('notificationMessage').textContent = message;
                 document.getElementById('notificationIcon').innerHTML = isSuccess
@@ -427,7 +443,6 @@
             };
 
             const showConfirm = (title, message, onConfirm) => {
-                const confirmModal = document.getElementById('confirmModal');
                 const confirmBtn = document.getElementById('confirmBtn');
                 document.getElementById('confirmTitle').textContent = title;
                 document.getElementById('confirmMessage').textContent = message;
@@ -678,7 +693,6 @@
                 
                 userPageContent.innerHTML = content;
                 lucide.createIcons();
-                attachUserPageEventListeners();
             };
 
             const renderUserHomePage = () => {
@@ -979,6 +993,7 @@
             // ===== FUNGSI RENDER TAMPILAN ADMIN =====
             const renderAdminDashboard = () => {
                 document.getElementById('adminName').textContent = currentUser.name;
+                populateItemFilter();
                 renderAdminPage('input');
             };
             
@@ -1080,4 +1095,179 @@
                     })
                     .filter(b => {
                         if (!dateFilter) return true;
-                        return new Date(b.borrowDate).
+                        return new Date(b.borrowDate).toISOString().slice(0, 10) === dateFilter;
+                    })
+                    .filter(b => {
+                        if (!userTypeFilter) return true;
+                        const user = users.find(u => u.id === b.userId);
+                        return user && user.type === userTypeFilter;
+                    })
+                    .sort((a,b) => new Date(b.borrowDate) - new Date(a.borrowDate));
+                
+                if (filteredBorrowings.length === 0) {
+                    historyDiv.innerHTML = '<p class="text-center text-gray-500">Tidak ada riwayat yang cocok dengan filter.</p>';
+                    return;
+                }
+
+                historyDiv.innerHTML = filteredBorrowings.map(b => {
+                    const item = items.find(i => i.id === b.itemId);
+                    const user = users.find(u => u.id === b.userId);
+                    
+                    let statusText, statusClass;
+                    switch(b.status) {
+                        case 'dipinjam': statusText = 'Dipinjam'; statusClass = 'bg-yellow-100 text-yellow-800'; break;
+                        case 'menunggu_validasi': statusText = 'Validasi'; statusClass = 'bg-blue-100 text-blue-800'; break;
+                        case 'selesai': statusText = 'Selesai'; statusClass = 'bg-green-100 text-green-800'; break;
+                        default: statusText = 'N/A'; statusClass = 'bg-gray-100 text-gray-800';
+                    }
+
+                    let userDetail = '';
+                    if (user) {
+                        if(user.type === 'mahasiswa') {
+                             userDetail = `<p class="text-xs"><b>Peminjam:</b> ${user.name} (${user.nim})</p><p class="text-xs"><b>Detail:</b> ${b.purposeType === 'kuliah' ? `MK ${b.course}` : b.description}</p>`;
+                        } else if (user.type === 'dosen') {
+                            userDetail = `<p class="text-xs"><b>Peminjam:</b> ${user.name} (${user.nip})</p><p class="text-xs"><b>Detail:</b> ${b.purposeType === 'mengajar' ? `MK ${b.course}` : b.description}</p>`;
+                        } else if (user.type === 'pegawai') {
+                            userDetail = `<p class="text-xs"><b>Peminjam:</b> ${user.name} (${user.nip})</p><p class="text-xs"><b>Detail:</b> ${b.activity || '-'}</p>`;
+                        }
+                    }
+                    
+                    return `
+                        <div class="bg-white p-3 rounded-lg shadow-sm border space-y-1">
+                            <div class="flex justify-between items-start">
+                                <p class="font-semibold">${item.name}</p>
+                                <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${statusText}</span>
+                            </div>
+                            ${userDetail}
+                            <p class="text-xs text-gray-500">Dipinjam: ${new Date(b.borrowDate).toLocaleString('id-ID')}</p>
+                        </div>`;
+                }).join('');
+            };
+            
+            // ===== EVENT LISTENERS =====
+            const attachEventListeners = () => {
+                // Navigasi awal
+                goToLoginBtn.addEventListener('click', () => showPage('login'));
+                goToRegisterBtn.addEventListener('click', () => showPage('register'));
+                backToSplashBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                         // Reset form saat kembali
+                        loginFormContainer.innerHTML = '';
+                        if(loginUserType) loginUserType.value = '';
+                        registerFormContainer.innerHTML = '';
+                        if(registerUserType) registerUserType.value = '';
+                        registerForm.classList.add('hidden');
+                        showPage('splash');
+                    });
+                });
+
+                // Render form dinamis
+                loginUserType.addEventListener('change', (e) => renderLoginForm(e.target.value));
+                registerUserType.addEventListener('change', (e) => renderRegisterForm(e.target.value));
+
+                // Submit Form
+                registerForm.addEventListener('submit', handleRegister);
+                borrowForm.addEventListener('submit', handleBorrowSubmit);
+                returnForm.addEventListener('submit', handleReturnSubmit);
+                addItemForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const newItem = {
+                        id: Date.now(),
+                        name: document.getElementById('itemName').value,
+                        total: parseInt(document.getElementById('itemTotal').value),
+                        available: parseInt(document.getElementById('itemTotal').value),
+                        completeness: document.getElementById('itemCompleteness').value,
+                        description: document.getElementById('itemDescription').value
+                    };
+                    items.push(newItem);
+                    saveData();
+                    populateItemFilter();
+                    showNotification('Berhasil', 'Alat baru telah ditambahkan.');
+                    addItemForm.reset();
+                });
+                
+                // Modal
+                notificationCloseBtn.addEventListener('click', () => notificationModal.classList.add('hidden'));
+                closeBorrowModalBtn.addEventListener('click', () => borrowModal.classList.add('hidden'));
+                closeReturnModalBtn.addEventListener('click', () => returnModal.classList.add('hidden'));
+
+                // Event Delegation untuk konten dinamis Halaman Pengguna
+                pages.userHome.addEventListener('click', (e) => {
+                    const target = e.target;
+                    const navLink = target.closest('.user-nav-link');
+                    const actionButton = target.closest('button');
+
+                    if (navLink) {
+                        e.preventDefault();
+                        renderUserPage(navLink.dataset.page);
+                    } else if (actionButton) {
+                        if (actionButton.matches('.nav-button-action')) {
+                            renderUserPage(actionButton.dataset.page);
+                        } else if (actionButton.matches('.borrow-btn')) {
+                            handleBorrow(actionButton.dataset.itemId);
+                        } else if (actionButton.matches('.return-item-btn')) {
+                            showReturnForm(actionButton.dataset.borrowId);
+                        } else if (actionButton.id === 'userLogoutBtn') {
+                            logout();
+                        }
+                    }
+                });
+                
+                // Event Delegation untuk konten dinamis Halaman Admin
+                adminDashboard.addEventListener('click', (e) => {
+                    const target = e.target;
+                    const tabLink = target.closest('.admin-tab-link');
+                    const actionButton = target.closest('button');
+
+                    if (tabLink) {
+                        e.preventDefault();
+                        renderAdminPage(tabLink.dataset.tab);
+                    } else if (actionButton) {
+                        if (actionButton.id === 'adminLogoutBtn') {
+                            logout();
+                        } else if (actionButton.matches('.delete-item-btn')) {
+                            const itemId = parseInt(actionButton.dataset.itemId);
+                            showConfirm('Hapus Alat?', 'Apakah Anda yakin ingin menghapus data alat ini? Tindakan ini tidak bisa dibatalkan.', () => {
+                                items = items.filter(i => i.id !== itemId);
+                                saveData();
+                                renderAdminItemList();
+                                populateItemFilter();
+                            });
+                        } else if (actionButton.matches('.validate-return-btn')) {
+                            const borrowId = parseInt(actionButton.dataset.borrowId);
+                            const borrowing = borrowings.find(b => b.id === borrowId);
+                            const item = items.find(i => i.id === borrowing.itemId);
+                            if (borrowing) {
+                                borrowing.status = 'selesai';
+                                borrowing.adminValidationDate = new Date().toISOString();
+                                if (borrowing.returnCondition !== 'Hilang') {
+                                    item.available++;
+                                }
+                                saveData();
+                                renderAdminValidationList();
+                                renderAdminPage('validation');
+                            }
+                        }
+                    }
+                });
+
+                // Admin History Filters
+                historyDateFilter.addEventListener('change', renderAdminBorrowingHistory);
+                historyUserTypeFilter.addEventListener('change', renderAdminBorrowingHistory);
+                historyStatusFilter.addEventListener('change', renderAdminBorrowingHistory);
+                historyItemFilter.addEventListener('change', renderAdminBorrowingHistory);
+            };
+
+            // ===== INISIALISASI APLIKASI =====
+            const initializeApp = () => {
+                loadData();
+                attachEventListeners();
+                checkSession();
+            };
+
+            initializeApp();
+        });
+    </script>
+</body>
+</html>
+
