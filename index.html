@@ -3,359 +3,1158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIM - Sistem Informasi Manajemen</title>
+    <title>SI-PAJUR - Sistem Peminjaman Aset Jurusan</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { box-sizing: border-box; }
-        .progress-bar { transition: width 0.3s ease-in-out; }
-        .task-card { transition: all 0.2s ease-in-out; }
-        .task-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
-        .fade-in { animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .notification { animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-        .modal-content::-webkit-scrollbar { width: 8px; }
-        .modal-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        .modal-content::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
-        .modal-content::-webkit-scrollbar-thumb:hover { background: #555; }
-        .details-container { max-height: 0; overflow: hidden; transition: max-height 0.5s ease-in-out; }
-        .details-container.open { max-height: 1000px; /* Large enough value */ }
-        .chevron { transition: transform 0.3s ease; }
-        .open .chevron { transform: rotate(90deg); }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom styles untuk warna tema */
+        .bg-primary { background-color: #800000; } /* Maroon */
+        .text-primary { color: #800000; }
+        .border-primary { border-color: #800000; }
+        .bg-secondary { background-color: #FFD700; } /* Kuning Emas */
+        .text-secondary { color: #FFD700; }
+        .btn-primary {
+            background-color: #800000;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #660000;
+        }
+        .btn-secondary {
+            background-color: #FFD700;
+            color: #333;
+            transition: background-color 0.3s;
+        }
+        .btn-secondary:hover {
+            background-color: #FFC700;
+        }
+        .tab-active {
+            border-bottom: 2px solid #800000;
+            color: #800000;
+            font-weight: 600;
+        }
+        .tab-inactive {
+            border-bottom: 2px solid transparent;
+            color: #6b7280;
+        }
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 2px;
+            padding: 16px;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            bottom: 30px;
+            font-size: 17px;
+            opacity: 0;
+            transition: visibility 0s 0.5s, opacity 0.5s linear;
+        }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            transition: opacity 0.5s;
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+<body class="bg-gray-100">
 
-    <!-- Login View -->
-    <div id="loginView" class="flex items-center justify-center min-h-screen">
-        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md mx-4 text-center">
-            <div class="mx-auto bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 rounded-full w-16 h-16 flex items-center justify-center mb-6">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+    <!-- Container Utama -->
+    <div id="app" class="max-w-md mx-auto bg-white min-h-screen shadow-lg">
+
+        <!-- =================================================================== -->
+        <!--                          LAYAR LOGIN                                -->
+        <!-- =================================================================== -->
+        <div id="login-screen" class="p-6">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-primary">SI-PAJUR</h1>
+                <p class="text-gray-500">Sistem Informasi Peminjaman Aset Jurusan</p>
             </div>
-            <h1 class="text-2xl font-bold text-gray-800 mb-2">Sistem Informasi Manajemen</h1>
-            <p class="text-gray-600 mb-6">Silakan masukkan kode akses Anda.</p>
-            <form id="loginForm">
-                <input type="password" id="accessCode" class="w-full text-center tracking-widest font-bold text-lg border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="••••••">
-                <p id="loginError" class="text-red-500 text-sm mt-2 hidden">Kode akses salah. Silakan coba lagi.</p>
-                <button type="submit" class="w-full mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-lg hover:shadow-xl">
-                    Masuk
+
+            <!-- Tab Pilihan Login -->
+            <div class="flex border-b mb-6">
+                <button id="login-user-tab" class="flex-1 py-2 text-center tab-active" onclick="switchLoginTab('user')">Pengguna</button>
+                <button id="login-admin-tab" class="flex-1 py-2 text-center tab-inactive" onclick="switchLoginTab('admin')">Admin</button>
+            </div>
+
+            <!-- Form Login Pengguna -->
+            <form id="login-user-form" onsubmit="event.preventDefault(); login('user');">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Login sebagai:</label>
+                    <div class="flex space-x-4">
+                        <label class="flex items-center">
+                            <input type="radio" name="login_user_type" value="mahasiswa" class="text-primary focus:ring-primary" onchange="switchLoginFormIdentifier('mahasiswa')" checked>
+                            <span class="ml-2">Mahasiswa</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="radio" name="login_user_type" value="dosen" class="text-primary focus:ring-primary" onchange="switchLoginFormIdentifier('dosen')">
+                            <span class="ml-2">Dosen</span>
+                        </label>
+                         <label class="flex items-center">
+                            <input type="radio" name="login_user_type" value="pegawai" class="text-primary focus:ring-primary" onchange="switchLoginFormIdentifier('pegawai')">
+                            <span class="ml-2">Pegawai</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div id="login-nim-input" class="mb-4">
+                    <label for="login-identifier" class="block text-sm font-medium text-gray-700">NIM</label>
+                    <input type="text" id="login-identifier" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Masukkan NIM" required>
+                </div>
+
+                <div class="mb-6">
+                    <label for="login-password-user" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="login-password-user" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="******" required>
+                </div>
+                <button type="submit" class="w-full btn-primary font-bold py-2 px-4 rounded-md">
+                    Login
                 </button>
+            </form>
+            
+            <!-- Form Login Admin -->
+            <form id="login-admin-form" class="hidden" onsubmit="event.preventDefault(); login('admin');">
+                 <div class="mb-4">
+                    <label for="login-admin-id" class="block text-sm font-medium text-gray-700">ID Admin</label>
+                    <input type="text" id="login-admin-id" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Default: admin" required>
+                </div>
+                <div class="mb-6">
+                    <label for="login-password-admin" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="login-password-admin" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Default: admin" required>
+                </div>
+                <button type="submit" class="w-full btn-primary font-bold py-2 px-4 rounded-md">
+                    Login Admin
+                </button>
+            </form>
+
+            <p class="mt-8 text-center text-sm">
+                Belum punya akun? 
+                <button class="font-medium text-primary hover:underline" onclick="showScreen('register-screen')">Registrasi di sini</button>
+            </p>
+        </div>
+
+        <!-- =================================================================== -->
+        <!--                        LAYAR REGISTRASI                             -->
+        <!-- =================================================================== -->
+        <div id="register-screen" class="p-6 hidden">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-primary">Registrasi Akun</h1>
+                <p class="text-gray-500">Pilih jenis pengguna</p>
+            </div>
+
+            <!-- Pilihan Jenis Pengguna -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Saya adalah seorang:</label>
+                <div class="flex space-x-4">
+                    <label class="flex items-center">
+                        <input type="radio" name="user_type" value="mahasiswa" class="text-primary focus:ring-primary" onchange="switchRegisterForm('mahasiswa')" checked>
+                        <span class="ml-2">Mahasiswa</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="user_type" value="dosen_pegawai" class="text-primary focus:ring-primary" onchange="switchRegisterForm('dosen_pegawai')">
+                        <span class="ml-2">Dosen / Pegawai</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Form Registrasi Mahasiswa -->
+            <form id="register-mahasiswa-form" onsubmit="event.preventDefault(); registerUser();">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                    <input type="text" id="reg-mhs-nama" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Nama Lengkap" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">NIM</label>
+                    <input type="text" id="reg-mhs-nim" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Nomor Induk Mahasiswa" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Angkatan</label>
+                        <input type="number" id="reg-mhs-angkatan" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="2022" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Prodi</label>
+                        <input type="text" id="reg-mhs-prodi" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Sistem Informasi" required>
+                    </div>
+                </div>
+                 <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="reg-mhs-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="******" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
+                    <input type="password" id="reg-mhs-confirm-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="******" required>
+                </div>
+                 <button type="submit" class="w-full btn-primary font-bold py-2 px-4 rounded-md">
+                    Registrasi
+                </button>
+            </form>
+            
+            <!-- Form Registrasi Dosen/Pegawai -->
+            <form id="register-dosen-pegawai-form" class="hidden" onsubmit="event.preventDefault(); registerUser();">
+                 <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">Nama Lengkap</label>
+                    <input type="text" id="reg-dp-nama" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="Nama Lengkap dengan Gelar" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">NIP</label>
+                    <input type="text" id="reg-dp-nip" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="Nomor Induk Pegawai" required>
+                </div>
+                 <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">Jabatan</label>
+                    <input type="text" id="reg-dp-jabatan" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. Dosen, Staf Akademik" required>
+                </div>
+                 <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <input type="password" id="reg-dp-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="******" required>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700">Konfirmasi Password</label>
+                    <input type="password" id="reg-dp-confirm-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="******" required>
+                </div>
+                <button type="submit" class="w-full btn-primary font-bold py-2 px-4 rounded-md">
+                    Registrasi
+                </button>
+            </form>
+
+             <p class="mt-8 text-center text-sm">
+                Sudah punya akun? 
+                <button class="font-medium text-primary hover:underline" onclick="showScreen('login-screen')">Login di sini</button>
+            </p>
+        </div>
+
+        <!-- =================================================================== -->
+        <!--                        BERANDA PENGGUNA                             -->
+        <!-- =================================================================== -->
+        <div id="user-dashboard-screen" class="hidden">
+            <!-- Header -->
+            <header class="bg-primary p-4 flex justify-between items-center">
+                <h1 class="text-white text-xl font-bold">Beranda Pengguna</h1>
+                <button class="text-white hover:bg-red-900 p-2 rounded-full" title="Logout" onclick="logout()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                </button>
+            </header>
+
+            <div class="p-6">
+                <!-- Info Pengguna -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+                    <p id="user-info-name" class="font-bold text-lg text-gray-800"></p>
+                    <p id="user-info-detail" class="text-sm text-gray-500"></p>
+                </div>
+
+                <!-- Menu Utama -->
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <button class="bg-primary text-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center space-y-2 hover:bg-red-900" onclick="showModal('peminjaman-modal')">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span class="font-semibold">Pinjam Alat</span>
+                    </button>
+                    <button class="bg-gray-200 text-gray-800 p-4 rounded-lg shadow-md flex flex-col items-center justify-center space-y-2 hover:bg-gray-300" onclick="showModal('daftar-alat-modal')">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+                        <span class="font-semibold">Daftar Alat</span>
+                    </button>
+                </div>
+
+                <!-- Peminjaman Terkini -->
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Peminjaman Terkini</h2>
+                    <div id="peminjaman-terkini-list" class="space-y-4">
+                        <!-- Konten dinamis dari JS -->
+                    </div>
+                </div>
+                
+                <!-- Riwayat Peminjaman -->
+                <div class="mt-8">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Riwayat Peminjaman</h2>
+                    <div id="riwayat-peminjaman-list" class="space-y-3">
+                         <!-- Konten dinamis dari JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- =================================================================== -->
+        <!--                        BERANDA ADMIN                                -->
+        <!-- =================================================================== -->
+        <div id="admin-dashboard-screen" class="hidden">
+            <!-- Header -->
+            <header class="bg-primary p-4 flex justify-between items-center">
+                <h1 class="text-white text-xl font-bold">Dashboard Admin</h1>
+                <button class="text-white hover:bg-red-900 p-2 rounded-full" title="Logout" onclick="logout()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                </button>
+            </header>
+            
+            <div class="p-6">
+                <!-- Info Admin -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+                    <p class="font-bold text-lg text-gray-800">Admin Jurusan</p>
+                    <p class="text-sm text-gray-500">Operator Aktif</p>
+                </div>
+
+                <!-- Menu Utama Admin -->
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <button class="bg-primary text-white p-4 rounded-lg shadow-md flex flex-col items-center justify-center space-y-2 hover:bg-red-900" onclick="showModal('input-alat-modal')">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                        <span class="font-semibold text-center">Input Data Alat</span>
+                    </button>
+                    <button class="bg-gray-200 text-gray-800 p-4 rounded-lg shadow-md flex flex-col items-center justify-center space-y-2 hover:bg-gray-300" onclick="showModal('daftar-alat-admin-modal')">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        <span class="font-semibold text-center">Kelola Daftar Alat</span>
+                    </button>
+                    <button class="bg-gray-200 text-gray-800 p-4 rounded-lg shadow-md flex flex-col items-center justify-center space-y-2 hover:bg-gray-300 col-span-2" onclick="showModal('riwayat-peminjam-modal')">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" /><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" /></svg>
+                        <span class="font-semibold text-center">Lihat Riwayat Peminjam</span>
+                    </button>
+                </div>
+                
+                <!-- Daftar Peminjam Real-time -->
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Peminjaman Aktif</h2>
+                    <div id="admin-peminjaman-aktif-list" class="space-y-4">
+                        <!-- Konten dinamis dari JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- =================================================================== -->
+    <!--                             MODALS                                  -->
+    <!-- =================================================================== -->
+    <!-- Modal Peminjaman -->
+    <div id="peminjaman-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-screen overflow-y-auto">
+            <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-800" onclick="closeModal('peminjaman-modal')">&times;</button>
+            <h2 class="text-2xl font-bold text-primary mb-4">Form Peminjaman</h2>
+            <form id="form-peminjaman" onsubmit="event.preventDefault(); ajukanPeminjaman();" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Jenis Alat</label>
+                    <select id="pinjam-jenis-alat" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                        <!-- Opsi dinamis dari JS -->
+                    </select>
+                </div>
+
+                <!-- Form Peminjaman Mahasiswa -->
+                <div id="peminjaman-form-mahasiswa" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Keperluan</label>
+                        <select id="pinjam-keperluan-mhs" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" onchange="handleKeperluanChange(this.value,'mahasiswa')" required>
+                            <option value="">Pilih Keperluan...</option>
+                            <option value="matakuliah">Untuk Mata Kuliah</option>
+                            <option value="lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div id="detail-matkul-form" class="hidden space-y-4 p-4 bg-gray-50 rounded-md border">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Mata Kuliah</label>
+                            <input type="text" id="pinjam-matkul" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. Basis Data">
+                        </div>
+                         <div>
+                            <label class="block text-sm font-medium text-gray-700">Dosen Pengampu</label>
+                            <input type="text" id="pinjam-dosen" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. Dr. Jane Smith">
+                        </div>
+                         <div>
+                            <label class="block text-sm font-medium text-gray-700">Kelas</label>
+                            <input type="text" id="pinjam-kelas" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. SI-3A">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Peminjaman Dosen -->
+                <div id="peminjaman-form-dosen" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Keperluan</label>
+                        <select id="pinjam-keperluan-dosen" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" onchange="handleKeperluanChange(this.value, 'dosen')" required>
+                            <option value="">Pilih Keperluan...</option>
+                            <option value="mengajar">Untuk Mengajar</option>
+                            <option value="lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div id="detail-mengajar-form" class="hidden space-y-4 p-4 bg-gray-50 rounded-md border">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Mata Kuliah</label>
+                            <input type="text" id="pinjam-matkul-dosen" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. Algoritma Pemrograman">
+                        </div>
+                         <div>
+                            <label class="block text-sm font-medium text-gray-700">Kelas</label>
+                            <input type="text" id="pinjam-kelas-dosen" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. SI-1A, SI-1B">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Form Peminjaman Pegawai -->
+                <div id="peminjaman-form-pegawai" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Keperluan</label>
+                        <select id="pinjam-keperluan-pegawai" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" onchange="handleKeperluanChange(this.value, 'pegawai')" required>
+                            <option value="">Pilih Keperluan...</option>
+                            <option value="kegiatan">Untuk Kegiatan Kampus</option>
+                            <option value="lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div id="detail-kegiatan-form" class="hidden space-y-4 p-4 bg-gray-50 rounded-md border">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Nama Kegiatan</label>
+                            <input type="text" id="pinjam-kegiatan" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. Rapat Anggaran">
+                        </div>
+                         <div>
+                            <label class="block text-sm font-medium text-gray-700">Lokasi Kegiatan</label>
+                            <input type="text" id="pinjam-lokasi" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. Ruang Rapat Jurusan">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 pt-4 border-t">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Tgl & Waktu Pinjam</label>
+                        <input type="datetime-local" id="pinjam-waktu-pinjam" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                    </div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-700">Batas Pengembalian</label>
+                        <input type="datetime-local" id="pinjam-waktu-kembali" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                    </div>
+                </div>
+                <button type="submit" class="w-full btn-primary font-bold py-2 px-4 rounded-md">Ajukan Peminjaman</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal Daftar Alat -->
+    <div id="daftar-alat-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-screen overflow-y-auto">
+            <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-800" onclick="closeModal('daftar-alat-modal')">&times;</button>
+            <h2 class="text-2xl font-bold text-primary mb-4">Daftar Alat Tersedia</h2>
+            <ul id="user-daftar-alat-list" class="space-y-3">
+                <!-- Konten dinamis dari JS -->
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Modal Kembalikan Alat -->
+    <div id="kembalikan-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
+            <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-800" onclick="closeModal('kembalikan-modal')">&times;</button>
+            <h2 class="text-2xl font-bold text-primary mb-4">Konfirmasi Pengembalian</h2>
+            <p class="text-gray-600 mb-4">Silakan unggah bukti pengembalian alat (misal: foto alat sudah diletakkan di tempatnya).</p>
+            <form id="form-kembalikan" onsubmit="event.preventDefault(); kembalikanAlat();">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Bukti</label>
+                    <input type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-red-900" required/>
+                </div>
+                <button type="submit" class="w-full mt-6 btn-primary font-bold py-2 px-4 rounded-md">Konfirmasi Pengembalian</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal Input Alat (Admin) -->
+    <div id="input-alat-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-screen overflow-y-auto">
+            <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-800" onclick="closeModal('input-alat-modal')">&times;</button>
+            <h2 class="text-2xl font-bold text-primary mb-4">Input Data Alat Baru</h2>
+             <form id="form-input-alat" onsubmit="event.preventDefault(); simpanAlatBaru();" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nama Alat</label>
+                    <input id="input-nama-alat" type="text" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g. Proyektor InFocus" required>
+                </div>
+                 <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Jumlah</label>
+                        <input id="input-jumlah-alat" type="number" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="5" required>
+                    </div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-700">Kelengkapan</label>
+                        <input id="input-kelengkapan-alat" type="text" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="Kabel Power, Tas" required>
+                    </div>
+                </div>
+                 <div>
+                    <label class="block text-sm font-medium text-gray-700">Deskripsi (Opsional)</label>
+                    <textarea id="input-deskripsi-alat" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="Proyektor untuk ruang kelas besar..."></textarea>
+                </div>
+                <button type="submit" class="w-full btn-primary font-bold py-2 px-4 rounded-md">Simpan Alat</button>
             </form>
         </div>
     </div>
 
-    <!-- Main Application View (Initially Hidden) -->
-    <div id="mainApp" class="hidden">
-        <!-- Navigation -->
-        <nav class="bg-white shadow-lg border-b border-gray-200">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
-                    <div class="flex items-center">
-                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-2 rounded-lg">
-                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                        </div>
-                        <h1 class="ml-3 text-xl font-bold text-gray-900">SIM Dashboard</h1>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <div class="text-sm text-gray-600">
-                            <span id="currentUser" class="font-medium"></span>
-                        </div>
-                        <button id="logoutBtn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm font-medium">
-                            Logout
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Main Content -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            
-            <!-- Pimpinan Dashboard -->
-            <div id="pimpinanView" class="hidden fade-in">
-                 <!-- Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100"><div class="flex items-center"><div class="bg-blue-100 p-3 rounded-full"><svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg></div><div class="ml-4"><p class="text-sm font-medium text-gray-600">Total Tugas</p><p class="text-2xl font-bold text-gray-900" id="totalTasks">0</p></div></div></div>
-                    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100"><div class="flex items-center"><div class="bg-green-100 p-3 rounded-full"><svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><div class="ml-4"><p class="text-sm font-medium text-gray-600">Selesai</p><p class="text-2xl font-bold text-green-600" id="completedTasks">0</p></div></div></div>
-                    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100"><div class="flex items-center"><div class="bg-yellow-100 p-3 rounded-full"><svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div><div class="ml-4"><p class="text-sm font-medium text-gray-600">Dalam Proses</p><p class="text-2xl font-bold text-yellow-600" id="inProgressTasks">0</p></div></div></div>
-                    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100"><div class="flex items-center"><div class="bg-purple-100 p-3 rounded-full"><svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg></div><div class="ml-4"><p class="text-sm font-medium text-gray-600">Progres Rata-rata</p><p class="text-2xl font-bold text-purple-600" id="avgProgress">0%</p></div></div></div>
-                </div>
-                
-                <div class="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100 text-center">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-3">Buat Event & Delegasikan Tugas</h2>
-                    <p class="text-gray-600 mb-4">Buat event baru dan alokasikan tugas ke semua divisi dalam satu langkah mudah.</p>
-                    <button onclick="openEventModal()" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-bold text-lg shadow-lg hover:shadow-xl">
-                        🎉 Buat Event Baru
-                    </button>
-                </div>
-
-                <!-- Division Management Section -->
-                <div class="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100">
-                    <h2 class="text-lg font-semibold text-gray-900 mb-4">🔑 Kelola Divisi & Kode Akses</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="md:col-span-1">
-                            <form id="divisionForm" class="bg-gray-50 p-4 rounded-lg border">
-                                <h3 id="divisionFormTitle" class="font-semibold mb-3 text-gray-800">Tambah Divisi Baru</h3>
-                                <input type="hidden" id="divisionId">
-                                <div class="space-y-3">
-                                    <div><label for="divisionName" class="block text-sm font-medium text-gray-700">Nama Divisi</label><input type="text" id="divisionName" required class="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
-                                    <div><label for="divisionAccessCode" class="block text-sm font-medium text-gray-700">Kode Akses</label><input type="text" id="divisionAccessCode" required class="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
-                                    <div class="flex space-x-2"><button type="submit" id="divisionSubmitBtn" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">Tambah</button><button type="button" id="divisionCancelBtn" onclick="resetDivisionForm()" class="hidden flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">Batal</button></div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="md:col-span-2">
-                            <div class="overflow-x-auto"><table class="min-w-full bg-white border rounded-lg"><thead class="bg-gray-100"><tr><th class="text-left py-2 px-3 font-semibold text-gray-600 text-sm">Nama Divisi</th><th class="text-left py-2 px-3 font-semibold text-gray-600 text-sm">Kode Akses</th><th class="text-left py-2 px-3 font-semibold text-gray-600 text-sm">Aksi</th></tr></thead><tbody id="divisionTableBody"></tbody></table></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- REVAMPED: Event Progress Section -->
-                    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-                        <h2 class="text-lg font-semibold text-gray-900 mb-6">📊 Progres Event</h2>
-                        <div id="eventProgressContainer" class="space-y-4">
-                            <!-- Event progress will be populated here -->
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100"><h2 class="text-lg font-semibold text-gray-900 mb-6">🔔 Aktivitas Terbaru</h2><div id="recentActivities" class="space-y-3"></div></div>
-                </div>
-            </div>
-
-            <!-- Divisi Dashboard -->
-            <div id="divisiView" class="hidden fade-in">
-                <div class="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-100"><div class="flex items-center justify-between"><div><h2 id="divisiTitle" class="text-2xl font-bold text-gray-900"></h2><p class="text-gray-600 mt-1">Kelola dan pantau tugas-tugas divisi Anda</p></div><div class="text-right"><p class="text-sm text-gray-600">Tugas Selesai</p><p class="text-3xl font-bold text-green-600" id="divisionCompletedTasks">0/0</p></div></div></div>
-                <div class="bg-white rounded-xl shadow-md border border-gray-100"><div class="p-6 border-b border-gray-200"><h3 class="text-lg font-semibold text-gray-900">📋 Daftar Tugas</h3></div><div class="p-6"><div id="taskList" class="space-y-4"></div></div></div>
+    <!-- Modal Kelola Daftar Alat (Admin) -->
+    <div id="daftar-alat-admin-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-screen overflow-y-auto">
+             <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-800" onclick="closeModal('daftar-alat-admin-modal')">&times;</button>
+            <h2 class="text-2xl font-bold text-primary mb-4">Kelola Daftar Alat</h2>
+            <div id="admin-kelola-alat-list" class="space-y-3">
+                <!-- Konten dinamis dari JS -->
             </div>
         </div>
     </div>
+    
+    <!-- Modal Edit Alat (Admin) -->
+    <div id="edit-alat-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-screen overflow-y-auto">
+            <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-800" onclick="closeModal('edit-alat-modal')">&times;</button>
+            <h2 class="text-2xl font-bold text-primary mb-4">Edit Data Alat</h2>
+             <form id="form-edit-alat" onsubmit="event.preventDefault(); simpanPerubahanAlat();" class="space-y-4">
+                <input type="hidden" id="edit-alat-id">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nama Alat</label>
+                    <input id="edit-nama-alat" type="text" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                </div>
+                 <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Jumlah</label>
+                        <input id="edit-jumlah-alat" type="number" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                    </div>
+                     <div>
+                        <label class="block text-sm font-medium text-gray-700">Kelengkapan</label>
+                        <input id="edit-kelengkapan-alat" type="text" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                    </div>
+                </div>
+                 <div>
+                    <label class="block text-sm font-medium text-gray-700">Deskripsi (Opsional)</label>
+                    <textarea id="edit-deskripsi-alat" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"></textarea>
+                </div>
+                <button type="submit" class="w-full btn-primary font-bold py-2 px-4 rounded-md">Simpan Perubahan</button>
+            </form>
+        </div>
+    </div>
 
-    <!-- Modals -->
-    <div id="photoModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-xl p-6 max-w-md w-full mx-4"><h3 class="text-lg font-semibold text-gray-900 mb-4">📸 Upload Bukti Penyelesaian</h3><div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2">Upload Foto Bukti</label><input type="file" id="photoInput" accept="image/*" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></div><div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2">Keterangan (Opsional)</label><textarea id="photoDescription" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tambahkan keterangan..."></textarea></div><div class="flex space-x-3"><button onclick="closePhotoModal()" class="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">Batal</button><button onclick="submitPhoto()" class="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-green-800 transition-all">✅ Konfirmasi</button></div></div></div>
-    <div id="progressDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-xl p-6 max-w-4xl w-full mx-4 flex flex-col" style="height: 90vh;"><div class="flex justify-between items-center mb-4 border-b pb-3"><h3 id="progressDetailTitle" class="text-xl font-semibold text-gray-900"></h3><button onclick="closeProgressDetailModal()" class="text-gray-500 hover:text-gray-800"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div id="progressDetailContent" class="modal-content flex-grow overflow-y-auto pr-2"></div></div></div>
-    <div id="notification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden notification"><div class="flex items-center"><svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span id="notificationText"></span></div></div>
-    <div id="eventModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"><div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl mx-4 flex flex-col" style="height: 90vh;"><div class="p-6 border-b"><div class="flex justify-between items-center"><h2 class="text-xl font-bold text-gray-800">Buat Event & Alokasi Tugas</h2><button onclick="closeEventModal()" class="text-gray-500 hover:text-gray-800">&times;</button></div></div><form id="addEventForm" class="flex-grow contents"><div class="p-6 modal-content overflow-y-auto"><div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"><div><label for="eventName" class="block text-sm font-medium text-gray-700 mb-1">Nama Event</label><input type="text" id="eventName" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contoh: Rapat Kerja Tahunan 2025"></div><div><label for="eventDate" class="block text-sm font-medium text-gray-700 mb-1">Tanggal Event</label><input type="date" id="eventDate" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></div></div><div id="divisionTaskContainer" class="space-y-6"></div></div><div class="p-6 border-t bg-gray-50 rounded-b-2xl"><button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all">Tugaskan</button></div></form></div></div>
+    <!-- Modal Riwayat Peminjam (Admin) -->
+    <div id="riwayat-peminjam-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-screen overflow-y-auto">
+             <button class="absolute top-4 right-4 text-gray-500 hover:text-gray-800" onclick="closeModal('riwayat-peminjam-modal')">&times;</button>
+            <h2 class="text-2xl font-bold text-primary mb-4">Riwayat Peminjaman</h2>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">Filter berdasarkan tanggal</label>
+                <input type="date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+            </div>
+            <div id="admin-riwayat-list" class="space-y-4">
+                <!-- Konten dinamis dari JS -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
 
     <script>
-        // --- DATABASE SIMULATION ---
-        let pimpinanAccessCode = '123';
-        let divisions = [
-            { id: 1, name: 'IT', accessCode: '321' },
-            { id: 2, name: 'Marketing', accessCode: '111' },
-            { id: 3, name: 'HR', accessCode: '222' },
-            { id: 4, name: 'Operations', accessCode: '333' },
-            { id: 5, name: 'Finance', accessCode: '444' }
+    // ===================================================================
+    //                           DATABASE SEMENTARA
+    // ===================================================================
+    let users = [];
+    let alat = [];
+    let peminjaman = [];
+    let currentUser = null;
+    let nextPeminjamanId = 1;
+
+    // ===================================================================
+    //                           STATE MANAGEMENT
+    // ===================================================================
+    function showScreen(screenId) {
+        document.querySelectorAll('#app > div').forEach(screen => screen.classList.add('hidden'));
+        document.getElementById(screenId).classList.remove('hidden');
+    }
+
+    function showModal(modalId) {
+        // Persiapan sebelum menampilkan modal
+        if (modalId === 'peminjaman-modal') preparePeminjamanForm();
+        if (modalId === 'daftar-alat-modal') renderDaftarAlatUser();
+        if (modalId === 'daftar-alat-admin-modal') renderKelolaAlatAdmin();
+        if (modalId === 'riwayat-peminjam-modal') renderAdminRiwayat();
+
+        document.getElementById(modalId).classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+    }
+    
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // ===================================================================
+    //                           LOGIC UTAMA APLIKASI
+    // ===================================================================
+
+    // Inisialisasi Data Awal
+    function initData() {
+        // Data Admin
+        users.push({ type: 'admin', id: 'admin', password: 'admin' });
+        // Data Mahasiswa
+        users.push({ type: 'mahasiswa', nama: 'Budi Hartono', identifier: '12345', password: '123', angkatan: '2021', prodi: 'Sistem Informasi' });
+        // Data Dosen
+        users.push({ type: 'dosen', nama: 'Dr. Jane Smith', identifier: '54321', password: '123', jabatan: 'Dosen' });
+        // Data Pegawai
+        users.push({ type: 'pegawai', nama: 'Siti Aminah', identifier: '98765', password: '123', jabatan: 'Staf Akademik' });
+        
+        // Data Alat
+        alat = [
+            { id: 1, nama: 'Proyektor LCD Epson', jumlah: 3, tersedia: 2, kelengkapan: 'Kabel Power, Tas', deskripsi: 'Proyektor untuk ruang kelas besar.' },
+            { id: 2, nama: 'Konektor HDMI', jumlah: 8, tersedia: 8, kelengkapan: 'Unit only', deskripsi: '' },
+            { id: 3, nama: 'Stop Kontak 5 Lubang', jumlah: 12, tersedia: 10, kelengkapan: 'Kabel 3 meter', deskripsi: '' },
+            { id: 4, nama: 'Kabel VGA', jumlah: 5, tersedia: 5, kelengkapan: 'Unit only', deskripsi: '' }
         ];
-        let tasks = [
-            { id: 1, eventName: 'Peluncuran Produk Baru', eventDate: '2025-10-30', name: 'Siapkan Halaman Website', division: 'IT', status: 'completed', assignedDate: '2025-10-01', completedDate: '2025-10-03', photo: true, deadline: '2025-10-10', photoUrl: 'https://placehold.co/600x400/1D4ED8/FFFFFF?text=Bukti+Website' },
-            { id: 2, eventName: 'Peluncuran Produk Baru', eventDate: '2025-10-30', name: 'Buat Kampanye Iklan Digital', division: 'Marketing', status: 'in-progress', assignedDate: '2025-10-01', completedDate: null, photo: false, deadline: '2025-10-25', photoUrl: null },
-            { id: 3, eventName: 'Peluncuran Produk Baru', eventDate: '2025-10-30', name: 'Analisis Pasar', division: 'Marketing', status: 'completed', assignedDate: '2025-10-01', completedDate: '2025-10-02', photo: true, deadline: '2025-10-05', photoUrl: 'https://placehold.co/600x400/D946EF/FFFFFF?text=Analisis+Pasar' },
-            { id: 4, eventName: 'Raker Tahunan', eventDate: '2025-11-15', name: 'Siapkan Server dan Jaringan', division: 'IT', status: 'completed', assignedDate: '2025-10-01', completedDate: '2025-10-03', photo: true, deadline: '2025-10-20', photoUrl: 'https://placehold.co/600x400/1D4ED8/FFFFFF?text=Server+Raker' },
-            { id: 5, eventName: 'Raker Tahunan', eventDate: '2025-11-15', name: 'Cetak Materi dan Banner', division: 'Operations', status: 'in-progress', assignedDate: '2025-10-02', photo: false, deadline: '2025-10-05', photoUrl: null },
+
+        // Data Peminjaman
+        peminjaman = [
+            { id: nextPeminjamanId++, userId: '12345', alatId: 1, waktuPinjam: '2025-10-06T10:00', waktuKembali: '2025-10-06T12:00', status: 'Selesai', detail: { keperluan: 'Lainnya' } },
+            { id: nextPeminjamanId++, userId: '54321', alatId: 3, waktuPinjam: '2025-10-07T08:00', batasKembali: '2025-10-07T17:00', status: 'Dipinjam', detail: { keperluan: 'Mengajar', matkul: 'Struktur Data', kelas: 'A' } },
+            { id: nextPeminjamanId++, userId: '98765', alatId: 3, waktuPinjam: '2025-10-05T13:00', waktuKembali: '2025-10-05T15:00', status: 'Selesai', detail: { keperluan: 'Kegiatan Kampus', kegiatan: 'Rapat Jurusan', lokasi: 'Ruang Rapat' } }
         ];
-        let currentTaskId = null;
-        let loggedInUser = null; 
-        let countdownInterval = null;
+    }
 
-        // --- INITIALIZATION ---
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            document.getElementById('logoutBtn').addEventListener('click', logout);
-            document.getElementById('addEventForm').addEventListener('submit', addNewEventTasks);
-            document.getElementById('divisionForm').addEventListener('submit', handleDivisionFormSubmit);
-            startCountdownTimers();
-        });
+    // Fungsi Registrasi
+    function registerUser() {
+        const userTypeRadio = document.querySelector('input[name="user_type"]:checked').value;
 
-        // --- AUTHENTICATION & VIEW MANAGEMENT ---
-        function handleLogin(e){e.preventDefault();const c=document.getElementById("accessCode").value,d=document.getElementById("loginError");if(c===pimpinanAccessCode)loggedInUser={role:"pimpinan"},showAppView(),renderPimpinanView();else{const a=divisions.find(b=>b.accessCode===c);a?(loggedInUser={role:"divisi",name:a.name},showAppView(),renderDivisiView(a.name)):d.classList.remove("hidden")}}
-        function logout(){loggedInUser=null;document.getElementById("loginView").classList.remove("hidden");document.getElementById("mainApp").classList.add("hidden");document.getElementById("accessCode").value="";document.getElementById("loginError").classList.add("hidden")}
-        function showAppView(){document.getElementById("loginView").classList.add("hidden");document.getElementById("mainApp").classList.remove("hidden")}
-        function renderPimpinanView(){document.getElementById("pimpinanView").classList.remove("hidden");document.getElementById("divisiView").classList.add("hidden");document.getElementById("currentUser").textContent="Role: Pimpinan";updateAllPimpinanDashboards();renderDivisionManagementTable()}
-        function renderDivisiView(a){document.getElementById("pimpinanView").classList.add("hidden");document.getElementById("divisiView").classList.remove("hidden");document.getElementById("currentUser").textContent=`Divisi: ${a}`;document.getElementById("divisiTitle").textContent=`Dashboard Divisi ${a}`;renderTaskList(a)}
-        
-        // --- PIMPINAN: DIVISION MANAGEMENT ---
-        function renderDivisionManagementTable(){const a=document.getElementById("divisionTableBody");a.innerHTML=divisions.map(b=>`<tr class="border-b"><td class="py-2 px-3">${b.name}</td><td class="py-2 px-3">${b.accessCode}</td><td class="py-2 px-3 flex space-x-2"><button onclick="editDivision(${b.id})" class="text-blue-500 hover:text-blue-700 text-sm">Edit</button><button onclick="deleteDivision(${b.id})" class="text-red-500 hover:text-red-700 text-sm">Hapus</button></td></tr>`).join("")}
-        function handleDivisionFormSubmit(e){e.preventDefault();const a=document.getElementById("divisionId").value,b=document.getElementById("divisionName").value,c=document.getElementById("divisionAccessCode").value;if(a){const d=divisions.findIndex(f=>f.id==a);-1<d&&(divisions[d]={...divisions[d],name:b,accessCode:c})}else{const d=0<divisions.length?Math.max(...divisions.map(f=>f.id))+1:1;divisions.push({id:d,name:b,accessCode:c})}resetDivisionForm();renderDivisionManagementTable();updateAllPimpinanDashboards()}
-        function editDivision(a){const b=divisions.find(c=>c.id===a);b&&(document.getElementById("divisionId").value=b.id,document.getElementById("divisionName").value=b.name,document.getElementById("divisionAccessCode").value=b.accessCode,document.getElementById("divisionFormTitle").textContent="Edit Divisi",document.getElementById("divisionSubmitBtn").textContent="Simpan",document.getElementById("divisionCancelBtn").classList.remove("hidden"))}
-        function deleteDivision(a){confirm("Apakah Anda yakin ingin menghapus divisi ini?")&&(divisions=divisions.filter(b=>b.id!==a),tasks=tasks.filter(b=>b.division!==divisions.find(c=>c.id===a)?.name),renderDivisionManagementTable(),updateAllPimpinanDashboards())}
-        function resetDivisionForm(){document.getElementById("divisionForm").reset();document.getElementById("divisionId").value="";document.getElementById("divisionFormTitle").textContent="Tambah Divisi Baru";document.getElementById("divisionSubmitBtn").textContent="Tambah";document.getElementById("divisionCancelBtn").classList.add("hidden")}
-        
-        // --- PIMPINAN: DASHBOARD RENDERING ---
-        function updateAllPimpinanDashboards(){updateDashboardStats();renderEventProgress();renderRecentActivities();updateAllCountdowns()}
-        function updateDashboardStats(){const a=tasks.length,b=tasks.filter(d=>"completed"===d.status).length,c=a-b,e=0<a?Math.round(b/a*100):0;document.getElementById("totalTasks").textContent=a;document.getElementById("completedTasks").textContent=b;document.getElementById("inProgressTasks").textContent=c;document.getElementById("avgProgress").textContent=`${e}%`}
-        
-        function renderEventProgress() {
-            const container = document.getElementById('eventProgressContainer');
-            const uniqueEvents = [...new Map(tasks.map(item => [item['eventName'], item])).values()];
+        if (userTypeRadio === 'mahasiswa') {
+            const nama = document.getElementById('reg-mhs-nama').value.trim();
+            const nim = document.getElementById('reg-mhs-nim').value.trim();
+            const angkatan = document.getElementById('reg-mhs-angkatan').value;
+            const prodi = document.getElementById('reg-mhs-prodi').value.trim();
+            const password = document.getElementById('reg-mhs-password').value;
+            const confirmPassword = document.getElementById('reg-mhs-confirm-password').value;
 
-            if (uniqueEvents.length === 0) {
-                container.innerHTML = `<div class="text-center text-gray-500 p-4">Belum ada event yang sedang berjalan.</div>`; return;
+            if (!nama || !nim || !angkatan || !prodi || !password) {
+                showToast("Semua kolom wajib diisi.");
+                return;
+            }
+            if (password !== confirmPassword) {
+                showToast("Konfirmasi password tidak cocok.");
+                return;
+            }
+            if (users.some(u => u.identifier === nim)) {
+                showToast("NIM sudah terdaftar.");
+                return;
             }
 
-            container.innerHTML = uniqueEvents.map((event, index) => {
-                const eventTasks = tasks.filter(t => t.eventName === event.eventName);
-                const completedTasks = eventTasks.filter(t => t.status === 'completed');
-                const inProgressTasks = eventTasks.length - completedTasks.length;
-                const totalPercentage = eventTasks.length > 0 ? Math.round((completedTasks.length / eventTasks.length) * 100) : 0;
-                
-                const tasksAreCompleted = totalPercentage === 100;
-                const eventDateHasPassed = new Date(event.eventDate + 'T23:59:59') < new Date();
-                const isOverdue = eventDateHasPassed && !tasksAreCompleted;
+            const newUser = {
+                type: 'mahasiswa',
+                nama: nama,
+                identifier: nim,
+                password: password,
+                angkatan: angkatan,
+                prodi: prodi
+            };
+            users.push(newUser);
 
-                const divisionsInEvent = [...new Set(eventTasks.map(t => t.division))];
+        } else { // Dosen / Pegawai
+            const nama = document.getElementById('reg-dp-nama').value.trim();
+            const nip = document.getElementById('reg-dp-nip').value.trim();
+            const jabatan = document.getElementById('reg-dp-jabatan').value.trim();
+            const password = document.getElementById('reg-dp-password').value;
+            const confirmPassword = document.getElementById('reg-dp-confirm-password').value;
 
-                const divisionDetailsHTML = divisionsInEvent.map(divName => {
-                    const divTasks = eventTasks.filter(t => t.division === divName);
-                    const completedDivTasks = divTasks.filter(t => t.status === 'completed');
-                    const divPercentage = divTasks.length > 0 ? Math.round((completedDivTasks.length / divTasks.length) * 100) : 0;
-                    return `<div class="mt-3"><div class="flex items-center justify-between mb-1"><span class="font-medium text-gray-700 text-sm">${divName}</span><span class="text-xs text-gray-500">${completedDivTasks.length}/${divTasks.length}</span></div><div class="w-full bg-gray-200 rounded-full h-1.5"><div class="bg-indigo-500 h-1.5 rounded-full" style="width: ${divPercentage}%"></div></div><div class="mt-2 text-right"><button onclick="showProgressDetail('${event.eventName}', '${divName}')" class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline">Lihat Detail</button></div></div>`;
-                }).join('');
-                
-                let countdownDiv;
-                if (isOverdue) {
-                    countdownDiv = `<div class="mt-2 text-sm font-semibold text-red-700">Event Terlambat</div>`;
-                } else if (eventDateHasPassed) {
-                    countdownDiv = `<div class="mt-2 text-sm font-semibold text-green-700">Event Selesai</div>`;
-                } else {
-                    countdownDiv = `<div class="mt-2 text-sm font-semibold ${tasksAreCompleted ? 'text-green-700' : 'text-blue-700'} countdown" data-deadline="${event.eventDate}"></div>`;
-                }
+            if (!nama || !nip || !jabatan || !password) {
+                showToast("Semua kolom wajib diisi.");
+                return;
+            }
+            if (password !== confirmPassword) {
+                showToast("Konfirmasi password tidak cocok.");
+                return;
+            }
+            if (users.some(u => u.identifier === nip)) {
+                showToast("NIP sudah terdaftar.");
+                return;
+            }
+            
+            const determinedType = jabatan.toLowerCase().includes('dosen') ? 'dosen' : 'pegawai';
 
-                return `<div class="rounded-lg border p-4 ${isOverdue ? 'bg-red-100 border-red-300' : (tasksAreCompleted ? 'bg-green-100 border-green-300' : 'bg-gray-50')}"><div id="event-${index}" class="cursor-pointer" onclick="toggleEventDetails('details-${index}', this)"><div class="flex items-start justify-between"><div><h3 class="font-bold text-lg ${isOverdue ? 'text-red-800' : (tasksAreCompleted ? 'text-green-800' : 'text-gray-800')}">${isOverdue ? '⚠️ ' : (tasksAreCompleted ? '✅ ' : '')}${event.eventName}</h3><div class="text-xs text-gray-500 mt-1 space-x-2"><span>🗓️ ${formatDate(event.eventDate)}</span><span class="text-green-600">✓ ${completedTasks.length} Selesai</span><span class="text-yellow-600">⌛ ${inProgressTasks} Proses</span></div>${countdownDiv}</div><div class="flex items-center"><div class="text-center"><span class="text-lg font-bold ${isOverdue ? 'text-red-800' : (tasksAreCompleted ? 'text-green-800' : 'text-gray-900')}">${totalPercentage}%</span><div class="w-24 bg-gray-200 rounded-full h-1.5 mt-1 mx-auto"><div class="progress-bar ${isOverdue ? 'bg-gradient-to-r from-red-500 to-red-600' : (tasksAreCompleted ? 'bg-gradient-to-r from-green-500 to-emerald-600' : 'bg-gradient-to-r from-blue-500 to-indigo-600')} h-1.5 rounded-full" style="width: ${totalPercentage}%"></div></div></div><svg class="w-5 h-5 text-gray-500 chevron ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg></div></div></div><div id="details-${index}" class="details-container mt-2 pt-3 border-t ${isOverdue ? 'border-red-300' : (tasksAreCompleted ? 'border-green-300' : 'border-gray-200')}">${divisionDetailsHTML}</div></div>`;
-            }).join('');
+            const newUser = {
+                type: determinedType,
+                nama: nama,
+                identifier: nip,
+                password: password,
+                jabatan: jabatan
+            };
+            users.push(newUser);
+        }
+        
+        showToast("Registrasi berhasil! Silakan login.");
+        document.getElementById('register-mahasiswa-form').reset();
+        document.getElementById('register-dosen-pegawai-form').reset();
+        showScreen('login-screen');
+    }
+
+    // Fungsi Login
+    function login(type) {
+        if (type === 'user') {
+            const userType = document.querySelector('input[name="login_user_type"]:checked').value;
+            const identifier = document.getElementById('login-identifier').value;
+            const password = document.getElementById('login-password-user').value;
+            
+            const foundUser = users.find(u => u.type === userType && u.identifier === identifier && u.password === password);
+            if (foundUser) {
+                currentUser = foundUser;
+                updateUserDashboard();
+                showScreen('user-dashboard-screen');
+            } else {
+                showToast("NIM/NIP atau Password salah.");
+            }
+        } else { // Admin
+            const id = document.getElementById('login-admin-id').value;
+            const pass = document.getElementById('login-password-admin').value;
+            const foundAdmin = users.find(u => u.type === 'admin' && u.id === id && u.password === pass);
+            if(foundAdmin) {
+                currentUser = foundAdmin;
+                updateAdminDashboard();
+                showScreen('admin-dashboard-screen');
+            } else {
+                showToast("ID Admin atau Password salah.");
+            }
+        }
+    }
+    
+    // Fungsi Logout
+    function logout() {
+        currentUser = null;
+        document.getElementById('login-user-form').reset();
+        document.getElementById('login-admin-form').reset();
+        showScreen('login-screen');
+    }
+
+    // Fungsi Update Tampilan (Rendering)
+    function updateUserDashboard() {
+        document.getElementById('user-info-name').textContent = `Selamat Datang, ${currentUser.nama}!`;
+        let detail = '';
+        if (currentUser.type === 'mahasiswa') detail = `Mahasiswa - ${currentUser.prodi} ${currentUser.angkatan}`;
+        else if (currentUser.type === 'dosen') detail = `${currentUser.jabatan} - NIP: ${currentUser.identifier}`;
+        else detail = `${currentUser.jabatan} - NIP: ${currentUser.identifier}`;
+        document.getElementById('user-info-detail').textContent = detail;
+        renderPeminjamanTerkini();
+        renderRiwayatPeminjaman();
+    }
+    
+    function updateAdminDashboard() {
+        renderAdminPeminjamanAktif();
+    }
+
+    function renderPeminjamanTerkini() {
+        const listContainer = document.getElementById('peminjaman-terkini-list');
+        listContainer.innerHTML = '';
+        const pinjamanAktif = peminjaman.filter(p => p.userId === currentUser.identifier && p.status === 'Dipinjam');
+        
+        if (pinjamanAktif.length === 0) {
+            listContainer.innerHTML = '<p class="text-gray-500 text-center">Tidak ada peminjaman aktif.</p>';
+            return;
         }
 
-
-        function toggleEventDetails(a,b){const c=document.getElementById(a);b.classList.toggle("open");c.classList.toggle("open")}
-        function renderRecentActivities(){const a=document.getElementById("recentActivities"),b=tasks.filter(d=>"completed"===d.status&&d.completedDate).sort((d,e)=>new Date(e.completedDate)-new Date(d.completedDate)).slice(0,5);a.innerHTML=0===b.length?'<div class="text-center text-gray-500 p-4">Belum ada aktivitas.</div>':b.map(d=>`<div class="flex items-center p-3 bg-green-50 rounded-lg border border-green-200"><div class="bg-green-500 text-white p-2 rounded-full mr-3"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></div><div class="flex-1"><p class="text-sm text-blue-600 font-semibold">${d.eventName}</p><p class="font-medium text-gray-900">${d.name}</p><p class="text-sm text-gray-600">Divisi ${d.division} \u2022 ${formatDate(d.completedDate)}</p></div></div>`).join("")}
-
-        // --- EVENT & TASK CREATION ---
-        function openEventModal(){renderEventTaskForm();document.getElementById("eventModal").classList.remove("hidden");document.getElementById("eventModal").classList.add("flex")}
-        function closeEventModal(){document.getElementById("eventModal").classList.add("hidden");document.getElementById("eventModal").classList.remove("flex");document.getElementById("addEventForm").reset()}
-        
-        function renderEventTaskForm() {
-            const container = document.getElementById('divisionTaskContainer');
-            container.innerHTML = divisions.map(div => `
-                <div class="bg-gray-50 p-4 rounded-lg border">
-                    <h3 class="font-bold text-lg text-gray-800">${div.name}</h3>
-                    <div class="mt-3 space-y-3" id="tasks-for-${div.id}">
-                        <div class="task-entry space-y-2">
-                           <input type="text" class="event-task-input w-full border border-gray-300 rounded-lg px-3 py-2" placeholder="Ketik tugas untuk ${div.name}..." required>
-                           <input type="date" class="event-task-deadline w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-600" required>
+        pinjamanAktif.forEach(p => {
+            const alatInfo = alat.find(a => a.id === p.alatId);
+            listContainer.innerHTML += `
+                <div class="bg-white p-4 rounded-lg border border-gray-200">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-bold text-primary">${alatInfo.nama}</h3>
+                            <p class="text-sm text-gray-500">Batas Kembali: ${new Date(p.batasKembali).toLocaleString('id-ID')}</p>
                         </div>
+                        <span class="text-xs font-semibold bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Dipinjam</span>
                     </div>
-                    <button type="button" onclick="addEventTaskInput(${div.id})" class="mt-3 text-sm font-medium text-blue-600 hover:text-blue-800">+ Tambah Tugas</button>
+                    <button class="w-full mt-4 btn-secondary font-bold py-2 px-4 rounded-md text-sm" onclick="openKembalikanModal(${p.id})">
+                        Kembalikan Alat
+                    </button>
                 </div>
-            `).join('');
-        }
-
-        function addEventTaskInput(divisionId) {
-            const container = document.getElementById(`tasks-for-${divisionId}`);
-            const div = document.createElement('div');
-            div.className = 'task-entry space-y-2 mt-2 pt-2 border-t';
-            div.innerHTML = `
-                <div class="flex items-center space-x-2">
-                    <input type="text" class="event-task-input flex-1 border border-gray-300 rounded-lg px-3 py-2" placeholder="Ketik tugas lainnya..." required>
-                    <button type="button" onclick="this.parentElement.parentElement.remove()" class="text-red-500 hover:text-red-700 p-1">&times;</button>
-                </div>
-                <input type="date" class="event-task-deadline w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-600" required>
             `;
-            container.appendChild(div);
+        });
+    }
+    
+    function renderRiwayatPeminjaman() {
+        const listContainer = document.getElementById('riwayat-peminjaman-list');
+        listContainer.innerHTML = '';
+        const pinjamanSelesai = peminjaman.filter(p => p.userId === currentUser.identifier && p.status === 'Selesai');
+
+        if (pinjamanSelesai.length === 0) {
+            listContainer.innerHTML = '<p class="text-gray-500 text-center">Belum ada riwayat peminjaman.</p>';
+            return;
         }
 
-        function addNewEventTasks(e) {
-            e.preventDefault();
-            const eventName = document.getElementById('eventName').value;
-            const eventDate = document.getElementById('eventDate').value;
-            let tasksAdded = 0;
+        pinjamanSelesai.forEach(p => {
+            const alatInfo = alat.find(a => a.id === p.alatId);
+            listContainer.innerHTML += `
+                <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 opacity-70">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="font-semibold text-gray-700">${alatInfo.nama}</h3>
+                            <p class="text-xs text-gray-500">Dikembalikan pada ${new Date(p.waktuKembali).toLocaleDateString('id-ID')}</p>
+                        </div>
+                        <span class="text-xs font-semibold bg-green-100 text-green-800 px-2 py-1 rounded-full">Selesai</span>
+                    </div>
+                </div>
+            `;
+        });
+    }
 
-            divisions.forEach(div => {
-                const container = document.getElementById(`tasks-for-${div.id}`);
-                const entries = container.querySelectorAll('.task-entry');
-                entries.forEach(entry => {
-                    const taskName = entry.querySelector('.event-task-input').value.trim();
-                    const deadline = entry.querySelector('.event-task-deadline').value;
-                    if (taskName && deadline) {
-                        const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
-                        tasks.push({ id: newId, eventName, eventDate, name: taskName, division: div.name, status: 'in-progress', assignedDate: new Date().toISOString().split('T')[0], deadline, photo: false, photoUrl: null });
-                        tasksAdded++;
-                    }
-                });
-            });
+    function renderDaftarAlatUser() {
+        const listContainer = document.getElementById('user-daftar-alat-list');
+        listContainer.innerHTML = '';
+        alat.forEach(a => {
+            const statusClass = a.tersedia > 0 ? 'text-green-600' : 'text-red-600';
+            listContainer.innerHTML += `
+                <li class="p-3 bg-gray-50 rounded-md flex justify-between items-center">
+                    <span>${a.nama}</span> 
+                    <span class="font-semibold ${statusClass}">Tersedia: ${a.tersedia}</span>
+                </li>`;
+        });
+    }
 
-            if (tasksAdded > 0) {
-                showNotification(`${tasksAdded} tugas untuk event "${eventName}" berhasil ditambahkan!`, 'success');
-                updateAllPimpinanDashboards();
-                closeEventModal();
-            } else { showNotification('Tidak ada tugas yang ditambahkan. Mohon isi nama tugas dan deadline.', 'error'); }
+    function renderAdminPeminjamanAktif() {
+        const listContainer = document.getElementById('admin-peminjaman-aktif-list');
+        listContainer.innerHTML = '';
+        const pinjamanAktif = peminjaman.filter(p => p.status === 'Dipinjam');
+
+        if (pinjamanAktif.length === 0) {
+            listContainer.innerHTML = '<p class="text-gray-500 text-center">Tidak ada peminjaman aktif saat ini.</p>';
+            return;
         }
 
-        // --- DIVISI: TASK LIST RENDERING ---
-        function renderTaskList(a){const b=tasks.filter(d=>d.division===a),c=document.getElementById("taskList");c.innerHTML=0===b.length?'<div class="text-center text-gray-500 p-10">Belum ada tugas untuk divisi ini.</div>':b.map(d=>`<div class="task-card border border-gray-200 rounded-lg p-4 ${"completed"===d.status?"bg-green-50 border-green-200":"bg-white"}"><div class="flex items-center justify-between"><div class="flex-1"> ${d.eventName?`<span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-blue-600 bg-blue-200 last:mr-0 mr-1">${d.eventName}</span>`:""}<h4 class="font-semibold text-gray-900 mt-2 ${"completed"===d.status?"line-through text-gray-600":""}">${d.name}</h4><p class="text-sm text-gray-600 mt-1">Ditugaskan: ${formatDate(d.assignedDate)}</p>${d.deadline?`<p class="text-sm text-red-600 mt-1 flex items-center">🚨 <span class="ml-1 countdown" data-deadline="${d.deadline}"></span></p>`:""}${"completed"===d.status&&d.completedDate?`<p class="text-sm text-green-600 mt-1">\u2705 Selesai: ${formatDate(d.completedDate)}</p>`:""}</div><div class="flex items-center space-x-3">${"completed"===d.status?'<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">\u2705 Selesai</span>':`<button onclick="completeTask(${d.id})" class="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-green-800 transition-all text-sm font-medium">\uD83D\uDCF8 Selesaikan Tugas</button>`}</div></div></div>`).join("");updateAllCountdowns();const d=b.filter(e=>"completed"===e.status).length;document.getElementById("divisionCompletedTasks").textContent=`${d}/${b.length}`}
-        
-        // --- HELPER FUNCTIONS ---
-        function completeTask(a){currentTaskId=a;document.getElementById("photoModal").classList.add("flex");document.getElementById("photoModal").classList.remove("hidden")}
-        function closePhotoModal(){document.getElementById("photoModal").classList.add("hidden");document.getElementById("photoModal").classList.remove("flex");document.getElementById("photoInput").value="";document.getElementById("photoDescription").value="";currentTaskId=null}
-        function submitPhoto(){if(!document.getElementById("photoInput").files.length){showNotification("Mohon upload foto bukti penyelesaian!","error");return}const a=tasks.find(b=>b.id===currentTaskId);a&&(a.status="completed",a.completedDate=(new Date).toISOString().split("T")[0],a.photo=!0,a.photoUrl="https://placehold.co/600x400/CCCCCC/333333?text=Bukti+Upload");updateAllPimpinanDashboards();if(loggedInUser.role==='divisi')renderTaskList(loggedInUser.name);closePhotoModal();showNotification("Tugas berhasil diselesaikan!","success")}
-        function showNotification(b,c="success"){const a=document.getElementById("notification"),d=document.getElementById("notificationText");d.textContent=b;a.className=`fixed top-4 right-4 text-white px-6 py-3 rounded-lg shadow-lg notification ${"error"===c?"bg-red-500":"bg-green-500"}`;a.classList.remove("hidden");setTimeout(()=>a.classList.add("hidden"),3E3)}
-        function formatDate(a){return a?new Date(a).toLocaleDateString("id-ID",{year:"numeric",month:"long",day:"numeric"}):""}
-        
-        function showProgressDetail(eventName, divisionName) {
-            const modal = document.getElementById('progressDetailModal'), title = document.getElementById('progressDetailTitle'), content = document.getElementById('progressDetailContent');
-            const eventTasks = tasks.filter(t => t.eventName === eventName && t.division === divisionName);
-            const completed = eventTasks.filter(t => t.status === 'completed' && t.photoUrl);
-            const inProgress = eventTasks.filter(t => t.status === 'in-progress');
+        pinjamanAktif.forEach(p => {
+            const userInfo = users.find(u => u.identifier === p.userId);
+            const alatInfo = alat.find(a => a.id === p.alatId);
+            listContainer.innerHTML += `
+                <div class="bg-white p-4 rounded-lg border border-yellow-400 border-2">
+                     <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-bold text-primary">${userInfo.nama} (${userInfo.type})</h3>
+                            <p class="text-sm text-gray-600">Alat: ${alatInfo.nama}</p>
+                            <p class="text-xs text-gray-500">Batas Kembali: ${new Date(p.batasKembali).toLocaleString('id-ID')}</p>
+                        </div>
+                        <span class="text-xs font-semibold bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Dipinjam</span>
+                    </div>
+                </div>
+            `;
+        });
+    }
 
-            title.textContent = `Detail Progres: ${eventName} (${divisionName})`;
-            let contentHTML = '';
-
-            if (inProgress.length > 0) {
-                contentHTML += '<h4 class="font-semibold text-lg text-gray-800 mb-3">Tugas Dalam Proses</h4><div class="space-y-4">';
-                inProgress.forEach(task => {
-                    const deadlineDate = new Date(task.deadline + 'T23:59:59');
-                    const timeDiff = deadlineDate.getTime() - new Date().getTime();
-                    const isApproaching = timeDiff > 0 && timeDiff < 3 * 24 * 60 * 60 * 1000;
-                    contentHTML += `<div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg"><div class="flex justify-between items-start"><div class="flex-1"><p class="font-semibold text-gray-900">${task.name}</p><p class="text-sm text-red-600 font-bold mt-1 countdown" data-deadline="${task.deadline}"></p></div>${isApproaching ? `<button onclick="sendReminder('${divisionName}')" class="ml-4 text-sm bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600">Kirim Notifikasi</button>` : ''}</div></div>`;
-                });
-                contentHTML += '</div>';
+    function renderKelolaAlatAdmin() {
+        const listContainer = document.getElementById('admin-kelola-alat-list');
+        listContainer.innerHTML = '';
+        alat.forEach(a => {
+            listContainer.innerHTML += `
+                <div class="p-3 bg-gray-50 rounded-md flex justify-between items-center">
+                    <div>
+                        <p class="font-semibold">${a.nama}</p>
+                        <p class="text-xs text-gray-500">Jumlah: ${a.jumlah} | Tersedia: ${a.tersedia}</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button class="text-blue-600 hover:text-blue-800" onclick="openEditAlatModal(${a.id})">Edit</button>
+                        <button class="text-red-600 hover:text-red-800" onclick="hapusAlat(${a.id})">Hapus</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    function renderAdminRiwayat() {
+        const listContainer = document.getElementById('admin-riwayat-list');
+        listContainer.innerHTML = '';
+        [...peminjaman].reverse().forEach(p => {
+            const userInfo = users.find(u => u.identifier === p.userId);
+            const alatInfo = alat.find(a => a.id === p.alatId);
+            const statusClass = p.status === 'Selesai' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800';
+            const waktu = p.status === 'Selesai' 
+                ? `${new Date(p.waktuPinjam).toLocaleString('id-ID')} - ${new Date(p.waktuKembali).toLocaleString('id-ID')}`
+                : `${new Date(p.waktuPinjam).toLocaleString('id-ID')} - Belum Kembali`;
+            
+            let detailHTML = '';
+            if (p.detail && p.detail.keperluan === 'Mata Kuliah') {
+                detailHTML = `
+                    <div class="text-xs bg-gray-100 p-2 mt-2 rounded border">
+                        <p><span class="font-semibold">Keperluan:</span> ${p.detail.keperluan}</p>
+                        <p><span class="font-semibold">Matkul:</span> ${p.detail.matkul} (${p.detail.kelas})</p>
+                        <p><span class="font-semibold">Dosen:</span> ${p.detail.dosen}</p>
+                    </div>
+                `;
+            } else if (p.detail && p.detail.keperluan === 'Mengajar') {
+                detailHTML = `
+                    <div class="text-xs bg-gray-100 p-2 mt-2 rounded border">
+                        <p><span class="font-semibold">Keperluan:</span> ${p.detail.keperluan}</p>
+                        <p><span class="font-semibold">Matkul:</span> ${p.detail.matkul}</p>
+                        <p><span class="font-semibold">Kelas:</span> ${p.detail.kelas}</p>
+                    </div>
+                `;
+            } else if (p.detail && p.detail.keperluan === 'Kegiatan Kampus') {
+                detailHTML = `
+                    <div class="text-xs bg-gray-100 p-2 mt-2 rounded border">
+                        <p><span class="font-semibold">Keperluan:</span> ${p.detail.keperluan}</p>
+                        <p><span class="font-semibold">Kegiatan:</span> ${p.detail.kegiatan}</p>
+                        <p><span class="font-semibold">Lokasi:</span> ${p.detail.lokasi}</p>
+                    </div>
+                `;
+            } else if (p.detail) {
+                detailHTML = `<p class="text-xs mt-2"><span class="font-semibold">Keperluan:</span> ${p.detail.keperluan}</p>`;
             }
-            if (completed.length > 0) {
-                contentHTML += '<h4 class="font-semibold text-lg text-gray-800 mb-3 mt-6 pt-6 border-t">Tugas Selesai</h4><div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
-                completed.forEach(task => { contentHTML += `<div class="border rounded-lg overflow-hidden bg-white shadow-sm"><img src="${task.photoUrl}" alt="Bukti foto untuk ${task.name}" class="w-full h-40 object-cover"><div class="p-3"><h5 class="font-semibold text-gray-800">${task.name}</h5><p class="text-xs text-green-600 mt-1">✓ Selesai pada: ${formatDate(task.completedDate)}</p></div></div>`; });
-                contentHTML += '</div>';
-            }
-            content.innerHTML = contentHTML || '<div class="text-center text-gray-500 p-10">Tidak ada tugas untuk divisi ini pada event ini.</div>';
-            modal.classList.remove('hidden'); modal.classList.add('flex');
-            updateAllCountdowns();
+
+
+            listContainer.innerHTML += `
+                <div class="bg-gray-50 p-4 rounded-lg border">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="font-bold text-primary">${userInfo.nama} (${userInfo.type})</p>
+                            <p class="text-sm text-gray-600">${userInfo.type === 'mahasiswa' ? 'NIM' : 'NIP'}: ${userInfo.identifier}</p>
+                        </div>
+                        <span class="text-xs font-semibold ${statusClass} px-2 py-1 rounded-full">${p.status}</span>
+                    </div>
+                    <div class="text-sm space-y-1 text-gray-700">
+                        <p><span class="font-semibold">Alat:</span> ${alatInfo.nama}</p>
+                        ${detailHTML}
+                        <p class="text-xs text-gray-500 mt-2">
+                            <span class="font-semibold">Waktu:</span> ${waktu}
+                        </p>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+
+    // Fungsi Aksi (CRUD)
+    function ajukanPeminjaman() {
+        const alatId = parseInt(document.getElementById('pinjam-jenis-alat').value);
+        const waktuPinjam = document.getElementById('pinjam-waktu-pinjam').value;
+        const batasKembali = document.getElementById('pinjam-waktu-kembali').value;
+
+        if (!alatId || !waktuPinjam || !batasKembali) {
+            showToast("Harap lengkapi semua data peminjaman.");
+            return;
         }
-        function sendReminder(divisionName){ showNotification(`Pemberitahuan tenggat waktu terkirim ke Divisi ${divisionName}!`, 'success');}
-        function closeProgressDetailModal(){const a=document.getElementById("progressDetailModal");a.classList.add("hidden");a.classList.remove("flex")};
 
-        // --- COUNTDOWN TIMER LOGIC ---
-        function startCountdownTimers(){if(countdownInterval)clearInterval(countdownInterval);countdownInterval=setInterval(updateAllCountdowns,1E3)}
-        function updateAllCountdowns() {
-            document.querySelectorAll('.countdown').forEach(el => {
-                const deadline = el.dataset.deadline;
-                if (!deadline) return;
+        const targetAlat = alat.find(a => a.id === alatId);
+        if (targetAlat.tersedia <= 0) {
+            showToast("Maaf, alat ini tidak tersedia saat ini.");
+            return;
+        }
 
-                const deadlineTime = new Date(deadline + 'T23:59:59').getTime();
-                const now = new Date().getTime();
-                const distance = deadlineTime - now;
-
-                if (distance < 0) {
-                    el.innerHTML = "Waktu Habis";
-                    el.classList.add('text-red-700');
+        let keperluanDetail = {};
+        if (currentUser.type === 'mahasiswa') {
+            const keperluan = document.getElementById('pinjam-keperluan-mhs').value;
+            if (keperluan === 'matakuliah') {
+                const matkul = document.getElementById('pinjam-matkul').value;
+                const dosen = document.getElementById('pinjam-dosen').value;
+                const kelas = document.getElementById('pinjam-kelas').value;
+                if (!matkul || !dosen || !kelas) {
+                    showToast("Harap lengkapi detail mata kuliah.");
                     return;
                 }
-
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                
-                el.innerHTML = `${days}h ${hours}j ${minutes}m ${seconds}d`;
-            });
+                keperluanDetail = { keperluan: 'Mata Kuliah', matkul, dosen, kelas };
+            } else if (keperluan === 'lainnya') {
+                keperluanDetail = { keperluan: 'Lainnya' };
+            } else {
+                 showToast("Harap pilih keperluan peminjaman.");
+                return;
+            }
+        } else if (currentUser.type === 'dosen') {
+            const keperluan = document.getElementById('pinjam-keperluan-dosen').value;
+            if (keperluan === 'mengajar') {
+                const matkul = document.getElementById('pinjam-matkul-dosen').value;
+                const kelas = document.getElementById('pinjam-kelas-dosen').value;
+                if (!matkul || !kelas) {
+                    showToast("Harap lengkapi detail mengajar.");
+                    return;
+                }
+                keperluanDetail = { keperluan: 'Mengajar', matkul, kelas };
+            } else if (keperluan === 'lainnya') {
+                keperluanDetail = { keperluan: 'Lainnya' };
+            } else {
+                showToast("Harap pilih keperluan peminjaman.");
+                return;
+            }
+        } else if (currentUser.type === 'pegawai') {
+            const keperluan = document.getElementById('pinjam-keperluan-pegawai').value;
+            if (keperluan === 'kegiatan') {
+                const kegiatan = document.getElementById('pinjam-kegiatan').value;
+                const lokasi = document.getElementById('pinjam-lokasi').value;
+                if (!kegiatan || !lokasi) {
+                    showToast("Harap lengkapi detail kegiatan.");
+                    return;
+                }
+                keperluanDetail = { keperluan: 'Kegiatan Kampus', kegiatan, lokasi };
+            } else if (keperluan === 'lainnya') {
+                keperluanDetail = { keperluan: 'Lainnya' };
+            } else {
+                showToast("Harap pilih keperluan peminjaman.");
+                return;
+            }
         }
-    </script>
-</body>
-</html>
 
+        peminjaman.push({
+            id: nextPeminjamanId++,
+            userId: currentUser.identifier,
+            alatId: alatId,
+            waktuPinjam: waktuPinjam,
+            batasKembali: batasKembali,
+            detail: keperluanDetail,
+            status: 'Dipinjam',
+        });
+
+        targetAlat.tersedia--;
+
+        closeModal('peminjaman-modal');
+        showToast("Peminjaman berhasil diajukan!");
+        updateUserDashboard();
+        updateAdminDashboard(); // Agar admin juga melihat peminjaman baru
+    }
+    
+    function openKembalikanModal(peminjamanId) {
+        document.getElementById('form-kembalikan').dataset.peminjamanId = peminjamanId;
+        showModal('kembalikan-modal');
+    }
+
+    function kembalikanAlat() {
+        const peminjamanId = parseInt(document.getElementById('form-kembalikan').dataset.peminjamanId);
+        const pinjaman = peminjaman.find(p => p.id === peminjamanId);
+        
+        if (pinjaman) {
+            pinjaman.status = 'Selesai';
+            pinjaman.waktuKembali = new Date().toISOString().slice(0, 16);
+            const targetAlat = alat.find(a => a.id === pinjaman.alatId);
+            targetAlat.tersedia++;
+        }
+
+        closeModal('kembalikan-modal');
+        showToast("Alat berhasil dikembalikan.");
+        updateUserDashboard();
+        updateAdminDashboard();
+    }
+    
+    function simpanAlatBaru() {
+        const nama = document.getElementById('input-nama-alat').value;
+        const jumlah = parseInt(document.getElementById('input-jumlah-alat').value);
+        const kelengkapan = document.getElementById('input-kelengkapan-alat').value;
+        const deskripsi = document.getElementById('input-deskripsi-alat').value;
+
+        const newAlat = {
+            id: alat.length > 0 ? Math.max(...alat.map(a => a.id)) + 1 : 1,
+            nama: nama,
+            jumlah: jumlah,
+            tersedia: jumlah,
+            kelengkapan: kelengkapan,
+            deskripsi: deskripsi
+        };
+        alat.push(newAlat);
+        
+        closeModal('input-alat-modal');
+        showToast("Alat baru berhasil disimpan.");
+        document.getElementById('form-input-alat').reset();
+    }
+    
+    function hapusAlat(alatId) {
+        if (confirm("Apakah Anda yakin ingin menghapus alat ini? Aksi ini tidak dapat dibatalkan.")) {
+            alat = alat.filter(a => a.id !== alatId);
+            showToast("Alat berhasil dihapus.");
+            renderKelolaAlatAdmin();
+        }
+    }
+    
+    function openEditAlatModal(alatId) {
+        const targetAlat = alat.find(a => a.id === alatId);
+        if (targetAlat) {
+            document.getElementById('edit-alat-id').value = targetAlat.id;
+            document.getElementById('edit-nama-alat').value = targetAlat.nama;
+            document.getElementById('edit-jumlah-alat').value = targetAlat.jumlah;
+            document.getElementById('edit-kelengkapan-alat').value = targetAlat.kelengkapan;
+            document.getElementById('edit-deskripsi-alat').value = targetAlat.deskripsi;
+            
+            closeModal('daftar-alat-admin-modal');
+            showModal('edit-alat-modal');
+        }
+    }
+
+    function simpanPerubahanAlat() {
+        const alatId = parseInt(document.getElementById('edit-alat-id').value);
+        const targetAlat = alat.find(a => a.id === alatId);
+
+        if (targetAlat) {
+            const jumlahLama = targetAlat.jumlah;
+            const jumlahBaru = parseInt(document.getElementById('edit-jumlah-alat').value);
+            const selisih = jumlahBaru - jumlahLama;
+
+            targetAlat.nama = document.getElementById('edit-nama-alat').value;
+            targetAlat.jumlah = jumlahBaru;
+            targetAlat.kelengkapan = document.getElementById('edit-kelengkapan-alat').value;
+            targetAlat.deskripsi = document.getElementById('edit-deskripsi-alat').value;
+            targetAlat.tersedia += selisih;
+        }
+        
+        closeModal('edit-alat-modal');
+        showToast("Data alat berhasil diperbarui.");
+    }
+
+
+    // ===================================================================
+    //                           HELPER FUNCTIONS
+    // ===================================================================
+    function switchLoginTab(tab) {
+        if (tab === 'user') {
+            document.getElementById('login-user-tab').classList.replace('tab-inactive', 'tab-active');
+            document.getElementById('login-admin-tab').classList.replace('tab-active', 'tab-inactive');
+            document.getElementById('login-user-form').classList.remove('hidden');
+            document.getElementById('login-admin-form').classList.add('hidden');
+        } else {
+            document.getElementById('login-user-tab').classList.replace('tab-active', 'tab-inactive');
+            document.getElementById('login-admin-tab').classList.replace('tab-inactive', 'tab-active');
+            document.getElementById('login-user-form').classList.add('hidden');
+            document.getElementById('login-admin-form').classList.remove('hidden');
+        }
+    }
+
+    function switchLoginFormIdentifier(type) {
+        const label = document.querySelector('#login-nim-input label');
+        const input = document.getElementById('login-identifier');
+        if (type === 'mahasiswa') {
+            label.textContent = 'NIM';
+            input.placeholder = 'Masukkan NIM';
+        } else {
+            label.textContent = 'NIP';
+            input.placeholder = 'Masukkan NIP';
+        }
+    }
+
+    function switchRegisterForm(type) {
+        if (type === 'mahasiswa') {
+            document.getElementById('register-mahasiswa-form').classList.remove('hidden');
+            document.getElementById('register-dosen-pegawai-form').classList.add('hidden');
+        } else {
+            document.getElementById('register-mahasiswa-form').classList.add('hidden');
+            document.getElementById('register-dosen-pegawai-form').classList.remove('hidden');
+        }
+    }
+    
+    function preparePeminjamanForm() {
+        document.getElementById('form-peminjaman').reset();
+        document.getElementById('peminjaman-form-mahasiswa').classList.add('hidden');
+        document.getElementById('peminjaman-form-dosen').classList.add('hidden');
+        document.getElementById('peminjaman-form-pegawai').classList.add('hidden');
+        document.getElementById('detail-matkul-form').classList.add('hidden');
+        document.getElementById('detail-mengajar-form').classList.add('hidden');
+        document.getElementById('detail-kegiatan-form').classList.add('hidden');
+
+
+        const selectAlat = document.getElementById('pinjam-jenis-alat');
+        selectAlat.innerHTML = '<option value="" disabled selected>Pilih alat...</option>';
+        alat.filter(a => a.tersedia > 0).forEach(a => {
+            selectAlat.innerHTML += `<option value="${a.id}">${a.nama}</option>`;
+        });
+
+        if (currentUser.type === 'mahasiswa') {
+            document.getElementById('peminjaman-form-mahasiswa').classList.remove('hidden');
+        } else if (currentUser.type === 'dosen') {
+             documen
