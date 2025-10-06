@@ -188,7 +188,7 @@
                          <span id="validation-badge" class="hidden absolute top-2 right-2 w-4 h-4 bg-red-500 text-white text-xs font-bold rounded-full"></span>
                     </a>
                     <a href="#" data-tab="history" class="admin-tab-link w-1/4 py-4 text-center font-medium text-sm text-gray-500 border-b-2 border-transparent">
-                         <i data-lucide="users" class="mx-auto w-5 h-5 mb-1"></i> Peminjam
+                         <i data-lucide="history" class="mx-auto w-5 h-5 mb-1"></i> Riwayat
                     </a>
                 </nav>
             </div>
@@ -238,9 +238,29 @@
 
                 <!-- Konten Riwayat Peminjam -->
                 <div id="adminContentHistory" class="admin-content-panel hidden">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Riwayat Peminjaman Real-time</h3>
-                    <div class="my-2">
-                        <input type="date" id="historyDateFilter" class="w-full p-2 border rounded-md">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Riwayat Peminjam</h3>
+                    <div class="grid grid-cols-2 gap-2 mb-4 text-sm">
+                        <select id="historyUserTypeFilter" class="w-full p-2 border rounded-md">
+                            <option value="">Semua User</option>
+                            <option value="mahasiswa">Mahasiswa</option>
+                            <option value="dosen">Dosen</option>
+                            <option value="pegawai">Pegawai</option>
+                        </select>
+                        <select id="historyStatusFilter" class="w-full p-2 border rounded-md">
+                            <option value="">Semua Status</option>
+                            <option value="dipinjam">Dipinjam</option>
+                            <option value="menunggu_validasi">Validasi</option>
+                            <option value="selesai">Selesai</option>
+                        </select>
+                        <div class="col-span-2">
+                             <input type="date" id="historyDateFilter" class="w-full p-2 border rounded-md">
+                        </div>
+                        <div class="col-span-2">
+                             <select id="historyItemFilter" class="w-full p-2 border rounded-md">
+                                <option value="">Semua Alat</option>
+                                <!-- Opsi akan diisi oleh JS -->
+                             </select>
+                        </div>
                     </div>
                     <div id="adminBorrowingHistory" class="space-y-3">
                         <!-- Riwayat Peminjaman akan dirender di sini -->
@@ -355,10 +375,10 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Inisialisasi Lucide Icons
-            lucide.createIcons();
+        // Inisialisasi Lucide Icons
+        lucide.createIcons();
 
+        document.addEventListener('DOMContentLoaded', () => {
             // ===== ELEMEN DOM =====
             const pages = {
                 splash: document.getElementById('splashPage'),
@@ -367,20 +387,6 @@
                 userHome: document.getElementById('userHomePage'),
                 adminDashboard: document.getElementById('adminDashboardPage')
             };
-            const goToLoginBtn = document.getElementById('goToLoginBtn');
-            const goToRegisterBtn = document.getElementById('goToRegisterBtn');
-            const backToSplashBtns = document.querySelectorAll('.back-to-splash-btn');
-            
-            const loginUserType = document.getElementById('loginUserType');
-            const registerUserType = document.getElementById('registerUserType');
-            const loginFormContainer = document.getElementById('loginFormContainer');
-            const registerFormContainer = document.getElementById('registerFormContainer');
-            const registerForm = document.getElementById('registerForm');
-
-            const notificationModal = document.getElementById('notificationModal');
-            const notificationCloseBtn = document.getElementById('notificationCloseBtn');
-            const confirmModal = document.getElementById('confirmModal');
-
             const borrowModal = document.getElementById('borrowModal');
             const closeBorrowModalBtn = document.getElementById('closeBorrowModalBtn');
             const borrowForm = document.getElementById('borrowForm');
@@ -389,9 +395,11 @@
             const closeReturnModalBtn = document.getElementById('closeReturnModalBtn');
             const returnForm = document.getElementById('returnForm');
             
-            const addItemForm = document.getElementById('addItemForm');
-            const adminDashboard = document.getElementById('adminDashboardPage');
             const historyDateFilter = document.getElementById('historyDateFilter');
+            const historyUserTypeFilter = document.getElementById('historyUserTypeFilter');
+            const historyStatusFilter = document.getElementById('historyStatusFilter');
+            const historyItemFilter = document.getElementById('historyItemFilter');
+
 
             // ===== STATE APLIKASI =====
             let currentUser = null;
@@ -404,11 +412,11 @@
                 Object.values(pages).forEach(page => page.classList.add('hidden'));
                 if (pages[pageName]) {
                     pages[pageName].classList.remove('hidden');
-                    pages[pageName].classList.add('animate-fade-in');
                 }
             };
             
             const showNotification = (title, message, isSuccess = true) => {
+                const notificationModal = document.getElementById('notificationModal');
                 document.getElementById('notificationTitle').textContent = title;
                 document.getElementById('notificationMessage').textContent = message;
                 document.getElementById('notificationIcon').innerHTML = isSuccess
@@ -419,6 +427,7 @@
             };
 
             const showConfirm = (title, message, onConfirm) => {
+                const confirmModal = document.getElementById('confirmModal');
                 const confirmBtn = document.getElementById('confirmBtn');
                 document.getElementById('confirmTitle').textContent = title;
                 document.getElementById('confirmMessage').textContent = message;
@@ -531,9 +540,9 @@
                 saveData();
                 showNotification('Registrasi Berhasil', 'Akun Anda telah dibuat. Silakan login.');
                 showPage('login');
-                e.target.closest('form').reset();
-                registerFormContainer.innerHTML = '';
-                registerForm.classList.add('hidden');
+                 e.target.closest('form').reset();
+                 document.getElementById('registerFormContainer').innerHTML = '';
+                 document.getElementById('registerForm').classList.add('hidden');
             };
             
             const logout = () => {
@@ -593,6 +602,7 @@
             };
 
             const renderLoginForm = (type) => {
+                const container = document.getElementById('loginFormContainer');
                 let formHTML = '';
                 if (type === 'mahasiswa') {
                     formHTML = `<label class="block text-sm font-medium text-gray-700 mb-1">NIM</label><input type="text" name="loginIdentifier" required class="w-full p-3 border border-gray-300 rounded-lg">`;
@@ -603,7 +613,7 @@
                 }
                 
                 if (formHTML) {
-                    loginFormContainer.innerHTML = `
+                    container.innerHTML = `
                     <form id="loginDynamicForm" class="animate-fade-in">
                         <div class="mb-4">${formHTML}</div>
                         <div class="mb-6">
@@ -614,11 +624,13 @@
                     </form>`;
                     document.getElementById('loginDynamicForm').addEventListener('submit', handleLogin);
                 } else {
-                    loginFormContainer.innerHTML = '';
+                    container.innerHTML = '';
                 }
             };
             
             const renderRegisterForm = (type) => {
+                const container = document.getElementById('registerFormContainer');
+                const form = document.getElementById('registerForm');
                 let formHTML = '';
                  if (type === 'mahasiswa') {
                     formHTML = `
@@ -640,12 +652,12 @@
                 }
 
                 if(formHTML){
-                    registerFormContainer.innerHTML = formHTML;
-                    registerForm.classList.remove('hidden');
-                    registerForm.classList.add('animate-fade-in');
+                    container.innerHTML = formHTML;
+                    form.classList.remove('hidden');
+                    form.classList.add('animate-fade-in');
                 } else {
-                    registerForm.classList.add('hidden');
-                    registerFormContainer.innerHTML = '';
+                    form.classList.add('hidden');
+                    container.innerHTML = '';
                 }
             };
             
@@ -666,7 +678,7 @@
                 
                 userPageContent.innerHTML = content;
                 lucide.createIcons();
-                // Event listener sudah di-handle oleh event delegation di attachEventListeners
+                attachUserPageEventListeners();
             };
 
             const renderUserHomePage = () => {
@@ -994,6 +1006,16 @@
                 else if (page === 'validation') renderAdminValidationList();
             };
             
+            const populateItemFilter = () => {
+                historyItemFilter.innerHTML = '<option value="">Semua Alat</option>';
+                items.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.name;
+                    historyItemFilter.appendChild(option);
+                });
+            };
+
             const renderAdminItemList = () => {
                 const itemListDiv = document.getElementById('adminItemList');
                 itemListDiv.innerHTML = items.length > 0 ? items.map(item => `
@@ -1039,172 +1061,23 @@
                 lucide.createIcons();
             };
             
-            const renderAdminBorrowingHistory = (filterDate = null) => {
+            const renderAdminBorrowingHistory = () => {
                 const historyDiv = document.getElementById('adminBorrowingHistory');
-                let filteredBorrowings = [...borrowings].sort((a,b) => new Date(b.borrowDate) - new Date(a.borrowDate));
                 
-                if (filterDate) {
-                    filteredBorrowings = filteredBorrowings.filter(b => new Date(b.borrowDate).toISOString().slice(0,10) === filterDate);
-                }
-                
-                if (filteredBorrowings.length === 0) {
-                    historyDiv.innerHTML = '<p class="text-center text-gray-500">Tidak ada riwayat peminjaman.</p>';
-                    return;
-                }
+                const userTypeFilter = historyUserTypeFilter.value;
+                const statusFilter = historyStatusFilter.value;
+                const itemFilter = historyItemFilter.value;
+                const dateFilter = historyDateFilter.value;
 
-                historyDiv.innerHTML = filteredBorrowings.map(b => {
-                    const item = items.find(i => i.id === b.itemId);
-                    const user = users.find(u => u.id === b.userId);
-                    
-                    let statusText, statusClass;
-                    switch(b.status) {
-                        case 'dipinjam': statusText = 'Dipinjam'; statusClass = 'bg-yellow-100 text-yellow-800'; break;
-                        case 'menunggu_validasi': statusText = 'Validasi'; statusClass = 'bg-blue-100 text-blue-800'; break;
-                        case 'selesai': statusText = 'Selesai'; statusClass = 'bg-green-100 text-green-800'; break;
-                        default: statusText = 'N/A'; statusClass = 'bg-gray-100 text-gray-800';
-                    }
-
-                    let userDetail = '';
-                    if (user) {
-                        if(user.type === 'mahasiswa') {
-                             userDetail = `<p class="text-xs"><b>Peminjam:</b> ${user.name} (${user.nim})</p><p class="text-xs"><b>Detail:</b> ${b.purposeType === 'kuliah' ? `MK ${b.course}` : b.description}</p>`;
-                        } else if (user.type === 'dosen') {
-                            userDetail = `<p class="text-xs"><b>Peminjam:</b> ${user.name} (${user.nip})</p><p class="text-xs"><b>Detail:</b> ${b.purposeType === 'mengajar' ? `MK ${b.course}` : b.description}</p>`;
-                        } else if (user.type === 'pegawai') {
-                            userDetail = `<p class="text-xs"><b>Peminjam:</b> ${user.name} (${user.nip})</p><p class="text-xs"><b>Detail:</b> ${b.activity || '-'}</p>`;
-                        }
-                    }
-                    
-                    return `
-                        <div class="bg-white p-3 rounded-lg shadow-sm border space-y-1">
-                            <div class="flex justify-between items-start">
-                                <p class="font-semibold">${item.name}</p>
-                                <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${statusText}</span>
-                            </div>
-                            ${userDetail}
-                            <p class="text-xs text-gray-500">Dipinjam: ${new Date(b.borrowDate).toLocaleString('id-ID')}</p>
-                        </div>`;
-                }).join('');
-            };
-            
-            // ===== EVENT LISTENERS =====
-            const attachEventListeners = () => {
-                // Navigasi awal
-                goToLoginBtn.addEventListener('click', () => showPage('login'));
-                goToRegisterBtn.addEventListener('click', () => showPage('register'));
-                backToSplashBtns.forEach(btn => {
-                    btn.addEventListener('click', () => {
-                         // Reset form saat kembali
-                        loginFormContainer.innerHTML = '';
-                        loginUserType.value = '';
-                        registerFormContainer.innerHTML = '';
-                        registerUserType.value = '';
-                        registerForm.classList.add('hidden');
-                        showPage('splash');
-                    });
-                });
-
-                // Render form dinamis
-                loginUserType.addEventListener('change', (e) => renderLoginForm(e.target.value));
-                registerUserType.addEventListener('change', (e) => renderRegisterForm(e.target.value));
-
-                // Submit Form
-                registerForm.addEventListener('submit', handleRegister);
-                borrowForm.addEventListener('submit', handleBorrowSubmit);
-                returnForm.addEventListener('submit', handleReturnSubmit);
-                addItemForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    const newItem = {
-                        id: Date.now(),
-                        name: document.getElementById('itemName').value,
-                        total: parseInt(document.getElementById('itemTotal').value),
-                        available: parseInt(document.getElementById('itemTotal').value),
-                        completeness: document.getElementById('itemCompleteness').value,
-                        description: document.getElementById('itemDescription').value
-                    };
-                    items.push(newItem);
-                    saveData();
-                    showNotification('Berhasil', 'Alat baru telah ditambahkan.');
-                    addItemForm.reset();
-                });
-                
-                // Modal
-                notificationCloseBtn.addEventListener('click', () => notificationModal.classList.add('hidden'));
-                closeBorrowModalBtn.addEventListener('click', () => borrowModal.classList.add('hidden'));
-                closeReturnModalBtn.addEventListener('click', () => returnModal.classList.add('hidden'));
-
-                // Event Delegation untuk konten dinamis Halaman Pengguna
-                pages.userHome.addEventListener('click', (e) => {
-                    const target = e.target;
-                    const navLink = target.closest('.user-nav-link');
-                    const actionButton = target.closest('button');
-
-                    if (navLink) {
-                        e.preventDefault();
-                        renderUserPage(navLink.dataset.page);
-                    } else if (actionButton) {
-                        if (actionButton.matches('.nav-button-action')) {
-                            renderUserPage(actionButton.dataset.page);
-                        } else if (actionButton.matches('.borrow-btn')) {
-                            handleBorrow(actionButton.dataset.itemId);
-                        } else if (actionButton.matches('.return-item-btn')) {
-                            showReturnForm(actionButton.dataset.borrowId);
-                        } else if (actionButton.id === 'userLogoutBtn') {
-                            logout();
-                        }
-                    }
-                });
-                
-                // Event Delegation untuk konten dinamis Halaman Admin
-                adminDashboard.addEventListener('click', (e) => {
-                    const target = e.target;
-                    const tabLink = target.closest('.admin-tab-link');
-                    const actionButton = target.closest('button');
-
-                    if (tabLink) {
-                        e.preventDefault();
-                        renderAdminPage(tabLink.dataset.tab);
-                    } else if (actionButton) {
-                        if (actionButton.id === 'adminLogoutBtn') {
-                            logout();
-                        } else if (actionButton.matches('.delete-item-btn')) {
-                            const itemId = parseInt(actionButton.dataset.itemId);
-                            showConfirm('Hapus Alat?', 'Apakah Anda yakin ingin menghapus data alat ini? Tindakan ini tidak bisa dibatalkan.', () => {
-                                items = items.filter(i => i.id !== itemId);
-                                saveData();
-                                renderAdminItemList();
-                            });
-                        } else if (actionButton.matches('.validate-return-btn')) {
-                            const borrowId = parseInt(actionButton.dataset.borrowId);
-                            const borrowing = borrowings.find(b => b.id === borrowId);
-                            const item = items.find(i => i.id === borrowing.itemId);
-                            if (borrowing) {
-                                borrowing.status = 'selesai';
-                                borrowing.adminValidationDate = new Date().toISOString();
-                                if (borrowing.returnCondition !== 'Hilang') {
-                                    item.available++;
-                                }
-                                saveData();
-                                renderAdminValidationList();
-                                renderAdminPage('validation');
-                            }
-                        }
-                    }
-                });
-
-                historyDateFilter.addEventListener('change', (e) => renderAdminBorrowingHistory(e.target.value));
-            };
-
-            // ===== INISIALISASI APLIKASI =====
-            const initializeApp = () => {
-                loadData();
-                attachEventListeners();
-                checkSession();
-            };
-
-            initializeApp();
-        });
-    </script>
-</body>
-</html>
-
+                let filteredBorrowings = [...borrowings]
+                    .filter(b => {
+                        if (!statusFilter) return true;
+                        return b.status === statusFilter;
+                    })
+                    .filter(b => {
+                        if (!itemFilter) return true;
+                        return b.itemId == itemFilter;
+                    })
+                    .filter(b => {
+                        if (!dateFilter) return true;
+                        return new Date(b.borrowDate).
